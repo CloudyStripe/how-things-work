@@ -32,12 +32,12 @@ npm run dev                       # http://localhost:5180
 
 ## Status
 
-Phase 1 of 8 (Setup) is built and awaiting gate review.
+Phase 2 of 8 (Physics core) is built and awaiting gate review.
 
 | Phase | Name                 | Status               |
 | ----- | -------------------- | -------------------- |
-| 1     | Setup                | Awaiting gate review |
-| 2     | Physics core         | Not started          |
+| 1     | Setup                | Complete             |
+| 2     | Physics core         | Awaiting gate review |
 | 3     | Engine shell         | Not started          |
 | 4     | Experiment 1         | Not started          |
 | 5     | Experiment 2, Part A | Not started          |
@@ -46,5 +46,7 @@ Phase 1 of 8 (Setup) is built and awaiting gate review.
 | 8     | Polish               | Not started          |
 
 What exists now: the toolchain (Vite, React, TypeScript, ESLint, Prettier, Vitest, Playwright,
-CI) and placeholder routes for the module map, module page, experiment, glossary and review.
-There is no physics, content or 3D yet.
+CI), placeholder routes for the module map, module page, experiment, glossary and review, and
+the physics core in `src/physics/` with all of the spec's required physics tests passing. How the
+physics is modelled is in [`docs/physics-model.md`](docs/physics-model.md). There is no lesson
+content or 3D yet.
