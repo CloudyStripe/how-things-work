@@ -1,0 +1,108 @@
+/* Minimal tokens only. The visual style (photorealistic vs technical illustration) is
+   chosen early in Phase 4; until then, keep styling plain and token-based. */
+:root {
+  --color-bg: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-text: #1d1f21;
+  --color-text-muted: #5b6066;
+  --color-border: #d9dbde;
+  --color-accent: #2f5d8a;
+
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --header-height: 56px;
+
+  color-scheme: light;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-title {
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.app-nav {
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-nav-link {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.app-nav-link:hover {
+  color: var(--color-text);
+}
+
+.app-nav-link.active {
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--space-8) var(--space-6);
+}
+
+.page h1 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.5rem;
+}
+
+.page-note {
+  color: var(--color-text-muted);
+}

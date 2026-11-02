@@ -1,0 +1,15 @@
+# Store and check out text as LF on every platform, so diffs stay line-accurate on Windows.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.glb binary
+*.gltf binary
+*.hdr binary
+*.exr binary
+*.ktx2 binary
+*.woff binary
+*.woff2 binary
