@@ -1,18 +1,22 @@
 import type { ComponentType } from 'react';
+import { CompassBenchScene } from './compass-bench/Scene';
+import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
+import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
 import type { SceneProps } from './types';
 import { WindTurbineStandinScene } from './wind-turbine-standin/Scene';
 
 // Each model's 3D view, by model id. Imported only by the lesson viewport, which is
 // lazy-loaded, so three.js stays out of the rest of the app.
 
-type Vector3Tuple = [number, number, number];
-
 export interface SceneView {
   readonly Scene: ComponentType<SceneProps>;
-  /** The default camera: where it sits and what it looks at (metres). */
-  readonly camera: { readonly position: Vector3Tuple; readonly target: Vector3Tuple };
-  /** How close and far the learner may zoom (metres from the target). */
+  /**
+   * What the default camera frames and from which angle. The viewport fits the camera to the
+   * view's size, so the frame fills the model view on any window.
+   */
+  readonly frame: CameraFrame;
+  /** How close and far the learner may zoom, as multiples of the framed distance. */
   readonly zoom: { readonly min: number; readonly max: number };
   /** How far (metres) the learner may pan the target from its default, along each axis. */
   readonly pan: number;
@@ -25,17 +29,61 @@ export interface SceneView {
 export const scenes: Readonly<Record<string, SceneView>> = {
   'wind-turbine-standin': {
     Scene: WindTurbineStandinScene,
-    camera: { position: [115, 78, 160], target: [0, 58, 0] },
-    zoom: { min: 25, max: 320 },
+    // The tower and the rotor, with room for the parts to pull out.
+    frame: {
+      center: [0, 58, 4],
+      halfSize: [40, 58, 14],
+      azimuth: 36,
+      elevation: 6,
+      margin: 0.06,
+    },
+    zoom: { min: 0.13, max: 1.6 },
     pan: 40,
     clip: { near: 0.5, far: 3000 },
     light: [120, 220, 160],
   },
   'magnet-rail': {
     Scene: MagnetRailScene,
-    camera: { position: [0.03, 0.4, 0.8], target: [0, 0.02, 0] },
-    zoom: { min: 0.12, max: 1.6 },
+    // The rail from end stop to end stop, up to the labels over the magnets.
+    frame: {
+      center: [0, 0.03, 0],
+      halfSize: [0.28, 0.03, 0.02],
+      azimuth: 34,
+      elevation: 26,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
     pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'filings-bench': {
+    Scene: FilingsBenchScene,
+    // The magnet's path with the three objects in front, and the glass behind.
+    frame: {
+      center: [0, 0.02, -0.035],
+      halfSize: [0.25, 0.02, 0.135],
+      azimuth: 30,
+      elevation: 34,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'compass-bench': {
+    Scene: CompassBenchScene,
+    // Everywhere the compass can go, the magnet and the north arrow.
+    frame: {
+      center: [0.03, 0.015, -0.015],
+      halfSize: [0.28, 0.015, 0.165],
+      azimuth: 24,
+      elevation: 40,
+      margin: 0.03,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.25,
     clip: { near: 0.005, far: 10 },
     light: [0.3, 0.6, 0.4],
   },

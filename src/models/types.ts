@@ -1,11 +1,20 @@
-import type { StraightWire, Vec3 } from '@/physics';
+import type { FieldSources, Vec3 } from '@/physics';
 
 // What every model provides to the engine. A model definition is pure TypeScript (no React or
 // three.js): content files and the engine import it freely. Its 3D view is registered
 // separately in scenes.ts, so three.js loads only with the lesson viewport.
 
-/** A switch is on or off; a choice holds the value of one of its options; a slider, 0 to 1. */
-export type ControlValue = boolean | string | number;
+/** A place on a flat area: 0 to 1 from left to right (across) and from back to front (depth). */
+export interface Spot {
+  readonly across: number;
+  readonly depth: number;
+}
+
+/**
+ * A switch is on or off; a choice holds the value of one of its options; a slider, 0 to 1; a
+ * spot, a place on the bench.
+ */
+export type ControlValue = boolean | string | number | Spot;
 export type ControlValues = Readonly<Record<string, ControlValue>>;
 
 export interface SwitchControl {
@@ -35,7 +44,21 @@ export interface SliderControl {
   readonly default: number;
 }
 
-export type ControlSpec = SwitchControl | ChoiceControl | SliderControl;
+/**
+ * Where something sits on the bench, such as a compass, shown with words at the edges and no
+ * numbers. The scene lets the learner drag the thing it places; the side panel gives a slider
+ * for each direction, so there is a keyboard way too.
+ */
+export interface SpotControl {
+  readonly kind: 'spot';
+  readonly label: string;
+  /** Words for the left and right ends, then for the back and front. */
+  readonly acrossLabels: readonly [string, string];
+  readonly depthLabels: readonly [string, string];
+  readonly default: Spot;
+}
+
+export type ControlSpec = SwitchControl | ChoiceControl | SliderControl | SpotControl;
 
 /** Everything a frame of simulation knows: the model's state and the controls that drive it. */
 export interface SimSnapshot<S, C extends ControlValues = ControlValues> {
@@ -69,12 +92,6 @@ export interface Reading<S, C extends ControlValues> {
   describe?(snapshot: SimSnapshot<S, C>): string;
 }
 
-/** The physics-core sources whose field the overlays draw. */
-export interface FieldSources {
-  readonly wires: readonly StraightWire[];
-  readonly earth: boolean;
-}
-
 /**
  * A point a Look label pins to (metres, world space), which may move with the state. Method
  * syntax keeps the parameter bivariant, so a model can type it with its own snapshot.
@@ -96,9 +113,17 @@ export interface ModelDefinition<S, C extends ControlValues> {
   /** Advances the model by dt seconds. Pure: returns the next state. */
   step(snapshot: SimSnapshot<S, C>, dt: number): S;
   readonly readings: Readonly<Record<string, Reading<S, C>>>;
+  /** The physics-core sources whose field the overlays draw. */
   fieldSources(snapshot: SimSnapshot<S, C>): FieldSources;
-  /** Square area of the board, centred here, where field overlays draw. */
-  readonly overlayRegion: { readonly center: Vec3; readonly halfWidth: number };
+  /**
+   * The level area, centred here, where field overlays draw: halfWidth along x, and halfDepth
+   * along z (the same as halfWidth when not given).
+   */
+  readonly overlayRegion: {
+    readonly center: Vec3;
+    readonly halfWidth: number;
+    readonly halfDepth?: number;
+  };
   /** Points a Look label can pin to. */
   readonly anchors?: Readonly<Record<string, Anchor<S, C>>>;
   /** The pieces of an explorer model. */
@@ -127,7 +152,17 @@ export interface OverlayLayerProps {
 export function controlValueLabel(spec: ControlSpec, value: ControlValue | undefined): string {
   if (spec.kind === 'switch') return value === true ? spec.onLabel : spec.offLabel;
   if (spec.kind === 'slider') return Number(value) < 0.5 ? spec.minLabel : spec.maxLabel;
+  if (spec.kind === 'spot') {
+    const spot = isSpot(value) ? value : spec.default;
+    const across = spot.across < 0.5 ? spec.acrossLabels[0] : spec.acrossLabels[1];
+    const depth = spot.depth < 0.5 ? spec.depthLabels[0] : spec.depthLabels[1];
+    return `${across}, ${depth}`;
+  }
   return spec.options.find((option) => option.value === value)?.label ?? String(value);
+}
+
+export function isSpot(value: ControlValue | undefined): value is Spot {
+  return typeof value === 'object';
 }
 
 /** The control values a model starts with. */

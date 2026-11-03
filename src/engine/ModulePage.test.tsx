@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { emFundamentals } from '@content/modules/em-fundamentals/module';
 import { clearProgressForTests, useProgressStore } from '@/engine/progress/store';
 import { routes } from '@/routes';
 
@@ -31,7 +32,7 @@ describe('module page', () => {
       'href',
       `/module/em-fundamentals/lesson/${MAGNETS}`,
     );
-    expect(screen.getAllByText('Not started')).toHaveLength(2);
+    expect(screen.getAllByText('Not started')).toHaveLength(emFundamentals.lessons.length);
     expect(screen.getByRole('button', { name: 'magnetic pole' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'repulsion' })).toBeInTheDocument();
   });
@@ -39,10 +40,11 @@ describe('module page', () => {
   it('lists the lessons still to come, after the built ones, without links', () => {
     renderModule();
     const items = within(screen.getByRole('list', { name: 'Lessons' })).getAllByRole('listitem');
+    const built = emFundamentals.lessons.length;
     expect(items).toHaveLength(10);
-    expect(items[2]).toHaveTextContent('The invisible fieldComing later');
+    expect(items[built]).toHaveTextContent('What current isComing later');
     expect(items[9]).toHaveTextContent('Back to the windmillComing later');
-    expect(within(items[2] as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(items[built] as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('shows how far a lesson has got', () => {
@@ -69,7 +71,7 @@ describe('module page', () => {
 
     await user.click(screen.getByRole('button', { name: 'Reset progress for this module' }));
     await user.click(screen.getByRole('button', { name: 'Reset' }));
-    expect(screen.getAllByText('Not started')).toHaveLength(2);
+    expect(screen.getAllByText('Not started')).toHaveLength(emFundamentals.lessons.length);
     expect(useProgressStore.getState().lessons).toEqual({});
     expect(useProgressStore.getState().terms).toEqual({});
   });

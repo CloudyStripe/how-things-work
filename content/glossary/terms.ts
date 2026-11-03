@@ -42,6 +42,56 @@ export const glossary = {
       related: ['attraction', 'magnetic-pole'],
       introducedIn: 'what-magnets-do',
     },
+    {
+      id: 'ferromagnetic',
+      name: 'ferromagnetic',
+      forms: ['ferromagnetism', 'ferromagnetic material', 'ferromagnetic materials'],
+      definition:
+        'Describes materials such as iron, steel, nickel and cobalt that a magnet pulls strongly, because they become magnets themselves near one.',
+      note: 'Most metals are not ferromagnetic: copper, aluminium, gold and brass are not pulled. A paper clip stuck to a magnet becomes a weak magnet itself, strong enough to hold a second clip.',
+      related: ['magnetic-field', 'attraction'],
+      introducedIn: 'the-invisible-field',
+    },
+    {
+      id: 'magnetic-field',
+      name: 'magnetic field',
+      forms: ['magnetic fields', 'field', 'fields'],
+      definition:
+        'The space around a magnet where it pushes and pulls on other magnets and on iron and steel.',
+      note: 'A field has a direction at every point: the way a compass needle would point there. It is strongest near the poles and fades quickly with distance.',
+      related: ['field-lines', 'magnetic-pole', 'compass'],
+      introducedIn: 'the-invisible-field',
+    },
+    {
+      id: 'field-lines',
+      name: 'field lines',
+      forms: ['field line', 'magnetic field lines', 'magnetic field line'],
+      definition:
+        'Lines that show the shape of a magnetic field. They run from north pole to south pole and crowd where the field is strongest.',
+      note: 'Field lines are a drawing, not real threads: the field fills all the space between them. Iron filings and compass needles both line up along them, and arrows on them point the way a compass needle would.',
+      related: ['magnetic-field', 'compass'],
+      introducedIn: 'the-invisible-field',
+    },
+    {
+      id: 'compass',
+      name: 'compass',
+      forms: ['compasses', 'compass needle', 'compass needles'],
+      definition:
+        'A small magnet on a pivot, free to turn, that lines up with the magnetic field where it sits.',
+      note: "The north end of the needle is usually painted red. Far from other magnets it lines up with Earth's magnetic field and points north, which is why it is used to find the way.",
+      related: ['earths-magnetic-field', 'magnetic-field'],
+      introducedIn: 'what-a-compass-is',
+    },
+    {
+      id: 'earths-magnetic-field',
+      name: "Earth's magnetic field",
+      forms: ["Earth's field"],
+      definition:
+        'The magnetic field all around the Earth, made deep inside it. It runs roughly south to north across the surface, so compasses point north.',
+      note: 'It is weak: a small magnet close by easily outpulls it, which is why a compass beside a magnet stops pointing north. The magnetic pole in the Arctic is, in magnet terms, a south pole: it pulls on the north end of every compass.',
+      related: ['compass', 'magnetic-field'],
+      introducedIn: 'what-a-compass-is',
+    },
   ],
   confusablePairs: [],
 } satisfies Glossary;

@@ -1,30 +1,21 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import type { Group } from 'three';
-import { useLetterTexture } from '../shared/labelTexture';
-import { useRailDrag } from '../shared/useRailDrag';
+import { BarMagnet } from '../shared/BarMagnet';
+import { Block, Cylinder } from '../shared/surfaces';
+import { useBenchDrag } from '../shared/useBenchDrag';
 import type { SceneProps } from '../types';
 import { HOLDER_TRAVEL, MAGNET_HEIGHT, RAIL_END, type MagnetRailState } from './definition';
 
-// Plain materials until the style decision at the start of Phase 4: a wooden bench and rail,
-// painted bar magnets (red N, blue S), wooden carts. Every position comes from the simulation
-// each frame; nothing here moves on its own.
+// A wooden rail on a bench top, painted bar magnets (red N, blue S), wooden carts on rubber
+// wheels. Every position comes from the simulation each frame; nothing here moves on its own.
 
 const MAGNET = { length: 0.06, side: 0.015 };
 const RAIL = { height: 0.012, width: 0.04, halfLength: RAIL_END + 0.05 };
 const CART = { length: 0.07, width: 0.032, height: 0.0065 };
 const WHEEL_RADIUS = 0.005;
-
-const COLORS = {
-  bench: '#d9c7a7',
-  rail: '#b08a5a',
-  cart: '#c9a26b',
-  holder: '#9c7347',
-  north: '#c0392b',
-  south: '#2e5fa8',
-  rubber: '#2b2b2b',
-  wheel: '#3a3a3a',
-};
+/** The bench top: wide enough that its edges stay out of the default view. */
+const TABLETOP = { width: 2.4, depth: 1.6 };
 
 export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneProps) {
   const holder = useRef<Group>(null);
@@ -40,79 +31,65 @@ export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneP
     rightCart.current?.position.setX(right.position.x);
   });
 
-  const drag = useRailDrag({
+  const drag = useBenchDrag({
     enabled: interactive,
     height: MAGNET_HEIGHT,
-    currentX: () => state().holder,
+    current: () => ({ x: state().holder, z: 0 }),
     onDrag(x) {
       const value = (x - HOLDER_TRAVEL.min) / (HOLDER_TRAVEL.max - HOLDER_TRAVEL.min);
       setControl('position', Math.min(1, Math.max(0, value)));
     },
   });
 
+  const holderHeight = MAGNET_HEIGHT - MAGNET.side / 2 - RAIL.height;
+
   return (
     <group>
-      <mesh position={[0, -0.01, 0]}>
-        <boxGeometry args={[0.8, 0.02, 0.4]} />
-        <meshStandardMaterial color={COLORS.bench} />
-      </mesh>
-      <mesh position={[0, RAIL.height / 2, 0]}>
-        <boxGeometry args={[2 * RAIL.halfLength, RAIL.height, RAIL.width]} />
-        <meshStandardMaterial color={COLORS.rail} />
-      </mesh>
+      <Block
+        kind="tabletop"
+        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
+        position={[0, -0.01, 0]}
+      />
+      <Block
+        kind="rail"
+        size={[2 * RAIL.halfLength, RAIL.height, RAIL.width]}
+        position={[0, RAIL.height / 2, 0]}
+      />
       {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * (RAIL_END + CART.length / 2 + 0.0075), 0.022, 0]}>
-          <boxGeometry args={[0.015, 0.02, RAIL.width]} />
-          <meshStandardMaterial color={COLORS.holder} />
-        </mesh>
+        <Block
+          key={side}
+          kind="endStop"
+          size={[0.015, 0.02, RAIL.width]}
+          position={[side * (RAIL_END + CART.length / 2 + 0.0075), RAIL.height + 0.01, 0]}
+        />
       ))}
 
       <group ref={holder} {...drag}>
-        <mesh position={[0, (RAIL.height + MAGNET_HEIGHT - MAGNET.side / 2) / 2, 0]}>
-          <boxGeometry
-            args={[CART.length, MAGNET_HEIGHT - MAGNET.side / 2 - RAIL.height, CART.width]}
-          />
-          <meshStandardMaterial color={COLORS.holder} />
-        </mesh>
-        <BarMagnet reversed={false} />
+        <Block
+          kind="holder"
+          size={[CART.length, holderHeight, CART.width]}
+          position={[0, RAIL.height + holderHeight / 2, 0]}
+        />
+        <RailMagnet reversed={false} />
       </group>
 
       <group ref={leftCart}>
         <Cart bumperSide={1} />
-        <BarMagnet reversed={false} />
+        <RailMagnet reversed={false} />
       </group>
       <group ref={rightCart}>
         <Cart bumperSide={-1} />
-        <BarMagnet reversed />
+        <RailMagnet reversed />
       </group>
     </group>
   );
 }
 
-/** A painted bar magnet lying along the rail: N half red, S half blue, with letters on top. */
-function BarMagnet({ reversed }: { reversed: boolean }) {
-  const north = useLetterTexture('N', COLORS.north, '#ffffff');
-  const south = useLetterTexture('S', COLORS.south, '#ffffff');
-  const half = MAGNET.length / 2;
-  const northX = reversed ? -half / 2 : half / 2;
-
+/** A bar magnet lying along the rail at the magnets' height. */
+function RailMagnet({ reversed }: { reversed: boolean }) {
   return (
     <group position={[0, MAGNET_HEIGHT, 0]}>
-      {[
-        { x: northX, color: COLORS.north, letter: north },
-        { x: -northX, color: COLORS.south, letter: south },
-      ].map(({ x, color, letter }) => (
-        <group key={color} position={[x, 0, 0]}>
-          <mesh>
-            <boxGeometry args={[half, MAGNET.side, MAGNET.side]} />
-            <meshStandardMaterial color={color} />
-          </mesh>
-          <mesh position={[0, MAGNET.side / 2 + 0.0002, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[MAGNET.side * 0.9, MAGNET.side * 0.9]} />
-            <meshStandardMaterial map={letter} />
-          </mesh>
-        </group>
-      ))}
+      <BarMagnet length={MAGNET.length} side={MAGNET.side} reversed={reversed} />
     </group>
   );
 }
@@ -123,29 +100,28 @@ function Cart({ bumperSide }: { bumperSide: 1 | -1 }) {
   const bodyY = wheelY + CART.height / 2;
   return (
     <group>
-      <mesh position={[0, bodyY, 0]}>
-        <boxGeometry args={[CART.length, CART.height, CART.width]} />
-        <meshStandardMaterial color={COLORS.cart} />
-      </mesh>
+      <Block kind="cart" size={[CART.length, CART.height, CART.width]} position={[0, bodyY, 0]} />
       {[-1, 1].flatMap((along) =>
         [-1, 1].map((across) => (
-          <mesh
+          <Cylinder
             key={`${along}${across}`}
+            kind="rubber"
+            radius={WHEEL_RADIUS}
+            length={0.004}
             position={[(along * CART.length) / 3, wheelY, (across * CART.width) / 2]}
             rotation={[Math.PI / 2, 0, 0]}
           >
-            <cylinderGeometry args={[WHEEL_RADIUS, WHEEL_RADIUS, 0.004, 16]} />
-            <meshStandardMaterial color={COLORS.wheel} />
-          </mesh>
+            <Cylinder kind="metal" radius={WHEEL_RADIUS * 0.4} length={0.0046} />
+          </Cylinder>
         )),
       )}
-      <mesh
+      <Cylinder
+        kind="rubber"
+        radius={0.004}
+        length={0.005}
         position={[bumperSide * (MAGNET.length / 2 + 0.0025), MAGNET_HEIGHT, 0]}
         rotation={[0, 0, Math.PI / 2]}
-      >
-        <cylinderGeometry args={[0.004, 0.004, 0.005, 16]} />
-        <meshStandardMaterial color={COLORS.rubber} />
-      </mesh>
+      />
     </group>
   );
 }

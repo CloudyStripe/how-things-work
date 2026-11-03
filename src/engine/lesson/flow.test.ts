@@ -77,9 +77,7 @@ describe('lesson flow', () => {
     const done = progress({ completedAt: AT });
     expect(isModuleComplete(emFundamentals, {})).toBe(false);
     expect(isModuleComplete(emFundamentals, { [whatMagnetsDo.id]: done })).toBe(false);
-    expect(
-      isModuleComplete(emFundamentals, { [theWindmill.id]: done, [whatMagnetsDo.id]: done }),
-    ).toBe(true);
+    expect(isModuleComplete(emFundamentals, everyLesson(done))).toBe(true);
   });
 
   it('nudges about unfinished prerequisites without blocking', () => {
@@ -96,8 +94,12 @@ describe('lesson flow', () => {
       'not-built-yet',
     ]);
     const done = progress({ completedAt: AT });
-    const finished = { [theWindmill.id]: done, [whatMagnetsDo.id]: done };
-    expect(unfinishedPrerequisites(magnetism, find, finished)).toEqual(['not-built-yet']);
+    expect(unfinishedPrerequisites(magnetism, find, everyLesson(done))).toEqual(['not-built-yet']);
     expect(unfinishedPrerequisites(emFundamentals, find, {})).toEqual([]);
   });
 });
+
+/** The same progress for every lesson in EM Fundamentals. */
+function everyLesson(lesson: LessonProgress): Record<string, LessonProgress> {
+  return Object.fromEntries(emFundamentals.lessons.map(({ id }) => [id, lesson]));
+}

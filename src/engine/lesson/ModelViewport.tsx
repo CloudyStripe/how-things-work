@@ -1,12 +1,28 @@
 import { OrbitControls } from '@react-three/drei';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useCallback, useEffect, useMemo, useRef, type ComponentRef, type RefObject } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type ComponentRef,
+  type RefObject,
+} from 'react';
 import { Vector3 } from 'three';
 import { useSimStore } from '@/engine/sim/store';
 import { models } from '@/models/registry';
 import { scenes, type SceneView } from '@/models/scenes';
+import { framedCamera } from '@/models/shared/cameraFrame';
+import { Stage } from '@/models/shared/Stage';
 import type { AnyModel, ExplorerView, SimSnapshot } from '@/models/types';
 import { overlayLayers } from '@/overlays/layers';
+
+/**
+ * The camera's vertical field of view (degrees): narrow, so the near and far ends of a bench
+ * keep close to the same size, as in a technical drawing.
+ */
+const FOV = 30;
 
 export interface ViewportLabel {
   readonly anchor: string;
@@ -48,18 +64,18 @@ export default function ModelViewport({
   const { Scene } = view;
   return (
     <div className="viewport" role="img" aria-label={model.title}>
+      {/* Flat: no tone mapping, so the illustration's colours show as drawn. */}
       <Canvas
+        flat
         camera={{
-          position: view.camera.position,
-          fov: 40,
+          position: framedCamera(view.frame, FOV, 1).position,
+          fov: FOV,
           near: view.clip.near,
           far: view.clip.far,
         }}
         dpr={[1, 2]}
       >
-        <color attach="background" args={['#eceeef']} />
-        <ambientLight intensity={0.8} />
-        <directionalLight position={view.light} intensity={1.6} />
+        <Stage view={view} />
         <Scene
           getSnapshot={getSnapshot}
           getView={getView}
@@ -133,21 +149,37 @@ function LabelTracker({
   return null;
 }
 
+/**
+ * The orbit camera. Its default view is fitted to the canvas: the scene's frame fills it at any
+ * window size, and Reset view returns there. A resize fits it again.
+ */
 function ViewControls({ view, resetSignal }: { view: SceneView; resetSignal: number }) {
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
+  const camera = useThree((state) => state.camera);
+  const width = useThree((state) => state.size.width);
+  const height = useThree((state) => state.size.height);
+  const framed = useMemo(
+    () => framedCamera(view.frame, FOV, width / Math.max(1, height)),
+    [view, width, height],
+  );
   const [panMin, panMax] = useMemo(() => {
-    const [x, y, z] = view.camera.target;
+    const [x, y, z] = framed.target;
     const limit = view.pan;
     return [
       new Vector3(x - limit, y - limit, z - limit),
       new Vector3(x + limit, y + limit, z + limit),
     ];
-  }, [view]);
+  }, [framed, view]);
 
-  // Remember the default view once the target is applied, so Reset view returns to it.
-  useEffect(() => {
-    controls.current?.saveState();
-  }, []);
+  // Place the camera before the frame is drawn, and remember it for Reset view.
+  useLayoutEffect(() => {
+    const orbit = controls.current;
+    if (orbit === null) return;
+    camera.position.set(...framed.position);
+    orbit.target.set(...framed.target);
+    orbit.update();
+    orbit.saveState();
+  }, [camera, framed]);
 
   useEffect(() => {
     if (resetSignal > 0) controls.current?.reset();
@@ -157,9 +189,8 @@ function ViewControls({ view, resetSignal }: { view: SceneView; resetSignal: num
     <OrbitControls
       ref={controls}
       makeDefault
-      target={view.camera.target}
-      minDistance={view.zoom.min}
-      maxDistance={view.zoom.max}
+      minDistance={framed.distance * view.zoom.min}
+      maxDistance={framed.distance * view.zoom.max}
       maxPolarAngle={Math.PI * 0.45}
       enableDamping
       onChange={() => controls.current?.target.clamp(panMin, panMax)}

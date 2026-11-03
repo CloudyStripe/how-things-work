@@ -157,8 +157,9 @@ export const magnetRail: ModelDefinition<MagnetRailState, MagnetRailControls> = 
 
   readings: {},
 
-  fieldSources() {
-    return { wires: [], earth: false };
+  fieldSources({ state }) {
+    const { holder, left, right } = railMagnets(state);
+    return { wires: [], magnets: [holder, left, right], earth: false };
   },
 
   overlayRegion: { center: vec3(0, MAGNET_HEIGHT, 0), halfWidth: RAIL_END },

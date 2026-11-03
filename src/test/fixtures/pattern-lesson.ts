@@ -1,6 +1,6 @@
 import type { ContentSources } from '@/engine/content/schema';
 import type { ModelDefinition } from '@/models/types';
-import { vec3 } from '@/physics';
+import { NO_SOURCES, vec3 } from '@/physics';
 
 // A module with numbers, for testing the Pattern step: EM Fundamentals has none, but the
 // Magnetism and Electricity modules will.
@@ -35,7 +35,7 @@ export const dialModel: ModelDefinition<null, DialControls> = {
       read: ({ controls }) => (OUTPUT[controls.level] ?? 0) * 1e-3,
     },
   },
-  fieldSources: () => ({ wires: [], earth: false }),
+  fieldSources: () => NO_SOURCES,
   overlayRegion: { center: vec3(0, 0, 0), halfWidth: 0.1 },
 };
 

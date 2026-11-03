@@ -1,6 +1,8 @@
 import type { Module } from '@/engine/content/schema';
 import { theWindmill } from './01-the-windmill';
 import { whatMagnetsDo } from './02-what-magnets-do';
+import { theInvisibleField } from './03-the-invisible-field';
+import { whatACompassIs } from './04-what-a-compass-is';
 
 export const emFundamentals = {
   id: 'em-fundamentals',
@@ -13,10 +15,8 @@ export const emFundamentals = {
   prerequisites: [],
   // Qualitative: no numbers, units, data tables or Pattern steps.
   numbers: false,
-  lessons: [theWindmill, whatMagnetsDo],
+  lessons: [theWindmill, whatMagnetsDo, theInvisibleField, whatACompassIs],
   comingLater: [
-    'The invisible field',
-    'What a compass is',
     'What current is',
     'Current makes a field',
     'Coil it',

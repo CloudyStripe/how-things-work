@@ -1,5 +1,5 @@
-/* Minimal tokens only. The visual style (photorealistic vs technical illustration) is
-   chosen early in Phase 4; until then, keep styling plain and token-based. */
+/* Minimal tokens only: plain, token-based styling around the models, which are drawn in the
+   technical illustration style (spec, Teaching principle 3). */
 :root {
   --color-bg: #f6f6f4;
   --color-surface: #ffffff;
@@ -579,6 +579,15 @@ fieldset.control .control-label {
 .slider-end {
   font-size: 0.8rem;
   color: var(--color-text-muted);
+}
+
+/* A spot's two sliders line up: the same room for the words at each end. */
+.spot-control .slider-end {
+  min-width: 2.4rem;
+}
+
+.spot-control .slider-end:last-child {
+  text-align: right;
 }
 
 /* Explorer: taking the model apart */

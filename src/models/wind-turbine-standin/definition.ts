@@ -1,4 +1,4 @@
-import { LARGE_TURBINE_ROTOR, stepRotor, vec3, type RotorState } from '@/physics';
+import { LARGE_TURBINE_ROTOR, NO_SOURCES, stepRotor, vec3, type RotorState } from '@/physics';
 import type { ModelDefinition, SimSnapshot } from '../types';
 
 // A stand-in wind turbine for the explorer, built from plain blocks. Phase 7 replaces it with
@@ -35,7 +35,7 @@ export const windTurbineStandin: ModelDefinition<TurbineState, TurbineControls> 
   readings: {},
 
   fieldSources() {
-    return { wires: [], earth: false };
+    return NO_SOURCES;
   },
 
   overlayRegion: { center: vec3(0, HUB_HEIGHT, 0), halfWidth: 10 },

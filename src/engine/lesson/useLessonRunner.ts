@@ -162,6 +162,7 @@ function sortRows(rows: PatternRow[], spec: ControlSpec): PatternRow[] {
     if (spec.kind === 'choice')
       return spec.options.findIndex((option) => option.value === row.value);
     if (spec.kind === 'slider') return Number(row.value);
+    if (spec.kind === 'spot') return 0;
     return Number(row.value === 'true');
   };
   return rows.sort((a, b) => order(a) - order(b));
