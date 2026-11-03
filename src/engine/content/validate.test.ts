@@ -236,7 +236,9 @@ describe('validateContent', () => {
   describe('module', () => {
     it('rejects a coming-later title that is already built', () => {
       expectProblem(
-        problemsAfter(({ module }) => module.comingLater?.push('What magnets do')),
+        problemsAfter(({ module }) => {
+          module.comingLater = ['What magnets do'];
+        }),
         'built and also listed as coming later',
       );
     });

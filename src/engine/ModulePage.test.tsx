@@ -38,14 +38,15 @@ describe('module page', () => {
     expect(screen.getByRole('button', { name: 'repulsion' })).toBeInTheDocument();
   });
 
-  it('lists the lessons still to come, after the built ones, without links', () => {
+  it('lists all ten lessons in order, each linking to the lesson', () => {
     renderModule();
     const items = within(screen.getByRole('list', { name: 'Lessons' })).getAllByRole('listitem');
-    const built = emFundamentals.lessons.length;
     expect(items).toHaveLength(10);
-    expect(items[built]).toHaveTextContent(`${emFundamentals.comingLater?.[0] ?? ''}Coming later`);
-    expect(items[9]).toHaveTextContent('Back to the windmillComing later');
-    expect(within(items[built] as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
+    expect(items[9]).toHaveTextContent('Back to the windmill');
+    for (const item of items) {
+      expect(within(item).getByRole('link')).toBeInTheDocument();
+    }
+    expect(screen.queryByText('Coming later')).not.toBeInTheDocument();
   });
 
   it('shows how far a lesson has got', () => {

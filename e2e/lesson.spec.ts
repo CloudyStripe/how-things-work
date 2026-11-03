@@ -385,6 +385,39 @@ test('a learner takes the turbine apart in lesson 1, The windmill', async ({ pag
   expect(errors).toEqual([]);
 });
 
+test('a learner completes lesson 10, Back to the windmill', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  // Exact: "Remove next part" also contains the word.
+  const next = page.getByRole('button', { name: 'Next', exact: true });
+  const done = page.locator('.prompt.is-done');
+
+  await page.goto('/#/module/em-fundamentals/lesson/back-to-the-windmill');
+  await expect(page.getByRole('heading', { level: 2, name: 'Step 1 of 3: Look' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('switch', { name: 'Wind' }).click();
+  for (const part of ['Blades', 'Hub', 'Nacelle cover', 'Main shaft', 'Gearbox']) {
+    await page.getByRole('button', { name: `Remove next part: ${part}` }).click();
+  }
+  await page.getByRole('button', { name: 'Generator', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Generator' })).toContainText(
+    'magnets spin past coils of copper wire',
+  );
+  await overlay(page, 'Inside the generator').click();
+  // The rotor takes a few seconds to spin up in the wind.
+  await expect(done).toHaveCount(3, { timeout: 10_000 });
+  await next.click();
+
+  await expect(page.getByRole('heading', { level: 2, name: 'Step 3 of 3: Why' })).toBeVisible();
+  await expect(page.getByText(/Named here:/)).toContainText('electric motor');
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(
+    page.locator('.lesson-list-item', { hasText: 'Back to the windmill' }),
+  ).toContainText('Complete');
+  expect(errors).toEqual([]);
+});
+
 test('a lesson resumes where the learner left off', async ({ page }) => {
   const errors = collectConsoleErrors(page);
   const step = (name: string) => page.getByRole('heading', { level: 2, name });

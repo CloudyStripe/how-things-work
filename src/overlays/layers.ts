@@ -4,6 +4,7 @@ import { CurrentFlow } from './CurrentFlow';
 import { EarthField } from './EarthField';
 import { FieldArrows } from './FieldArrows';
 import { FieldLines, FluxLines } from './FieldLines';
+import { GeneratorOverlay } from './GeneratorOverlay';
 
 /** Each overlay's 3D layer, by overlay id. Loaded only with the lesson viewport. */
 export const overlayLayers: Readonly<Record<string, ComponentType<OverlayLayerProps>>> = {
@@ -11,5 +12,6 @@ export const overlayLayers: Readonly<Record<string, ComponentType<OverlayLayerPr
   'earth-field': EarthField,
   'current-flow': CurrentFlow,
   flux: FluxLines,
+  generator: GeneratorOverlay,
   'field-arrows': FieldArrows,
 };

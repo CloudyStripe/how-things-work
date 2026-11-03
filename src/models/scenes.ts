@@ -8,7 +8,7 @@ import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
 import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
 import type { SceneProps } from './types';
-import { WindTurbineStandinScene } from './wind-turbine-standin/Scene';
+import { WindTurbineScene } from './wind-turbine/Scene';
 import { WireBoardScene } from './wire-board/Scene';
 
 // Each model's 3D view, by model id. Imported only by the lesson viewport, which is
@@ -32,8 +32,8 @@ export interface SceneView {
 }
 
 export const scenes: Readonly<Record<string, SceneView>> = {
-  'wind-turbine-standin': {
-    Scene: WindTurbineStandinScene,
+  'wind-turbine': {
+    Scene: WindTurbineScene,
     // The tower and the rotor, with room for the parts to pull out.
     frame: {
       center: [0, 58, 4],
@@ -42,7 +42,8 @@ export const scenes: Readonly<Record<string, SceneView>> = {
       elevation: 6,
       margin: 0.06,
     },
-    zoom: { min: 0.13, max: 1.6 },
+    // Close enough to look into the nacelle.
+    zoom: { min: 0.05, max: 1.6 },
     pan: 40,
     clip: { near: 0.5, far: 3000 },
     light: [120, 220, 160],

@@ -1,0 +1,317 @@
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
+import type { Group } from 'three';
+import { Block, Cylinder, Outline, SurfaceMaterial, type SurfaceKind } from '../shared/surfaces';
+import type { ExplorerView, SceneProps } from '../types';
+import { bladeGeometry } from './blade';
+import { HUB_HEIGHT, LAYOUT, type TurbineState } from './definition';
+
+// The wind turbine: a tapered tower, a nacelle holding the drivetrain (main shaft and bearing,
+// gearbox, brake and generator on a cast bedplate), and a hub with three twisted, tapered blades.
+// Each part moves out along its own direction as the exploded view opens, hides once removed,
+// and turns yellow when picked. The rotor's angle comes from the simulation every frame.
+
+/** How far (m) and which way each part moves at the fully exploded view. */
+const EXPLODE: Readonly<Record<string, readonly [number, number, number]>> = {
+  blades: [0, 0, 18],
+  hub: [0, 0, 11],
+  nacelleCover: [0, 10, 0],
+  mainShaft: [0, 0, 5],
+  gearbox: [0, 4, 0],
+  generator: [0, 0, -8],
+  tower: [0, 0, 0],
+};
+
+const GROUND_RADIUS = 160;
+const { nacelle, hub, blades, mainShaft, gearbox, generator, tower } = LAYOUT;
+const NACELLE_LENGTH = nacelle.front - nacelle.back;
+const NACELLE_MIDDLE = (nacelle.front + nacelle.back) / 2;
+const TOWER_HEIGHT = nacelle.bottom;
+/** A quarter turn about x lays a cylinder along z, the rotor's axis. */
+const ALONG_Z: [number, number, number] = [Math.PI / 2, 0, 0];
+
+export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart }: SceneProps) {
+  const rotor = useRef<Group>(null);
+  const [selected, setSelected] = useState<string | null>(null);
+
+  useFrame(() => {
+    const state = getSnapshot().state as TurbineState;
+    // Seen from the front (from +z), the rotor turns clockwise.
+    if (rotor.current) rotor.current.rotation.z = -state.angle;
+    const now = getView().selectedPart;
+    if (now !== selected) setSelected(now);
+  });
+
+  /** A part's surface: yellow while it is picked. */
+  const paint = (id: string, kind: SurfaceKind): SurfaceKind =>
+    selected === id ? 'selected' : kind;
+  const part = (id: string, children: ReactNode) => (
+    <Part id={id} getView={getView} interactive={interactive} selectPart={selectPart}>
+      {children}
+    </Part>
+  );
+
+  return (
+    <group>
+      <mesh position={[0, -0.5, 0]}>
+        <cylinderGeometry args={[GROUND_RADIUS, GROUND_RADIUS, 1, 64]} />
+        <SurfaceMaterial kind="grass" />
+      </mesh>
+
+      {part(
+        'tower',
+        <>
+          <TaperedTube
+            kind={paint('tower', 'whitePaint')}
+            bottom={tower.baseRadius}
+            top={tower.topRadius}
+            height={TOWER_HEIGHT}
+          />
+          {/* Flanges where the tower's sections bolt together, and the door at its foot. */}
+          {[0.33, 0.66].map((share) => (
+            <Cylinder
+              key={share}
+              kind={paint('tower', 'whitePaint')}
+              radius={tower.baseRadius + (tower.topRadius - tower.baseRadius) * share + 0.06}
+              length={0.3}
+              position={[0, TOWER_HEIGHT * share, 0]}
+            />
+          ))}
+          <Block
+            kind="castIron"
+            size={[1, 2.2, 0.1]}
+            position={[0, 1.6, tower.baseRadius - 0.02]}
+          />
+          {/* The yaw bearing and the bedplate the drivetrain sits on. */}
+          <Cylinder
+            kind="castIron"
+            radius={tower.topRadius + 0.15}
+            length={0.4}
+            position={[0, TOWER_HEIGHT + 0.1, 0]}
+          />
+          <Block
+            kind="castIron"
+            size={[2.4, 0.5, NACELLE_LENGTH - 1]}
+            position={[0, nacelle.bottom + 0.35, NACELLE_MIDDLE - 0.3]}
+          />
+        </>,
+      )}
+
+      {part(
+        'nacelleCover',
+        <>
+          <Block
+            kind={paint('nacelleCover', 'whitePaint')}
+            size={[nacelle.width, nacelle.height, NACELLE_LENGTH]}
+            position={[0, nacelle.bottom + nacelle.height / 2, NACELLE_MIDDLE]}
+          />
+          {/* The cooler on the roof, and the wind vane and anemometer mast behind it. */}
+          <Block
+            kind={paint('nacelleCover', 'whitePaint')}
+            size={[2.2, 0.8, 1.6]}
+            position={[0, nacelle.bottom + nacelle.height + 0.4, nacelle.back + 1.4]}
+          />
+          <Cylinder
+            kind="castIron"
+            radius={0.06}
+            length={1.6}
+            position={[0.9, nacelle.bottom + nacelle.height + 0.8, nacelle.back + 3.2]}
+          />
+        </>,
+      )}
+
+      {part(
+        'mainShaft',
+        <group position={[0, HUB_HEIGHT, 0]}>
+          <Cylinder
+            kind={paint('mainShaft', 'metal')}
+            radius={mainShaft.radius}
+            length={mainShaft.front - mainShaft.back}
+            position={[0, 0, (mainShaft.front + mainShaft.back) / 2]}
+            rotation={ALONG_Z}
+          />
+          {/* The main bearing that carries the rotor's weight. */}
+          <Block
+            kind={paint('mainShaft', 'castIron')}
+            size={[1.6, 1.5, 0.9]}
+            position={[0, -0.25, mainShaft.front - 1]}
+          />
+        </group>,
+      )}
+
+      {part(
+        'gearbox',
+        <group position={[0, HUB_HEIGHT, 0]}>
+          <Cylinder
+            kind={paint('gearbox', 'gearCase')}
+            radius={gearbox.radius}
+            length={gearbox.front - gearbox.back}
+            position={[0, 0, (gearbox.front + gearbox.back) / 2]}
+            rotation={ALONG_Z}
+          />
+          {/* Torque arms out to the sides, and the fast shaft and brake disc behind. */}
+          <Block
+            kind={paint('gearbox', 'gearCase')}
+            size={[3.4, 0.5, 0.8]}
+            position={[0, -0.3, gearbox.front - 0.8]}
+          />
+          <Cylinder
+            kind={paint('gearbox', 'metal')}
+            radius={0.14}
+            length={gearbox.back - generator.front}
+            position={[0, 0.5, (gearbox.back + generator.front) / 2]}
+            rotation={ALONG_Z}
+          />
+          <Cylinder
+            kind={paint('gearbox', 'castIron')}
+            radius={0.5}
+            length={0.08}
+            position={[0, 0.5, gearbox.back - 0.35]}
+            rotation={ALONG_Z}
+          />
+        </group>,
+      )}
+
+      {part(
+        'generator',
+        <group position={[0, HUB_HEIGHT + 0.5, 0]}>
+          <Cylinder
+            kind={paint('generator', 'generatorCase')}
+            radius={generator.radius}
+            length={generator.front - generator.back}
+            position={[0, 0, (generator.front + generator.back) / 2]}
+            rotation={ALONG_Z}
+          />
+          {/* Its end shields and the box where its cables leave. */}
+          {[generator.front, generator.back].map((z) => (
+            <Cylinder
+              key={z}
+              kind={paint('generator', 'castIron')}
+              radius={generator.radius * 0.85}
+              length={0.15}
+              position={[0, 0, z]}
+              rotation={ALONG_Z}
+            />
+          ))}
+          <Block
+            kind={paint('generator', 'generatorCase')}
+            size={[0.7, 0.5, 0.9]}
+            position={[0, generator.radius + 0.2, (generator.front + generator.back) / 2]}
+          />
+        </group>,
+      )}
+
+      {/* The rotor: hub and blades turn together on the main shaft. */}
+      <group ref={rotor} position={[0, HUB_HEIGHT, hub.center]}>
+        {part(
+          'hub',
+          <>
+            <Cylinder
+              kind={paint('hub', 'whitePaint')}
+              radius={hub.radius}
+              length={hub.length * 0.55}
+              position={[0, 0, -hub.length * 0.15]}
+              rotation={ALONG_Z}
+            />
+            <mesh position={[0, 0, hub.length * 0.35]} rotation={ALONG_Z}>
+              <coneGeometry args={[hub.radius, hub.length * 0.6, 32]} />
+              <SurfaceMaterial kind={paint('hub', 'whitePaint')} />
+              <Outline />
+            </mesh>
+          </>,
+        )}
+        {part(
+          'blades',
+          [0, 1, 2].map((index) => (
+            <group key={index} rotation={[0, 0, (index * 2 * Math.PI) / 3]}>
+              <Blade kind={paint('blades', 'whitePaint')} />
+            </group>
+          )),
+        )}
+      </group>
+    </group>
+  );
+}
+
+/** One blade, its root at the hub's edge, reaching up (+y) in its own frame. */
+function Blade({ kind }: { kind: SurfaceKind }) {
+  const geometry = useMemo(
+    () =>
+      bladeGeometry({
+        length: blades.length - blades.root,
+        rootChord: blades.rootChord,
+        tipChord: blades.tipChord,
+      }),
+    [],
+  );
+  return (
+    <mesh geometry={geometry} position={[0, blades.root, 0]}>
+      <SurfaceMaterial kind={kind} />
+      <Outline />
+    </mesh>
+  );
+}
+
+/** A tube narrowing from its foot to its top, standing on the ground. */
+function TaperedTube({
+  kind,
+  bottom,
+  top,
+  height,
+}: {
+  kind: SurfaceKind;
+  bottom: number;
+  top: number;
+  height: number;
+}) {
+  return (
+    <mesh position={[0, height / 2, 0]}>
+      <cylinderGeometry args={[top, bottom, height, 48]} />
+      <SurfaceMaterial kind={kind} />
+      <Outline />
+    </mesh>
+  );
+}
+
+function Part({
+  id,
+  getView,
+  interactive,
+  selectPart,
+  children,
+}: {
+  id: string;
+  getView: () => ExplorerView;
+  interactive: boolean;
+  selectPart: (partId: string) => void;
+  children: ReactNode;
+}) {
+  const group = useRef<Group>(null);
+
+  useFrame(() => {
+    if (!group.current) return;
+    const view = getView();
+    const [x, y, z] = EXPLODE[id] ?? [0, 0, 0];
+    group.current.position.set(x * view.explode, y * view.explode, z * view.explode);
+    group.current.visible = !view.removedParts.includes(id);
+  });
+
+  return (
+    <group
+      ref={group}
+      onClick={(event: ThreeEvent<MouseEvent>) => {
+        if (!interactive) return;
+        event.stopPropagation();
+        selectPart(id);
+      }}
+      onPointerOver={() => {
+        if (interactive) document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = '';
+      }}
+    >
+      {children}
+    </group>
+  );
+}
