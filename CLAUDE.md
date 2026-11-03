@@ -70,6 +70,13 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
   failing one.
 - Any change to physics behavior comes with a test that proves its direction, proportion or
   timing.
+- `docs/physics-model.md` describes the models, their approximations, and the tuning notes for
+  each scene. Read it before building a scene, and update it when the model changes.
+- One frame everywhere: +x east, +y up, +z south (three.js world space). Scenes use physics
+  vectors as they are, with no conversion layer.
+- Induction is step-averaged: `inducedEmf` takes the change in flux linkage across a step.
+  Instruments take those step-averaged values, so a stationary magnet reads exactly zero and a
+  pulse shorter than a frame still delivers the right kick.
 
 ## 5. Teaching and copy
 
@@ -106,7 +113,7 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 
 ```
 src/
-  physics/       pure TS: fields, induction, circuits (+ tests)        (Phase 2)
+  physics/       pure TS: fields, induction, circuits, needles (+ tests)
   engine/        app shell, map, module page, experiment runner, steps
   models/        3D scenes registered by ID                             (Phase 3+)
   instruments/   compass, galvanometer, ammeter, oscilloscope, clips    (Phase 4+)
@@ -116,7 +123,8 @@ src/
   test/          Vitest setup
 content/         map, glossary terms, module and experiment files       (Phase 3)
 e2e/             Playwright smoke tests
-docs/spec-v1.md  the canonical spec
+docs/spec-v1.md        the canonical spec
+docs/physics-model.md  how the physics core models the spec, and its limits
 ```
 
 Import aliases: `@/` is `src/`, `@content/` is `content/`.
