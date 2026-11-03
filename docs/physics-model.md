@@ -16,7 +16,7 @@ accuracy) sets the requirements; this file explains how the code meets them.
   `emf = -(change in flux linkage) / dt`. That is the exact average emf over the step, so:
   - a stationary magnet gives exactly zero (the spec requires exact zero), and
   - the total charge pushed through a meter is right at any frame rate, even for a pulse
-    shorter than one frame (the capstone's switching kick). Instruments take these step-averaged
+    shorter than one frame (the two-coil switching kick). Instruments take these step-averaged
     values.
 
 ## Field sources
@@ -52,12 +52,12 @@ field competes with Earth's 25 µT, not the full 50 µT. A 5 A wire makes 33 µT
 
 - **Ohm's law:** `circuitCurrent(emf, totalResistance)`. A coil's resistance comes from its
   copper (`coilResistance`); the galvanometer adds its own.
-- **Switched coil (capstone coil A):** an RL circuit, `stepSwitchedCoil`. Closing the switch, the
+- **Switched coil (two-coil lesson, coil A):** an RL circuit, `stepSwitchedCoil`. Closing the switch, the
   current rises toward V / R with time constant L / R (inductance from Wheeler's formula,
   `coilInductance`). Opening it, the current collapses through the spark across the contacts,
   modelled as a large resistance, so it falls fast but not instantly. The update is exact for any
   step size.
-- **Capstone coil B:** emf = -M dI_A/dt, using the same flux linkage and `inducedEmf`. Coil B's own
+- **Two-coil lesson, coil B:** emf = -M dI_A/dt, using the same flux linkage and `inducedEmf`. Coil B's own
   inductance and its pull back on coil A are neglected. Coil B's own time constant (0.93 mH over
   the meter circuit's 56 Ω, about 17 µs) is far shorter than coil A's 0.35 ms rise, so its
   inductance only rounds the brief current peak. The galvanometer needle responds to the charge
@@ -69,6 +69,46 @@ The spinning magnet is a point dipole on a shaft beside the coil (`rotatingMagne
 flux linkage is a cosine of the shaft angle, so the emf is a sine wave with peak
 moment × (coil field per ampere in the plane of rotation) × angular speed (`generatorPeakEmf`),
 and frequency equal to rotations per second (`generatorFrequency`).
+
+## Forces between magnets
+
+`barMagnetForce` uses the pole (Gilbert) model: each bar magnet is a north pole and a south pole
+of strength moment / length at its two ends, and every pole pushes or pulls every pole of the
+other magnet as μ0 q1 q2 / (4π r²). It is exactly equal and opposite on the two magnets,
+reverses exactly when either magnet is turned around, and far apart it matches the force between
+two dipoles (falling off as 1 / distance⁴; within 1% at 20 magnet lengths). Two 6 cm classroom
+magnets 1 cm apart pull with a few tenths of a newton.
+
+The field model and the force model differ on purpose: the field uses the Ampèrian winding
+(accurate inside and right beside the magnet, which field lines and coils need), while the force
+uses poles (simple, accurate between separate magnets, and finite at contact).
+
+## Steel in a field
+
+`softIronForce` treats a small piece of iron or steel as a body that takes on a moment along the
+field, proportional to the field (an effective susceptibility, limited by the object's shape)
+until it saturates. The force is that moment times the gradient of the field's strength, so the
+object is pulled toward the stronger field whichever way the field points, and feels nothing in a
+uniform field. Before saturation this is (χV / 2μ0) ∇(B²), so doubling the field quadruples the
+pull; once saturated it only doubles. A 0.4 g steel paper clip on wood jumps to a classroom
+magnet from about 1.5 cm. Copper and wood respond about 100,000 times more weakly and are given
+no response at all (`magnetizableBody`).
+
+## Sliding and rolling
+
+`stepSlidingBody` moves an object along a surface: static friction holds it until the push
+exceeds it, then kinetic friction (rolling resistance, for a cart) slows it, and it stops rather
+than reverse when friction alone would carry it past zero speed. Callers pass only the force
+along the surface, so a cart on a rail gets the force projected onto the rail. Integrated in
+substeps of at most 1 ms.
+
+## Wind turbine rotor
+
+`stepRotor` is a first-order model: in a steady wind the rotor settles at tip-speed ratio × wind
+speed / blade length (a large three-blade turbine holds a tip-speed ratio near 7), and it follows a
+change in wind with one time constant (about 8 s for a large rotor). The update is exact for any
+step size. Phase 7 refines it with the generator's load and the turbine's cut-in and rated wind
+speeds.
 
 ## Instruments' needles
 
@@ -93,8 +133,12 @@ Needle motion is physics too, so it lives here (`needles.ts`), integrated in sub
 | Bar magnet: dipole field, far field as 1 / distance³                          | `barMagnetField`, `pointDipoleField`                             |
 | ε = -N dΦ/dt (sign gives Lenz's law)                                          | `coaxialFluxLinkage` / `dipoleFluxLinkage` with `inducedEmf`     |
 | Peak ∝ turns × field × area × angular speed; frequency = rotations per second | `generatorPeakEmf`, `generatorFrequency`                         |
+| Force between bar magnets: poles, 1 / distance²; dipoles far apart            | `barMagnetForce`, `barMagnetPoles`                               |
+| Steel pulled toward stronger field; copper and wood feel none                 | `softIronForce`, `magnetizableBody`                              |
+| Static friction holds, kinetic friction slows                                 | `stepSlidingBody`                                                |
+| Rotor speed proportional to wind speed, with a delay                          | `stepRotor`, `steadyRotorSpeed`                                  |
 
-The spec's eight required tests are `src/physics/spec-required.test.ts`, one test per bullet.
+The spec's twelve required tests are `src/physics/spec-required.test.ts`, one test per bullet.
 Supporting tests check the maths against independent results: reference elliptic-integral
 values, the textbook on-axis loop field, a direct flux integral against Maxwell's formula, the
 closed-form thin-magnet solution, dipole limits, and energy conservation for the Lenz drag.
@@ -115,27 +159,30 @@ closed-form thin-magnet solution, dipole limits, and energy conservation for the
 - A coil driven only by induction carries I = emf / R, with its own inductance neglected. With the
   meter, a 100-turn coil's L / R is about 4 µs, far shorter than any hand movement.
 - Copper resistance is the room-temperature value, with no heating.
-- The only force computed is the Lenz drag. Magnets do not pull on each other or on iron, and
-  compass needles do not disturb the field or each other.
+- Forces are computed between bar magnets (poles at their ends; real magnets' effective poles sit
+  a little inside the ends), on small pieces of iron and steel (treated as points), and the Lenz
+  drag. Compass needles do not disturb the field or each other, and a magnetized clip adds no
+  field of its own.
+- A magnet the learner holds is moved by the hand: the force on it is computed but not felt.
 
 ## Left for later phases
 
-- **Paper clip count (Phase 4):** depends on the electromagnet's field at its pole, but the
-  mapping to a clip count is calibrated together with the "exactly 10 clips on low" challenge.
-- **LED pair (Phase 5):** a forward-voltage threshold across the coil, tuned with the scene.
-- **Field-line tracing and the flux line count (Phases 4 and 5):** pure maths on these fields; may
+- **Paper clip tray (Phase 5, lesson 7):** clips lift by `softIronForce` against their weight; how
+  many hang on is tuned with the scene. EM Fundamentals shows no count.
+- **LED pair (Phase 6):** a forward-voltage threshold across the coil, tuned with the scene.
+- **Field-line tracing and the flux overlay (Phases 4 and 6):** pure maths on these fields; may
   live in `src/physics/` when built.
 
 ## Tuning notes for the scenes
 
 Scene parameters must stay physical; these are the starting magnitudes with the test bench values:
 
-- **Experiment 2 Part A:** pushing the 3 A·m² magnet into a 100-turn coil at 0.25 m/s gives about
+- **Lesson 8 (Move a magnet):** pushing the 3 A·m² magnet into a 100-turn coil at 0.25 m/s gives about
   23 mV and 440 µA, close to full scale on the ±500 µA meter. Good as is.
-- **Experiment 2 Part B:** a 0.5 A·m² magnet 6 cm from a 200-turn coil at 2 rotations per second
+- **Lesson 9 (Spin it):** a 0.5 A·m² magnet 6 cm from a 200-turn coil at 2 rotations per second
   peaks at only about 1.7 mV. The scene will need a stronger magnet, closer spacing, more turns,
   or a more sensitive meter.
-- **Capstone:** two 200-turn coils 2 cm apart, a 1.5 V battery: coil A's current rises in
-  0.35 ms, and the kick moves about 0.46 µC through the meter, a barely visible twitch. Phase 7
+- **Two coils (the Transformer module's first lesson):** two 200-turn coils 2 cm apart, a 1.5 V battery: coil A's current rises in
+  0.35 ms, and the kick moves about 0.46 µC through the meter, a barely visible twitch. That lesson
   will likely need an iron core through both coils or many more turns, as real classroom
   versions use.

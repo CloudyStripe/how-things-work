@@ -7,7 +7,7 @@ import { coaxialFluxLinkage, inducedEmf } from './induction';
 import { barMagnetWinding, type BarMagnet } from './magnet';
 import { EAST, scale, vec3 } from './vector';
 
-/** Experiment 2's coil: 2 cm radius, 5 cm long, fine copper wire, lying along x. */
+/** The induction lessons' coil: 2 cm radius, 5 cm long, fine copper wire, lying along x. */
 export function coilAt(x: number, turns = 100): Coil {
   return {
     center: vec3(x, 0, 0),

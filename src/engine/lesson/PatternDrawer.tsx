@@ -1,11 +1,9 @@
-import type { Experiment } from '@/engine/content/schema';
+import type { PatternStep } from '@/engine/content/schema';
 import type { AnyModel } from '@/models/types';
-import type { PatternRow } from './useExperimentRunner';
-
-type Pattern = NonNullable<Experiment['steps']['pattern']>;
+import type { PatternRow } from './useLessonRunner';
 
 interface PatternDrawerProps {
-  readonly pattern: Pattern;
+  readonly pattern: PatternStep;
   readonly model: AnyModel;
   readonly rows: readonly PatternRow[];
 }
@@ -17,7 +15,7 @@ export function PatternDrawer({ pattern, model, rows }: PatternDrawerProps) {
   if (control === undefined || reading === undefined) return null;
 
   return (
-    <section className="experiment-drawer" aria-label="Readings">
+    <section className="lesson-drawer" aria-label="Readings">
       <table className="readings-table">
         <caption>Readings</caption>
         <thead>

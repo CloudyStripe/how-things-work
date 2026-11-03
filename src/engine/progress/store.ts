@@ -7,13 +7,13 @@ import { STEP_KINDS, type StepKind } from '@/engine/content/schema';
 // and checked on load; anything unreadable is set aside under a backup key, never discarded.
 
 export const PROGRESS_KEY = 'how-things-work:progress';
-export const PROGRESS_VERSION = 1;
+export const PROGRESS_VERSION = 2;
 
 const timestamp = z.iso.datetime();
 const stepKind = z.enum(STEP_KINDS);
 
-const experimentProgressSchema = z.object({
-  /** The step the learner is on, so the experiment resumes there. */
+const lessonProgressSchema = z.object({
+  /** The step the learner is on, so the lesson resumes there. */
   step: stepKind,
   completedSteps: z.array(stepKind),
   /** The committed prediction. Once saved it cannot change. */
@@ -23,35 +23,35 @@ const experimentProgressSchema = z.object({
   startedAt: timestamp,
   updatedAt: timestamp,
 });
-export type ExperimentProgress = z.infer<typeof experimentProgressSchema>;
+export type LessonProgress = z.infer<typeof lessonProgressSchema>;
 
 const progressDataSchema = z.object({
-  experiments: z.record(z.string(), experimentProgressSchema),
-  /** Each term the learner has met: the experiment that named it, and when. */
-  terms: z.record(z.string(), z.object({ experimentId: z.string(), at: timestamp })),
-  /** Recall cards waiting for review. Scheduling them arrives with the Review page (Phase 7). */
-  reviewQueue: z.array(
-    z.object({ experimentId: z.string(), cardId: z.string(), addedAt: timestamp }),
-  ),
+  lessons: z.record(z.string(), lessonProgressSchema),
+  /** Each term the learner has met: the lesson that named it, and when. */
+  terms: z.record(z.string(), z.object({ lessonId: z.string(), at: timestamp })),
+  /** Recall cards waiting for review. Scheduling them arrives with the Review page (Phase 8). */
+  reviewQueue: z.array(z.object({ lessonId: z.string(), cardId: z.string(), addedAt: timestamp })),
 });
 export type ProgressData = z.infer<typeof progressDataSchema>;
 
-// When the stored shape changes, bump PROGRESS_VERSION and migrate older data here.
+// When the stored shape changes, bump PROGRESS_VERSION and migrate older data here. Version 1
+// (experiments, before the lesson redesign) held only the Phase 3 dummy lesson, so it is not
+// migrated: like any unreadable data, it is set aside under a backup key.
 const storedSchema = z.object({ version: z.literal(PROGRESS_VERSION), state: progressDataSchema });
 
-const EMPTY: ProgressData = { experiments: {}, terms: {}, reviewQueue: [] };
+const EMPTY: ProgressData = { lessons: {}, terms: {}, reviewQueue: [] };
 
 interface ProgressActions {
-  startExperiment(experimentId: string): void;
-  goToStep(experimentId: string, step: StepKind): void;
-  completeStep(experimentId: string, step: StepKind): void;
-  savePrediction(experimentId: string, choice: string, correct: boolean): void;
-  completeChallenge(experimentId: string): void;
-  completeExperiment(experimentId: string): void;
-  encounterTerms(experimentId: string, termIds: readonly string[]): void;
-  addReviewCards(experimentId: string, cardIds: readonly string[]): void;
-  /** Clears everything recorded for these experiments, including terms met and queued cards. */
-  resetExperiments(experimentIds: readonly string[]): void;
+  startLesson(lessonId: string): void;
+  goToStep(lessonId: string, step: StepKind): void;
+  completeStep(lessonId: string, step: StepKind): void;
+  savePrediction(lessonId: string, choice: string, correct: boolean): void;
+  completeChallenge(lessonId: string): void;
+  completeLesson(lessonId: string): void;
+  encounterTerms(lessonId: string, termIds: readonly string[]): void;
+  addReviewCards(lessonId: string, cardIds: readonly string[]): void;
+  /** Clears everything recorded for these lessons, including terms met and queued cards. */
+  resetLessons(lessonIds: readonly string[]): void;
 }
 
 export type ProgressStore = ProgressData & ProgressActions;
@@ -82,17 +82,17 @@ function now(): string {
 export const useProgressStore = create<ProgressStore>()(
   persist(
     (set, get) => {
-      /** Applies a change to one experiment's record, if it exists, and stamps it. */
-      function updateExperiment(
-        experimentId: string,
-        change: (progress: ExperimentProgress) => Partial<ExperimentProgress>,
+      /** Applies a change to one lesson's record, if it exists, and stamps it. */
+      function updateLesson(
+        lessonId: string,
+        change: (progress: LessonProgress) => Partial<LessonProgress>,
       ) {
-        const current = get().experiments[experimentId];
+        const current = get().lessons[lessonId];
         if (current === undefined) return;
         set({
-          experiments: {
-            ...get().experiments,
-            [experimentId]: { ...current, ...change(current), updatedAt: now() },
+          lessons: {
+            ...get().lessons,
+            [lessonId]: { ...current, ...change(current), updatedAt: now() },
           },
         });
       }
@@ -100,14 +100,14 @@ export const useProgressStore = create<ProgressStore>()(
       return {
         ...EMPTY,
 
-        startExperiment(experimentId) {
-          if (get().experiments[experimentId] !== undefined) return;
+        startLesson(lessonId) {
+          if (get().lessons[lessonId] !== undefined) return;
           const at = now();
           set({
-            experiments: {
-              ...get().experiments,
-              [experimentId]: {
-                step: 'hook',
+            lessons: {
+              ...get().lessons,
+              [lessonId]: {
+                step: 'look',
                 completedSteps: [],
                 startedAt: at,
                 updatedAt: at,
@@ -116,68 +116,65 @@ export const useProgressStore = create<ProgressStore>()(
           });
         },
 
-        goToStep(experimentId, step) {
-          updateExperiment(experimentId, () => ({ step }));
+        goToStep(lessonId, step) {
+          updateLesson(lessonId, () => ({ step }));
         },
 
-        completeStep(experimentId, step) {
-          updateExperiment(experimentId, (progress) =>
+        completeStep(lessonId, step) {
+          updateLesson(lessonId, (progress) =>
             progress.completedSteps.includes(step)
               ? {}
               : { completedSteps: [...progress.completedSteps, step] },
           );
         },
 
-        savePrediction(experimentId, choice, correct) {
-          updateExperiment(experimentId, (progress) =>
+        savePrediction(lessonId, choice, correct) {
+          updateLesson(lessonId, (progress) =>
             progress.prediction !== undefined ? {} : { prediction: { choice, correct, at: now() } },
           );
         },
 
-        completeChallenge(experimentId) {
-          updateExperiment(experimentId, (progress) =>
+        completeChallenge(lessonId) {
+          updateLesson(lessonId, (progress) =>
             progress.challengeCompletedAt !== undefined ? {} : { challengeCompletedAt: now() },
           );
         },
 
-        completeExperiment(experimentId) {
-          updateExperiment(experimentId, (progress) =>
+        completeLesson(lessonId) {
+          updateLesson(lessonId, (progress) =>
             progress.completedAt !== undefined ? {} : { completedAt: now() },
           );
         },
 
-        encounterTerms(experimentId, termIds) {
+        encounterTerms(lessonId, termIds) {
           const fresh = termIds.filter((termId) => get().terms[termId] === undefined);
           if (fresh.length === 0) return;
           const at = now();
-          const met = Object.fromEntries(fresh.map((termId) => [termId, { experimentId, at }]));
+          const met = Object.fromEntries(fresh.map((termId) => [termId, { lessonId, at }]));
           set({ terms: { ...get().terms, ...met } });
         },
 
-        addReviewCards(experimentId, cardIds) {
+        addReviewCards(lessonId, cardIds) {
           const queue = get().reviewQueue;
           const fresh = cardIds.filter(
-            (cardId) =>
-              !queue.some((card) => card.experimentId === experimentId && card.cardId === cardId),
+            (cardId) => !queue.some((card) => card.lessonId === lessonId && card.cardId === cardId),
           );
           if (fresh.length === 0) return;
           const addedAt = now();
           set({
-            reviewQueue: [...queue, ...fresh.map((cardId) => ({ experimentId, cardId, addedAt }))],
+            reviewQueue: [...queue, ...fresh.map((cardId) => ({ lessonId, cardId, addedAt }))],
           });
         },
 
-        resetExperiments(experimentIds) {
-          const cleared = new Set(experimentIds);
-          const { experiments, terms, reviewQueue } = get();
+        resetLessons(lessonIds) {
+          const cleared = new Set(lessonIds);
+          const { lessons, terms, reviewQueue } = get();
           set({
-            experiments: Object.fromEntries(
-              Object.entries(experiments).filter(([id]) => !cleared.has(id)),
-            ),
+            lessons: Object.fromEntries(Object.entries(lessons).filter(([id]) => !cleared.has(id))),
             terms: Object.fromEntries(
-              Object.entries(terms).filter(([, met]) => !cleared.has(met.experimentId)),
+              Object.entries(terms).filter(([, met]) => !cleared.has(met.lessonId)),
             ),
-            reviewQueue: reviewQueue.filter((card) => !cleared.has(card.experimentId)),
+            reviewQueue: reviewQueue.filter((card) => !cleared.has(card.lessonId)),
           });
         },
       };
@@ -186,7 +183,7 @@ export const useProgressStore = create<ProgressStore>()(
       name: PROGRESS_KEY,
       version: PROGRESS_VERSION,
       storage,
-      partialize: ({ experiments, terms, reviewQueue }) => ({ experiments, terms, reviewQueue }),
+      partialize: ({ lessons, terms, reviewQueue }) => ({ lessons, terms, reviewQueue }),
     },
   ),
 );

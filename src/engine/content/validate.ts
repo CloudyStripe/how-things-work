@@ -1,6 +1,13 @@
 import type { ZodType } from 'zod';
-import type { AnyModel } from '@/models/types';
-import { glossarySchema, moduleMapSchema, moduleSchema, type ContentSources } from './schema';
+import { removableParts, type AnyModel } from '@/models/types';
+import {
+  glossarySchema,
+  moduleMapSchema,
+  moduleSchema,
+  type ContentSources,
+  type Lesson,
+  type Module,
+} from './schema';
 
 // Checks all content together: each file against its schema, then every reference between
 // files and registries, then the copy rules. The engine runs this at load and refuses to start
@@ -9,7 +16,7 @@ import { glossarySchema, moduleMapSchema, moduleSchema, type ContentSources } fr
 export interface ContentRegistries {
   readonly models: Readonly<Record<string, AnyModel>>;
   readonly overlays: Readonly<Record<string, unknown>>;
-  readonly instruments: Readonly<Record<string, unknown>>;
+  readonly instruments: Readonly<Record<string, { readonly showsNumbers: boolean }>>;
 }
 
 const EM_DASH = '—';
@@ -30,8 +37,8 @@ export function validateContent(sources: ContentSources, registries: ContentRegi
   if (problems.length > 0) return problems;
 
   const nodeIds = checkMap(sources, problems);
-  const experimentIds = checkModules(sources, registries, nodeIds, problems);
-  checkGlossary(sources, experimentIds, problems);
+  const lessonIds = checkModules(sources, registries, nodeIds, problems);
+  checkGlossary(sources, lessonIds, problems);
   return problems;
 }
 
@@ -84,76 +91,171 @@ function checkModules(
   nodeIds: Set<string>,
   problems: string[],
 ): Set<string> {
-  const experimentIds = new Set<string>();
+  const lessonIds = new Set<string>();
   for (const module of modules) {
     for (const prerequisite of module.prerequisites) {
       if (!nodeIds.has(prerequisite)) {
         problems.push(`module "${module.id}": unknown prerequisite "${prerequisite}"`);
       }
     }
+    const titles = module.lessons.map((lesson) => lesson.title);
+    for (const title of module.comingLater ?? []) {
+      if (titles.includes(title)) {
+        problems.push(`module "${module.id}": "${title}" is built and also listed as coming later`);
+      }
+    }
+    if (duplicates([...titles, ...(module.comingLater ?? [])])) {
+      problems.push(`module "${module.id}": two lessons share a title`);
+    }
 
-    for (const experiment of module.experiments) {
-      const where = `experiment "${experiment.id}"`;
-      if (experimentIds.has(experiment.id)) problems.push(`${where} is defined twice`);
-      experimentIds.add(experiment.id);
+    for (const lesson of module.lessons) {
+      const where = `lesson "${lesson.id}"`;
+      if (lessonIds.has(lesson.id)) problems.push(`${where} is defined twice`);
+      lessonIds.add(lesson.id);
+      checkLesson(lesson, where, module, registries, nodeIds, problems);
+    }
+  }
+  return lessonIds;
+}
 
-      const model = registries.models[experiment.model];
-      if (model === undefined) {
-        problems.push(`${where}: unknown model "${experiment.model}"`);
-        continue;
-      }
-      for (const control of experiment.controls) {
-        if (!Object.hasOwn(model.controls, control)) {
-          problems.push(`${where}: model "${model.id}" has no control "${control}"`);
-        }
-      }
-      for (const { instrument, reading } of experiment.instruments) {
-        if (!Object.hasOwn(registries.instruments, instrument)) {
-          problems.push(`${where}: unknown instrument "${instrument}"`);
-        }
-        if (!Object.hasOwn(model.readings, reading)) {
-          problems.push(`${where}: model "${model.id}" has no reading "${reading}"`);
-        }
-      }
-      for (const overlay of experiment.overlays) {
-        if (!Object.hasOwn(registries.overlays, overlay)) {
-          problems.push(`${where}: unknown overlay "${overlay}"`);
-        }
-      }
+function checkLesson(
+  lesson: Lesson,
+  where: string,
+  module: Module,
+  registries: ContentRegistries,
+  nodeIds: Set<string>,
+  problems: string[],
+): void {
+  const model = registries.models[lesson.model];
+  if (model === undefined) {
+    problems.push(`${where}: unknown model "${lesson.model}"`);
+    return;
+  }
+  for (const control of lesson.controls) {
+    if (!Object.hasOwn(model.controls, control)) {
+      problems.push(`${where}: model "${model.id}" has no control "${control}"`);
+    }
+  }
+  for (const overlay of lesson.overlays) {
+    if (!Object.hasOwn(registries.overlays, overlay)) {
+      problems.push(`${where}: unknown overlay "${overlay}"`);
+    }
+  }
+  for (const label of lesson.steps.look.labels ?? []) {
+    if (model.anchors?.[label.anchor] === undefined) {
+      problems.push(
+        `${where}: a Look label pins to "${label.anchor}", which the model does not have`,
+      );
+    }
+  }
 
-      const { predict, reveal, pattern, world, recall } = experiment.steps;
-      if (duplicates(predict.choices.map((choice) => choice.id))) {
-        problems.push(`${where}: two prediction choices share an id`);
+  const { predict } = lesson.steps.try;
+  if (predict !== undefined && duplicates(predict.choices.map((choice) => choice.id))) {
+    problems.push(`${where}: two prediction choices share an id`);
+  }
+  const { why } = lesson.steps;
+  if (why?.overlay !== undefined && !lesson.overlays.includes(why.overlay)) {
+    problems.push(`${where}: the Why turns on "${why.overlay}", which the lesson does not list`);
+  }
+  if (lesson.recall !== undefined && duplicates(lesson.recall.map((card) => card.id))) {
+    problems.push(`${where}: two recall cards share an id`);
+  }
+
+  if (lesson.kind === 'model') {
+    for (const { instrument, reading } of lesson.instruments) {
+      const info = registries.instruments[instrument];
+      if (info === undefined) {
+        problems.push(`${where}: unknown instrument "${instrument}"`);
+      } else if (!module.numbers && info.showsNumbers) {
+        problems.push(`${where}: "${instrument}" shows numbers, and ${module.title} has none`);
       }
-      if (reveal.overlay !== undefined && !experiment.overlays.includes(reveal.overlay)) {
+      if (!Object.hasOwn(model.readings, reading)) {
+        problems.push(`${where}: model "${model.id}" has no reading "${reading}"`);
+      }
+    }
+    const { pattern, world } = lesson.steps;
+    if (pattern !== undefined) {
+      if (!module.numbers) {
+        problems.push(`${where}: ${module.title} has no Pattern steps (it shows no numbers)`);
+      }
+      if (!lesson.controls.includes(pattern.control)) {
+        problems.push(`${where}: the Pattern varies "${pattern.control}", which is not exposed`);
+      }
+      if (!Object.hasOwn(model.readings, pattern.reading)) {
+        problems.push(`${where}: model "${model.id}" has no reading "${pattern.reading}"`);
+      }
+    }
+    for (const item of world?.items ?? []) {
+      if (item.module !== undefined && !nodeIds.has(item.module)) {
+        problems.push(`${where}: In the world points to unknown module "${item.module}"`);
+      }
+    }
+  } else {
+    const modelParts = (model.parts ?? []).map((part) => part.id);
+    if (modelParts.length === 0) {
+      problems.push(`${where}: an explorer needs a model with parts, and "${model.id}" has none`);
+    }
+    const described = lesson.parts.map((part) => part.part);
+    for (const part of described) {
+      if (!modelParts.includes(part)) {
         problems.push(
-          `${where}: the Reveal turns on "${reveal.overlay}", which the experiment does not list`,
+          `${where}: describes part "${part}", which model "${model.id}" does not have`,
         );
       }
-      if (pattern !== undefined) {
-        if (!experiment.controls.includes(pattern.control)) {
-          problems.push(`${where}: the Pattern varies "${pattern.control}", which is not exposed`);
-        }
-        if (!Object.hasOwn(model.readings, pattern.reading)) {
-          problems.push(`${where}: model "${model.id}" has no reading "${pattern.reading}"`);
-        }
+    }
+    for (const part of modelParts) {
+      const count = described.filter((candidate) => candidate === part).length;
+      if (count !== 1) {
+        problems.push(`${where}: part "${part}" is described ${count} times; describe it once`);
       }
-      for (const item of world.items) {
-        if (item.module !== undefined && !nodeIds.has(item.module)) {
-          problems.push(`${where}: In the world points to unknown module "${item.module}"`);
-        }
-      }
-      if (duplicates(recall.cards.map((card) => card.id))) {
-        problems.push(`${where}: two recall cards share an id`);
+    }
+    if (removableParts(model).length === 0 && modelParts.length > 0) {
+      problems.push(`${where}: model "${model.id}" has no part that comes off`);
+    }
+  }
+
+  if (!module.numbers) {
+    for (const copy of lessonCopy(lesson)) {
+      if (/\d/.test(copy)) {
+        problems.push(
+          `${where}: ${module.title} shows no numbers, but its copy has a digit: "${copy}"`,
+        );
       }
     }
   }
-  return experimentIds;
+}
+
+/** Everything a learner reads in a lesson. */
+function lessonCopy(lesson: Lesson): string[] {
+  const { look, why } = lesson.steps;
+  const tried = lesson.steps.try;
+  const copy = [
+    lesson.title,
+    look.text,
+    ...(look.labels ?? []).map((label) => label.text),
+    ...(tried.predict === undefined
+      ? []
+      : [tried.predict.question, ...tried.predict.choices.map((choice) => choice.label)]),
+    ...tried.prompts.map((prompt) => prompt.text),
+    ...(why === undefined ? [] : [why.observation ?? '', why.explanation]),
+    ...(lesson.recall ?? []).flatMap((card) => [card.prompt, card.answer]),
+  ];
+  if (lesson.kind === 'model') {
+    const { pattern, world, challenge } = lesson.steps;
+    if (pattern !== undefined) copy.push(pattern.instruction, pattern.statement);
+    copy.push(...(world?.items ?? []).map((item) => item.text));
+    if (challenge !== undefined) copy.push(challenge.goal);
+  } else {
+    for (const part of lesson.parts) {
+      copy.push(part.name, part.description, part.explanation ?? '');
+    }
+  }
+  return copy.filter((value) => value !== '');
 }
 
 function checkGlossary(
   { glossary, modules }: ContentSources,
-  experimentIds: Set<string>,
+  lessonIds: Set<string>,
   problems: string[],
 ): void {
   const termIds = new Set<string>();
@@ -173,12 +275,12 @@ function checkGlossary(
 
   const namedIn = new Map<string, string[]>();
   for (const module of modules) {
-    for (const experiment of module.experiments) {
-      for (const termId of experiment.steps.reveal.names) {
+    for (const lesson of module.lessons) {
+      for (const termId of lesson.steps.why?.names ?? []) {
         if (!termIds.has(termId)) {
-          problems.push(`experiment "${experiment.id}": the Reveal names unknown term "${termId}"`);
+          problems.push(`lesson "${lesson.id}": the Why names unknown term "${termId}"`);
         }
-        namedIn.set(termId, [...(namedIn.get(termId) ?? []), experiment.id]);
+        namedIn.set(termId, [...(namedIn.get(termId) ?? []), lesson.id]);
       }
     }
   }
@@ -188,13 +290,13 @@ function checkGlossary(
       if (!termIds.has(related))
         problems.push(`term "${term.id}": unknown related term "${related}"`);
     }
-    if (!experimentIds.has(term.introducedIn)) {
-      problems.push(`term "${term.id}": introduced in unknown experiment "${term.introducedIn}"`);
+    if (!lessonIds.has(term.introducedIn)) {
+      problems.push(`term "${term.id}": introduced in unknown lesson "${term.introducedIn}"`);
     }
     const places = namedIn.get(term.id) ?? [];
     if (places.length !== 1) {
       problems.push(
-        `term "${term.id}" is named in ${places.length} Reveal steps; name it in exactly one`,
+        `term "${term.id}" is named in ${places.length} Why steps; name it in exactly one`,
       );
     } else if (places[0] !== term.introducedIn) {
       problems.push(

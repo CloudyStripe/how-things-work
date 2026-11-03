@@ -18,8 +18,8 @@ export default defineConfig({
   server: { port: DEV_PORT, strictPort: true },
   preview: { port: PREVIEW_PORT, strictPort: true },
   build: {
-    // The experiment viewport chunk (three.js, React Three Fiber, drei) is about 940 kB. It
-    // loads only when an experiment opens, from the local machine, so warn only above 1 MB.
+    // The lesson viewport chunk (three.js, React Three Fiber, drei) is about 940 kB. It
+    // loads only when a lesson opens, from the local machine, so warn only above 1 MB.
     chunkSizeWarningLimit: 1000,
   },
   test: {

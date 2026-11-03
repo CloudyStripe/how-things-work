@@ -10,7 +10,7 @@ function term(id: string, name: string, forms: string[] = []): Term {
     definition: 'A definition.',
     note: 'A note.',
     related: [],
-    introducedIn: 'some-experiment',
+    introducedIn: 'some-lesson',
   };
 }
 

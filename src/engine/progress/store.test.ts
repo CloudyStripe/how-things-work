@@ -9,75 +9,89 @@ beforeEach(() => {
 });
 
 describe('progress actions', () => {
-  it('starts an experiment once, at the Hook', () => {
-    progress().startExperiment('exp');
-    progress().goToStep('exp', 'explore');
-    progress().startExperiment('exp');
-    expect(progress().experiments.exp?.step).toBe('explore');
+  it('starts a lesson once, at Look', () => {
+    progress().startLesson('lesson');
+    progress().goToStep('lesson', 'try');
+    progress().startLesson('lesson');
+    expect(progress().lessons.lesson?.step).toBe('try');
   });
 
   it('records each completed step once', () => {
-    progress().startExperiment('exp');
-    progress().completeStep('exp', 'hook');
-    progress().completeStep('exp', 'hook');
-    expect(progress().experiments.exp?.completedSteps).toEqual(['hook']);
+    progress().startLesson('lesson');
+    progress().completeStep('lesson', 'look');
+    progress().completeStep('lesson', 'look');
+    expect(progress().lessons.lesson?.completedSteps).toEqual(['look']);
   });
 
   it('keeps the first committed prediction', () => {
-    progress().startExperiment('exp');
-    progress().savePrediction('exp', 'turn', true);
-    progress().savePrediction('exp', 'nothing', false);
-    expect(progress().experiments.exp?.prediction).toMatchObject({ choice: 'turn', correct: true });
+    progress().startLesson('lesson');
+    progress().savePrediction('lesson', 'away', true);
+    progress().savePrediction('lesson', 'still', false);
+    expect(progress().lessons.lesson?.prediction).toMatchObject({ choice: 'away', correct: true });
   });
 
-  it('marks the challenge and the experiment complete once', () => {
-    progress().startExperiment('exp');
-    progress().completeChallenge('exp');
-    const first = progress().experiments.exp?.challengeCompletedAt;
-    progress().completeChallenge('exp');
-    progress().completeExperiment('exp');
-    expect(progress().experiments.exp?.challengeCompletedAt).toBe(first);
-    expect(progress().experiments.exp?.completedAt).toBeDefined();
+  it('marks the challenge and the lesson complete once', () => {
+    progress().startLesson('lesson');
+    progress().completeChallenge('lesson');
+    const first = progress().lessons.lesson?.challengeCompletedAt;
+    progress().completeChallenge('lesson');
+    progress().completeLesson('lesson');
+    expect(progress().lessons.lesson?.challengeCompletedAt).toBe(first);
+    expect(progress().lessons.lesson?.completedAt).toBeDefined();
   });
 
   it('remembers where each term was first met', () => {
-    progress().encounterTerms('exp-1', ['magnetic-field']);
-    progress().encounterTerms('exp-2', ['magnetic-field', 'solenoid']);
-    expect(progress().terms['magnetic-field']?.experimentId).toBe('exp-1');
-    expect(progress().terms.solenoid?.experimentId).toBe('exp-2');
+    progress().encounterTerms('lesson-1', ['magnetic-pole']);
+    progress().encounterTerms('lesson-2', ['magnetic-pole', 'repulsion']);
+    expect(progress().terms['magnetic-pole']?.lessonId).toBe('lesson-1');
+    expect(progress().terms.repulsion?.lessonId).toBe('lesson-2');
   });
 
   it('queues each recall card once', () => {
-    progress().addReviewCards('exp', ['a', 'b']);
-    progress().addReviewCards('exp', ['b', 'c']);
+    progress().addReviewCards('lesson', ['a', 'b']);
+    progress().addReviewCards('lesson', ['b', 'c']);
     expect(progress().reviewQueue.map((card) => card.cardId)).toEqual(['a', 'b', 'c']);
   });
 
-  it('resets only the given experiments, with their terms and cards', () => {
-    for (const id of ['exp-1', 'exp-2']) {
-      progress().startExperiment(id);
+  it('resets only the given lessons, with their terms and cards', () => {
+    for (const id of ['lesson-1', 'lesson-2']) {
+      progress().startLesson(id);
       progress().encounterTerms(id, [`term-${id}`]);
       progress().addReviewCards(id, ['card']);
     }
-    progress().resetExperiments(['exp-1']);
-    expect(Object.keys(progress().experiments)).toEqual(['exp-2']);
-    expect(Object.keys(progress().terms)).toEqual(['term-exp-2']);
-    expect(progress().reviewQueue.map((card) => card.experimentId)).toEqual(['exp-2']);
+    progress().resetLessons(['lesson-1']);
+    expect(Object.keys(progress().lessons)).toEqual(['lesson-2']);
+    expect(Object.keys(progress().terms)).toEqual(['term-lesson-2']);
+    expect(progress().reviewQueue.map((card) => card.lessonId)).toEqual(['lesson-2']);
   });
 });
 
 describe('progress storage', () => {
   it('saves a versioned copy to localStorage and reads it back', async () => {
-    progress().startExperiment('exp');
-    progress().savePrediction('exp', 'turn', true);
+    progress().startLesson('lesson');
+    progress().savePrediction('lesson', 'away', true);
     const stored = JSON.parse(localStorage.getItem(PROGRESS_KEY) ?? 'null');
     expect(stored.version).toBe(PROGRESS_VERSION);
-    expect(stored.state.experiments.exp.prediction.choice).toBe('turn');
+    expect(stored.state.lessons.lesson.prediction.choice).toBe('away');
 
-    useProgressStore.setState({ experiments: {}, terms: {}, reviewQueue: [] }, false);
+    useProgressStore.setState({ lessons: {}, terms: {}, reviewQueue: [] }, false);
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(stored));
     await useProgressStore.persist.rehydrate();
-    expect(progress().experiments.exp?.prediction?.choice).toBe('turn');
+    expect(progress().lessons.lesson?.prediction?.choice).toBe('away');
+  });
+
+  it('sets version 1 (experiment) progress aside, since the lesson redesign replaced it', async () => {
+    const versionOne = JSON.stringify({
+      version: 1,
+      state: { experiments: {}, terms: {}, reviewQueue: [] },
+    });
+    localStorage.setItem(PROGRESS_KEY, versionOne);
+    await useProgressStore.persist.rehydrate();
+    const backups = Object.keys(localStorage).filter((key) =>
+      key.startsWith(`${PROGRESS_KEY}:unreadable:`),
+    );
+    expect(backups.map((key) => localStorage.getItem(key))).toEqual([versionOne]);
+    expect(progress().lessons).toEqual({});
   });
 
   it('sets unreadable data aside under a backup key instead of losing it', async () => {
@@ -90,7 +104,7 @@ describe('progress storage', () => {
       );
       expect(backups).toHaveLength(1);
       expect(localStorage.getItem(backups[0] ?? '')).toBe(raw);
-      expect(progress().experiments).toEqual({});
+      expect(progress().lessons).toEqual({});
     }
   });
 });

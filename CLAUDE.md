@@ -17,25 +17,26 @@ EM Fundamentals.
 
 ## 2. Build phases and gates
 
-| Phase | Name                 | Gate                                               |
-| ----- | -------------------- | -------------------------------------------------- |
-| 1     | Setup                | The app runs and an empty test suite passes        |
-| 2     | Physics core         | All physics tests pass                             |
-| 3     | Engine shell         | Owner clicks through a dummy experiment end to end |
-| 4     | Experiment 1         | Owner review of the look and feel of the model     |
-| 5     | Experiment 2, Part A | Owner review                                       |
-| 6     | Experiment 2, Part B | Owner review                                       |
-| 7     | Capstone and review  | Owner completes the whole module                   |
-| 8     | Polish               | v1 accepted                                        |
+| Phase | Name                       | Gate                                            |
+| ----- | -------------------------- | ----------------------------------------------- |
+| 1     | Setup                      | The app runs and an empty test suite passes     |
+| 2     | Physics core               | All physics tests pass                          |
+| 3     | Engine shell               | Owner clicks through lessons 1 and 2            |
+| 4     | Style, magnets and fields  | Owner review of the look and feel (lessons 2–4) |
+| 5     | Current and electromagnets | Owner review (lessons 5–7)                      |
+| 6     | Induction                  | Owner review (lessons 8–9)                      |
+| 7     | The wind turbine           | Owner review of the turbine (lessons 1 and 10)  |
+| 8     | Review and glossary        | Owner completes the whole module                |
+| 9     | Polish                     | v1 accepted                                     |
 
-- Phases are numbered 1 to 8 everywhere: spec, README, branches, commits.
+- Phases are numbered 1 to 9 everywhere: spec, README, branches, commits.
 - Stop at every gate and report back. **Never start the next phase without the owner's
   approval.** The README's Status section records where the build stands.
 - From Phase 2 on, each phase is built on its own branch, `phase-N-short-name` (for example
   `phase-2-physics-core`), and lands through a PR. The PR review is the gate.
-- **Phase 4 opens with a style decision:** render the wire-board scene in both styles
+- **Phase 4 opens with a style decision:** render lesson 2's magnet-rail bench in both styles
   (photorealistic and clean technical illustration) and get the owner's pick before building
-  the rest of Experiment 1.
+  lessons 3 and 4.
 - Within a phase, plan before coding anything non-trivial: summarize the change, name the
   affected areas, list tradeoffs, and ask when the spec leaves a requirement open.
 
@@ -53,18 +54,23 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
   Physical behavior is never hand-animated.
 - **Exaggeration is display-only.** Relationships between readings stay correct, and an
   exaggerated visual carries a "not to scale" tag.
-- **Experiments are data.** A content file under `content/` names the model, controls,
-  instruments, overlays, steps, prediction, prompts, terms, challenge and review cards; the
-  engine renders it. No per-lesson custom pages.
-  - The schemas are in `src/engine/content/schema.ts`.
+- **Lessons are data.** A content file under `content/` names the model, controls,
+  instruments, overlays, steps, labels, prediction, prompts, terms, challenge, review cards and,
+  for an explorer lesson, its part descriptions; the engine renders it. No per-lesson custom
+  pages.
+  - The schemas are in `src/engine/content/schema.ts`. A lesson is a `model` lesson (Look, Try,
+    Why, then optional Pattern, In the world and Challenge) or an `explorer` lesson (Look, Try,
+    optional Why, around a model with parts to take apart).
   - `src/engine/content/validate.ts` checks every file, every cross-reference (models, controls,
-    readings, overlays, terms, the map) and the copy rules. It runs at load, so the app refuses
-    to start on bad content, and in the test suite.
+    readings, overlays, labels, parts, terms, the map) and the copy rules. It runs at load, so
+    the app refuses to start on bad content, and in the test suite.
+  - A module with `numbers: false` (EM Fundamentals) may not use Pattern steps, instruments that
+    show numbers, or digits in lesson copy. Validation enforces it.
   - Content may import only the schema, model definitions and the physics core (ESLint
     enforces this).
 - **Registered by ID.** Models, instruments and overlays are reusable components looked up by
   ID, so later modules can reuse them.
-- **3D code loads only with the experiment viewport.** Each model has two parts:
+- **3D code loads only with the lesson viewport.** Each model has two parts:
   - a pure definition (`src/models/*/definition.ts`: controls, state, `step`, readings, field
     sources) that content and the engine import;
   - a 3D scene, registered in `src/models/scenes.ts`.
@@ -74,14 +80,15 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
   scene and layer registries, so three.js stays out of the map and module pages.
 
 - **Challenges are state functions.** A challenge's success condition is a function of
-  simulation state, checked every frame.
+  simulation state, checked every frame. The model resets when the Challenge step opens, so
+  nothing carried over from Try can solve it.
 - **Modules are self-contained.** Each declares its prerequisites and does not re-teach another
   module. An unfinished prerequisite gets a one-line nudge, never a block.
 
 ## 4. Physics accuracy
 
 - Every relationship in the spec's Physics accuracy section lives in the core and is covered by
-  tests. The spec's required-test list must stay green; an experiment does not ship with a
+  tests. The spec's required-test list must stay green; a lesson does not ship with a
   failing one.
 - Any change to physics behavior comes with a test that proves its direction, proportion or
   timing.
@@ -95,8 +102,14 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 
 ## 5. Teaching and copy
 
-- Models first: text supports the model. A Reveal explanation stays under about 80 words.
-- Use full technical terms. Each term is named in the Reveal step of exactly one experiment and
+- Models first: text supports the model. A Why explanation stays under about 80 words.
+- Look before you try: every lesson's Look step says what the learner is looking at before
+  anything is asked of them. A prediction appears only where it helps.
+- One idea per lesson, and each lesson adds at most one new control (checked in review; models
+  don't share control ids, so validation can't compare them).
+- EM Fundamentals has no numbers, units, data tables or Pattern steps; those belong to the
+  Magnetism and Electricity modules.
+- Use full technical terms. Each term is named in the Why step of exactly one lesson and
   registered in the glossary.
 - Keep the tone plain and restrained: no hype, no persuasive framing.
 - Math appears only when it has an everyday consequence (Teaching principle 5).
@@ -108,8 +121,8 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 ## 6. UI
 
 - Laptop only, minimum 1280 × 720. No phone or tablet layouts in v1.
-- The visual style is chosen early in Phase 4. Until then keep styling minimal and built on the
-  `:root` tokens in `src/index.css`.
+- The visual style is chosen at the start of Phase 4. Until then keep styling minimal and built
+  on the `:root` tokens in `src/index.css`.
 - Reuse existing spacing, type and structural patterns. Avoid new visual styles and premature
   component abstraction.
 
@@ -118,8 +131,8 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 - Explicitness over cleverness, readability over abstraction, stable boundaries between
   physics, rendering and content.
 - Add a dependency in the phase that first uses it, not before. Zod, Zustand, three.js, React
-  Three Fiber and drei arrived in Phase 3. Still to come: a chart library in Phase 4, where
-  Experiment 1's Pattern step first needs a plot (uPlot vs Recharts decided then).
+  Three Fiber and drei arrived in Phase 3. The chart library (uPlot vs Recharts) waits for the
+  first Pattern plot or oscilloscope, which is in the Magnetism or Electricity module, not v1.
 - **Version pins:** `typescript ~6.0`, because typescript-eslint supports only `<6.1` (move to
   TS 7 once it does). `react` and `react-dom ~19.3`, because React Three Fiber 9 requires
   `<19.4`.
@@ -128,16 +141,16 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 
 ```
 src/
-  physics/       pure TS: fields, induction, circuits, needles (+ tests)
-  engine/        app shell, map, module page, experiment runner, content loading,
-                 simulation and progress stores
+  physics/       pure TS: fields, forces, induction, circuits, needles, motion (+ tests)
+  engine/        app shell, map, module page, lesson runner and explorer tools, content
+                 loading, simulation and progress stores
   models/        model definitions (pure) and their 3D scenes, by ID
-  instruments/   readouts by ID: ammeter now; compass, galvanometer, oscilloscope, clips later
+  instruments/   readouts by ID: ammeter (for later modules); compass, meter, LEDs, clips later
   overlays/      overlay catalog and 3D layers, by ID
   glossary/      term matching, hover terms, glossary page
-  review/        scheduler, review page, card views                     (Phase 7)
+  review/        scheduler, review page, card views                     (Phase 8)
   test/          Vitest setup
-content/         map, glossary terms, module and experiment files
+content/         map, glossary terms, module and lesson files
 e2e/             Playwright smoke tests
 docs/spec-v1.md        the canonical spec
 docs/physics-model.md  how the physics core models the spec, and its limits

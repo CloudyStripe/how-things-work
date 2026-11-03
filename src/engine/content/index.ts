@@ -3,7 +3,7 @@ import { instruments } from '@/instruments/registry';
 import { models } from '@/models/registry';
 import type { AnyModel } from '@/models/types';
 import { overlays } from '@/overlays/catalog';
-import type { Experiment, Module, Term } from './schema';
+import type { Lesson, Module, Term } from './schema';
 import { validateContent } from './validate';
 
 // The engine's view of all content: validated once at load, then looked up by id.
@@ -20,14 +20,14 @@ export function findModule(moduleId: string): Module | undefined {
   return content.modules.find((module) => module.id === moduleId);
 }
 
-export function findExperiment(module: Module, experimentId: string): Experiment | undefined {
-  return module.experiments.find((experiment) => experiment.id === experimentId);
+export function findLesson(module: Module, lessonId: string): Lesson | undefined {
+  return module.lessons.find((lesson) => lesson.id === lessonId);
 }
 
-/** The model an experiment runs. Validation guarantees it exists. */
-export function modelFor(experiment: Experiment): AnyModel {
-  const model = models[experiment.model];
-  if (model === undefined) throw new Error(`No model "${experiment.model}"`);
+/** The model a lesson runs. Validation guarantees it exists. */
+export function modelFor(lesson: Lesson): AnyModel {
+  const model = models[lesson.model];
+  if (model === undefined) throw new Error(`No model "${lesson.model}"`);
   return model;
 }
 
@@ -35,19 +35,17 @@ export function findTerm(termId: string): Term | undefined {
   return glossary.terms.find((term) => term.id === termId);
 }
 
-/** Where a term is named: the experiment whose Reveal names it, and its module. */
-export function termIntroduction(
-  term: Term,
-): { module: Module; experiment: Experiment } | undefined {
+/** Where a term is named: the lesson whose Why names it, and its module. */
+export function termIntroduction(term: Term): { module: Module; lesson: Lesson } | undefined {
   for (const module of content.modules) {
-    const experiment = findExperiment(module, term.introducedIn);
-    if (experiment !== undefined) return { module, experiment };
+    const lesson = findLesson(module, term.introducedIn);
+    if (lesson !== undefined) return { module, lesson };
   }
   return undefined;
 }
 
-/** The terms a module's experiments name, in glossary order. */
+/** The terms a module's lessons name, in glossary order. */
 export function moduleTerms(module: Module): Term[] {
-  const experimentIds = new Set(module.experiments.map((experiment) => experiment.id));
-  return glossary.terms.filter((term) => experimentIds.has(term.introducedIn));
+  const lessonIds = new Set(module.lessons.map((lesson) => lesson.id));
+  return glossary.terms.filter((term) => lessonIds.has(term.introducedIn));
 }

@@ -1,13 +1,13 @@
 import { Link } from 'react-router';
 import { findModule, moduleMap } from '@/engine/content';
-import { isModuleComplete, isModuleStarted } from '@/engine/experiment/flow';
+import { isModuleComplete, isModuleStarted } from '@/engine/lesson/flow';
 import { NODE_HEIGHT, NODE_WIDTH, mapLayout } from '@/engine/map/layout';
 import { useProgressStore } from '@/engine/progress/store';
 
 const layout = mapLayout(moduleMap.nodes);
 
 export function MapPage() {
-  const experiments = useProgressStore((state) => state.experiments);
+  const lessons = useProgressStore((state) => state.lessons);
 
   return (
     <section className="page">
@@ -54,9 +54,9 @@ export function MapPage() {
                 </li>
               );
             }
-            const status = isModuleComplete(module, experiments)
+            const status = isModuleComplete(module, lessons)
               ? 'Complete'
-              : isModuleStarted(module, experiments)
+              : isModuleStarted(module, lessons)
                 ? 'In progress'
                 : 'Not started';
             return (

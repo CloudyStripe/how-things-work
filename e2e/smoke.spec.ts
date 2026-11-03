@@ -4,10 +4,8 @@ import { collectConsoleErrors } from './console';
 const ROUTES = [
   { path: '/', heading: 'Module map' },
   { path: '/module/em-fundamentals', heading: 'EM Fundamentals' },
-  {
-    path: '/module/em-fundamentals/experiment/placeholder-wire-compass',
-    heading: 'Placeholder: a wire and a compass',
-  },
+  { path: '/module/em-fundamentals/lesson/the-windmill', heading: 'The windmill' },
+  { path: '/module/em-fundamentals/lesson/what-magnets-do', heading: 'What magnets do' },
   { path: '/glossary', heading: 'Glossary' },
   { path: '/review', heading: 'Review' },
 ];
@@ -33,17 +31,15 @@ for (const route of ROUTES) {
   });
 }
 
-test('clicks from the map through an experiment to the global pages', async ({ page }) => {
+test('clicks from the map through a lesson to the global pages', async ({ page }) => {
   const errors = collectConsoleErrors(page);
 
   await page.goto('/');
   await page.getByRole('link', { name: /EM Fundamentals/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'EM Fundamentals' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Placeholder: a wire and a compass' }).click();
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Placeholder: a wire and a compass' }),
-  ).toBeVisible();
+  await page.getByRole('link', { name: 'What magnets do' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'What magnets do' })).toBeVisible();
 
   const nav = page.getByRole('navigation', { name: 'Main' });
   await nav.getByRole('link', { name: 'Glossary' }).click();

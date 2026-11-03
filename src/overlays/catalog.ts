@@ -1,5 +1,5 @@
 // Every overlay, by id: what the toggle bar shows. The 3D layers that draw them are in
-// layers.ts, which loads only with the experiment viewport.
+// layers.ts, which loads only with the lesson viewport.
 
 export interface OverlayInfo {
   readonly label: string;

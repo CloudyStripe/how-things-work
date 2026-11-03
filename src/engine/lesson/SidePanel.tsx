@@ -1,31 +1,39 @@
-import type { Experiment } from '@/engine/content/schema';
+import type { Lesson } from '@/engine/content/schema';
 import { useSimStore } from '@/engine/sim/store';
 import { instruments } from '@/instruments/registry';
 import type { AnyModel, ControlSpec } from '@/models/types';
+import { ExplorerTools } from './ExplorerTools';
 
 interface SidePanelProps {
-  readonly experiment: Experiment;
+  readonly lesson: Lesson;
   readonly model: AnyModel;
-  readonly unlocked: boolean;
+  readonly interactive: boolean;
 }
 
-/** The right panel: the controls this experiment exposes, then its instrument readouts. */
-export function SidePanel({ experiment, model, unlocked }: SidePanelProps) {
+/**
+ * The right panel: the controls this lesson exposes, then its instrument readouts, or for an
+ * explorer, the tools for taking the model apart.
+ */
+export function SidePanel({ lesson, model, interactive }: SidePanelProps) {
   return (
-    <aside className="experiment-side" aria-label="Controls and instruments">
-      <h2 className="panel-heading">Controls</h2>
-      <div className="controls">
-        {experiment.controls.map((id) => {
-          const spec = model.controls[id];
-          return spec === undefined ? null : (
-            <ControlInput key={id} id={id} spec={spec} disabled={!unlocked} />
-          );
-        })}
-      </div>
-      {experiment.instruments.length > 0 && (
+    <aside className="lesson-side" aria-label="Controls and instruments">
+      {lesson.controls.length > 0 && (
+        <>
+          <h2 className="panel-heading">Controls</h2>
+          <div className="controls">
+            {lesson.controls.map((id) => {
+              const spec = model.controls[id];
+              return spec === undefined ? null : (
+                <ControlInput key={id} id={id} spec={spec} disabled={!interactive} />
+              );
+            })}
+          </div>
+        </>
+      )}
+      {lesson.kind === 'model' && lesson.instruments.length > 0 && (
         <>
           <h2 className="panel-heading">Instruments</h2>
-          {experiment.instruments.map((use) => (
+          {lesson.instruments.map((use) => (
             <InstrumentSlot
               key={`${use.instrument}-${use.reading}`}
               instrumentId={use.instrument}
@@ -34,6 +42,9 @@ export function SidePanel({ experiment, model, unlocked }: SidePanelProps) {
             />
           ))}
         </>
+      )}
+      {lesson.kind === 'explorer' && (
+        <ExplorerTools lesson={lesson} model={model} interactive={interactive} />
       )}
     </aside>
   );
@@ -67,6 +78,30 @@ function ControlInput({
         >
           {on ? spec.onLabel : spec.offLabel}
         </button>
+      </div>
+    );
+  }
+
+  if (spec.kind === 'slider') {
+    return (
+      <div className="control">
+        <label className="control-label" htmlFor={`control-${id}`}>
+          {spec.label}
+        </label>
+        <div className="slider-row">
+          <span className="slider-end">{spec.minLabel}</span>
+          <input
+            id={`control-${id}`}
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={typeof value === 'number' ? value : spec.default}
+            disabled={disabled}
+            onChange={(event) => setControl(id, Number(event.target.value))}
+          />
+          <span className="slider-end">{spec.maxLabel}</span>
+        </div>
       </div>
     );
   }

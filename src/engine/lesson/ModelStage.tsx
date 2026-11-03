@@ -1,30 +1,36 @@
 import { Component, lazy, Suspense, useState, type ReactNode } from 'react';
-import type { Experiment } from '@/engine/content/schema';
+import type { Lesson, StepKind } from '@/engine/content/schema';
 import { useSimStore } from '@/engine/sim/store';
 import type { AnyModel } from '@/models/types';
 import { overlays } from '@/overlays/catalog';
 
-// three.js and the scenes load only when an experiment opens.
+// three.js and the scenes load only when a lesson opens.
 const ModelViewport = lazy(() => import('./ModelViewport'));
 
 interface ModelStageProps {
-  readonly experiment: Experiment;
+  readonly lesson: Lesson;
   readonly model: AnyModel;
-  readonly unlocked: boolean;
+  readonly step: StepKind;
+  readonly interactive: boolean;
 }
 
-/** The centre: the overlay toggle bar and Reset view above the 3D model. */
-export function ModelStage({ experiment, model, unlocked }: ModelStageProps) {
+/** The centre: overlay toggles, labels, Reset model and Reset view above the 3D model. */
+export function ModelStage({ lesson, model, step, interactive }: ModelStageProps) {
   const active = useSimStore((state) => state.overlays);
   const setOverlay = useSimStore((state) => state.setOverlay);
+  const resetModel = useSimStore((state) => state.reset);
   const [resetSignal, setResetSignal] = useState(0);
+  const [labelsOn, setLabelsOn] = useState(false);
   const notToScale = active.some((id) => overlays[id]?.notToScale === true);
+  const labels = lesson.steps.look.labels ?? [];
+  // Look always shows its labels; after Look the learner can bring them back.
+  const showLabels = step === 'look' || labelsOn;
 
   return (
-    <section className="experiment-stage" aria-label="Model">
+    <section className="lesson-stage" aria-label="Model">
       <div className="stage-toolbar">
         <div className="overlay-bar" role="group" aria-label="Overlays">
-          {experiment.overlays.map((id) => {
+          {lesson.overlays.map((id) => {
             const on = active.includes(id);
             return (
               <button
@@ -32,34 +38,55 @@ export function ModelStage({ experiment, model, unlocked }: ModelStageProps) {
                 type="button"
                 className="toggle"
                 aria-pressed={on}
-                disabled={!unlocked}
+                disabled={!interactive}
                 onClick={() => setOverlay(id, !on)}
               >
                 {overlays[id]?.label ?? id}
               </button>
             );
           })}
+          {labels.length > 0 && step !== 'look' && (
+            <button
+              type="button"
+              className="toggle"
+              aria-pressed={labelsOn}
+              onClick={() => setLabelsOn((on) => !on)}
+            >
+              Labels
+            </button>
+          )}
         </div>
-        <button
-          type="button"
-          className="button-quiet"
-          onClick={() => setResetSignal((count) => count + 1)}
-        >
-          Reset view
-        </button>
+        <div className="stage-actions">
+          <button
+            type="button"
+            className="button-quiet"
+            disabled={!interactive}
+            onClick={resetModel}
+          >
+            Reset model
+          </button>
+          <button
+            type="button"
+            className="button-quiet"
+            onClick={() => setResetSignal((count) => count + 1)}
+          >
+            Reset view
+          </button>
+        </div>
       </div>
-      <div className={unlocked ? 'stage-view' : 'stage-view is-locked'}>
+      <div className="stage-view">
         <ViewportBoundary>
           <Suspense fallback={<p className="stage-message">Loading the model</p>}>
-            <ModelViewport modelId={model.id} activeOverlays={active} resetSignal={resetSignal} />
+            <ModelViewport
+              modelId={model.id}
+              activeOverlays={active}
+              labels={showLabels ? labels : []}
+              interactive={interactive}
+              resetSignal={resetSignal}
+            />
           </Suspense>
         </ViewportBoundary>
         {notToScale && <span className="not-to-scale">Not to scale</span>}
-        {!unlocked && (
-          <div className="stage-lock">
-            <p>Make your prediction to unlock the model.</p>
-          </div>
-        )}
       </div>
     </section>
   );

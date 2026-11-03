@@ -1,5 +1,6 @@
 import type { Module } from '@/engine/content/schema';
-import { placeholderExperiment } from './placeholder-experiment';
+import { theWindmill } from './01-the-windmill';
+import { whatMagnetsDo } from './02-what-magnets-do';
 
 export const emFundamentals = {
   id: 'em-fundamentals',
@@ -10,6 +11,17 @@ export const emFundamentals = {
     'In 1831 Michael Faraday made current by moving a magnet near a coil.',
   ],
   prerequisites: [],
-  // Phase 3 placeholder; Experiment 1 replaces it in Phase 4.
-  experiments: [placeholderExperiment],
+  // Qualitative: no numbers, units, data tables or Pattern steps.
+  numbers: false,
+  lessons: [theWindmill, whatMagnetsDo],
+  comingLater: [
+    'The invisible field',
+    'What a compass is',
+    'What current is',
+    'Current makes a field',
+    'Coil it',
+    'Move a magnet',
+    'Spin it',
+    'Back to the windmill',
+  ],
 } satisfies Module;

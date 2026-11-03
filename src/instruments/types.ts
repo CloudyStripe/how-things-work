@@ -11,5 +11,7 @@ export interface InstrumentReadoutProps {
 
 export interface InstrumentInfo {
   readonly name: string;
+  /** Shows a number and unit, so a qualitative module (EM Fundamentals) may not use it. */
+  readonly showsNumbers: boolean;
   readonly Readout: ComponentType<InstrumentReadoutProps>;
 }

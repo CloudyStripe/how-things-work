@@ -99,9 +99,9 @@ export function Term({ termId, named = false, children }: TermProps) {
             {introduction !== undefined && (
               <Link
                 className="term-popover-link"
-                to={`/module/${introduction.module.id}/experiment/${introduction.experiment.id}`}
+                to={`/module/${introduction.module.id}/lesson/${introduction.lesson.id}`}
               >
-                Introduced in {introduction.experiment.title}
+                Introduced in {introduction.lesson.title}
               </Link>
             )}
           </div>,

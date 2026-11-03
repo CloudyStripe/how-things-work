@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { findModule, moduleMap, moduleTerms } from '@/engine/content';
 import type { Module } from '@/engine/content/schema';
-import { experimentStatus, statusLabel, unfinishedPrerequisites } from '@/engine/experiment/flow';
+import { lessonStatus, statusLabel, unfinishedPrerequisites } from '@/engine/lesson/flow';
 import { useProgressStore } from '@/engine/progress/store';
 import { Term } from '@/glossary/Term';
 import { TermText } from '@/glossary/TermText';
@@ -16,7 +16,7 @@ export function ModulePage() {
 }
 
 function ModuleView({ module }: { module: Module }) {
-  const experiments = useProgressStore((state) => state.experiments);
+  const lessons = useProgressStore((state) => state.lessons);
   const terms = moduleTerms(module);
 
   return (
@@ -36,14 +36,20 @@ function ModuleView({ module }: { module: Module }) {
         ))}
       </ul>
 
-      <h2>Experiments</h2>
-      <ol className="experiment-list">
-        {module.experiments.map((experiment) => (
-          <li key={experiment.id} className="experiment-list-item">
-            <Link to={`/module/${module.id}/experiment/${experiment.id}`}>{experiment.title}</Link>
-            <span className="experiment-list-status">
-              {statusLabel(experimentStatus(experiment, experiments[experiment.id]))}
+      <h2>Lessons</h2>
+      <ol className="lesson-list" aria-label="Lessons">
+        {module.lessons.map((lesson) => (
+          <li key={lesson.id} className="lesson-list-item">
+            <Link to={`/module/${module.id}/lesson/${lesson.id}`}>{lesson.title}</Link>
+            <span className="lesson-list-status">
+              {statusLabel(lessonStatus(lesson, lessons[lesson.id]))}
             </span>
+          </li>
+        ))}
+        {(module.comingLater ?? []).map((title) => (
+          <li key={title} className="lesson-list-item is-coming-later">
+            <span>{title}</span>
+            <span className="lesson-list-status">Coming later</span>
           </li>
         ))}
       </ol>
@@ -68,8 +74,8 @@ function ModuleView({ module }: { module: Module }) {
 
 /** One line per unfinished prerequisite. It never blocks the module. */
 function PrerequisiteNudges({ module }: { module: Module }) {
-  const experiments = useProgressStore((state) => state.experiments);
-  const unfinished = unfinishedPrerequisites(module, findModule, experiments);
+  const lessons = useProgressStore((state) => state.lessons);
+  const unfinished = unfinishedPrerequisites(module, findModule, lessons);
   if (unfinished.length === 0) return null;
 
   return (
@@ -89,7 +95,7 @@ function PrerequisiteNudges({ module }: { module: Module }) {
 
 function ResetModule({ module }: { module: Module }) {
   const [confirming, setConfirming] = useState(false);
-  const resetExperiments = useProgressStore((state) => state.resetExperiments);
+  const resetLessons = useProgressStore((state) => state.resetLessons);
 
   if (!confirming) {
     return (
@@ -111,7 +117,7 @@ function ResetModule({ module }: { module: Module }) {
         type="button"
         className="button"
         onClick={() => {
-          resetExperiments(module.experiments.map((experiment) => experiment.id));
+          resetLessons(module.lessons.map((lesson) => lesson.id));
           setConfirming(false);
         }}
       >
