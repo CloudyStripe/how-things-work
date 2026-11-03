@@ -1,4 +1,6 @@
 import type { ComponentType } from 'react';
+import { CompassBenchScene } from './compass-bench/Scene';
+import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
 import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
 import type { SceneProps } from './types';
@@ -52,6 +54,36 @@ export const scenes: Readonly<Record<string, SceneView>> = {
     },
     zoom: { min: 0.2, max: 2.2 },
     pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'filings-bench': {
+    Scene: FilingsBenchScene,
+    // The magnet's path with the three objects in front, and the glass behind.
+    frame: {
+      center: [0, 0.02, -0.035],
+      halfSize: [0.25, 0.02, 0.135],
+      azimuth: 30,
+      elevation: 34,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'compass-bench': {
+    Scene: CompassBenchScene,
+    // Everywhere the compass can go, the magnet and the north arrow.
+    frame: {
+      center: [0.03, 0.015, -0.015],
+      halfSize: [0.28, 0.015, 0.165],
+      azimuth: 24,
+      elevation: 40,
+      margin: 0.03,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.25,
     clip: { near: 0.005, far: 10 },
     light: [0.3, 0.6, 0.4],
   },

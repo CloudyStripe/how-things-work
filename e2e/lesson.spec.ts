@@ -1,8 +1,8 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { collectConsoleErrors } from './console';
 
-// The Phase 3 gate in a browser: lessons 1 and 2 from the map to Complete, with the real 3D
-// view and simulation.
+// Each built lesson in a browser, from the map or its link to Complete, with the real 3D view and
+// simulation.
 
 /** Moves a slider by arrow-key presses, slowly enough for the carts to react on the way. */
 async function pressSlowly(page: Page, slider: Locator, key: string, presses: number) {
@@ -14,7 +14,8 @@ async function pressSlowly(page: Page, slider: Locator, key: string, presses: nu
 }
 
 test('a learner completes lesson 2, What magnets do', async ({ page }) => {
-  // About 175 slow key presses, while the browser renders the 3D view in software.
+  // About 175 slow key presses, while the browser renders the 3D view in software, alongside
+  // other workers doing the same.
   test.setTimeout(90_000);
   const errors = collectConsoleErrors(page);
   const next = page.getByRole('button', { name: 'Next' });
@@ -71,6 +72,105 @@ test('a learner completes lesson 2, What magnets do', async ({ page }) => {
   // Progress survives a reload.
   await page.reload();
   await expect(lesson).toContainText('Complete');
+  expect(errors).toEqual([]);
+});
+
+/** An overlay's toggle in the stage toolbar (a glossary term in the text may share its name). */
+function overlay(page: Page, name: string): Locator {
+  return page.getByRole('group', { name: 'Overlays' }).getByRole('button', { name });
+}
+
+/** Moves a slider from one value to another in small steps, waiting between them, as a hand would. */
+async function slideTo(page: Page, slider: Locator, from: number, to: number, step = 0.05) {
+  const count = Math.ceil(Math.abs(to - from) / step);
+  for (let index = 1; index <= count; index++) {
+    // A range input takes only values on its step (0.01), written as the browser writes them.
+    const value = from + ((to - from) * index) / count;
+    await slider.fill(String(Number(value.toFixed(2))));
+    await page.waitForTimeout(120);
+  }
+}
+
+test('a learner completes lesson 3, The invisible field', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const slider = page.getByRole('slider', { name: 'Your magnet' });
+
+  await page.goto('/#/module/em-fundamentals');
+  await page.getByRole('link', { name: 'The invisible field' }).click();
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'Steel paper clip' })).toBeVisible();
+  await next.click();
+
+  // The prediction unlocks the model; then only the clip jumps to the magnet.
+  await page.getByRole('radio', { name: 'Only the paper clip' }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  await slideTo(page, slider, 0.075, 1);
+  await expect(page.locator('.prompt.is-done')).toHaveCount(1);
+  await page.getByRole('switch', { name: 'Iron filings' }).click();
+  await expect(page.locator('.prompt.is-done')).toHaveCount(2, { timeout: 15_000 });
+  await next.click();
+
+  // Why names the terms and turns on the field lines.
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/You predicted:/)).toContainText('That matches what happened.');
+  await expect(page.getByText(/Named here:/)).toContainText(
+    'ferromagnetic, magnetic field, field lines',
+  );
+  await expect(overlay(page, 'Field lines')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByText('Not to scale')).toBeVisible();
+  await next.click();
+
+  await expect(step('Step 4 of 4: In the world')).toBeVisible();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.locator('.lesson-list-item', { hasText: 'The invisible field' })).toContainText(
+    'Complete',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('a learner completes lesson 4, What a compass is', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const across = page.getByRole('slider', { name: 'Compass: Left to Right' });
+  const depth = page.getByRole('slider', { name: 'Compass: Back to Front' });
+  const done = page.locator('.prompt.is-done');
+
+  await page.goto('/#/module/em-fundamentals/lesson/what-a-compass-is');
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'North' })).toBeVisible();
+  await expect(across).toBeDisabled();
+  await next.click();
+
+  await page.getByRole('radio', { name: 'Away from the magnet' }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  await expect(across).toBeEnabled();
+
+  // Beside the red end, then round the front to the blue end, then far away again.
+  await across.fill('0.4');
+  await expect(done).toHaveCount(1);
+  await depth.fill('0.95');
+  await across.fill('0.04');
+  await depth.fill('0.5');
+  await expect(done).toHaveCount(2);
+  await depth.fill('0.95');
+  await across.fill('0.96');
+  // The needle swings back to north and settles.
+  await expect(done).toHaveCount(3, { timeout: 10_000 });
+  await next.click();
+
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/Named here:/)).toContainText("compass, Earth's magnetic field");
+  await expect(overlay(page, "Earth's field")).toHaveAttribute('aria-pressed', 'true');
+  await next.click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.locator('.lesson-list-item', { hasText: 'What a compass is' })).toContainText(
+    'Complete',
+  );
   expect(errors).toEqual([]);
 });
 

@@ -1,9 +1,9 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
-import type { Group, Texture } from 'three';
-import { useLetterTexture } from '../shared/labelTexture';
+import type { Group } from 'three';
+import { BarMagnet } from '../shared/BarMagnet';
 import { Block, Cylinder } from '../shared/surfaces';
-import { useRailDrag } from '../shared/useRailDrag';
+import { useBenchDrag } from '../shared/useBenchDrag';
 import type { SceneProps } from '../types';
 import { HOLDER_TRAVEL, MAGNET_HEIGHT, RAIL_END, type MagnetRailState } from './definition';
 
@@ -31,10 +31,10 @@ export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneP
     rightCart.current?.position.setX(right.position.x);
   });
 
-  const drag = useRailDrag({
+  const drag = useBenchDrag({
     enabled: interactive,
     height: MAGNET_HEIGHT,
-    currentX: () => state().holder,
+    current: () => ({ x: state().holder, z: 0 }),
     onDrag(x) {
       const value = (x - HOLDER_TRAVEL.min) / (HOLDER_TRAVEL.max - HOLDER_TRAVEL.min);
       setControl('position', Math.min(1, Math.max(0, value)));
@@ -70,50 +70,27 @@ export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneP
           size={[CART.length, holderHeight, CART.width]}
           position={[0, RAIL.height + holderHeight / 2, 0]}
         />
-        <BarMagnet reversed={false} />
+        <RailMagnet reversed={false} />
       </group>
 
       <group ref={leftCart}>
         <Cart bumperSide={1} />
-        <BarMagnet reversed={false} />
+        <RailMagnet reversed={false} />
       </group>
       <group ref={rightCart}>
         <Cart bumperSide={-1} />
-        <BarMagnet reversed />
+        <RailMagnet reversed />
       </group>
     </group>
   );
 }
 
-/** A painted bar magnet lying along the rail: N half red, S half blue, with letters on top. */
-function BarMagnet({ reversed }: { reversed: boolean }) {
-  const north = useLetterTexture('N', null, '#ffffff');
-  const south = useLetterTexture('S', null, '#ffffff');
-  const half = MAGNET.length / 2;
-  const northX = reversed ? -half / 2 : half / 2;
-
+/** A bar magnet lying along the rail at the magnets' height. */
+function RailMagnet({ reversed }: { reversed: boolean }) {
   return (
     <group position={[0, MAGNET_HEIGHT, 0]}>
-      {[
-        { x: northX, kind: 'magnetNorth' as const, letter: north },
-        { x: -northX, kind: 'magnetSouth' as const, letter: south },
-      ].map(({ x, kind, letter }) => (
-        <group key={kind} position={[x, 0, 0]}>
-          <Block kind={kind} size={[half, MAGNET.side, MAGNET.side]} />
-          <MagnetLetter texture={letter} />
-        </group>
-      ))}
+      <BarMagnet length={MAGNET.length} side={MAGNET.side} reversed={reversed} />
     </group>
-  );
-}
-
-/** A white letter printed on a magnet's top face. */
-function MagnetLetter({ texture }: { texture: Texture }) {
-  return (
-    <mesh position={[0, MAGNET.side / 2 + 0.0001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[MAGNET.side * 0.8, MAGNET.side * 0.8]} />
-      <meshBasicMaterial map={texture} transparent />
-    </mesh>
   );
 }
 

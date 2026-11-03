@@ -115,15 +115,15 @@ The module teaches one idea in two directions: current makes a magnetic field, a
 - **In the world:** magnetic clasps on bags and phone cases; wooden toy trains whose magnet couplings snap together one way round and push apart the other; maglev trains.
 - **Challenge:** push the right-hand cart to the end of the rail without letting the magnets touch.
 
-**3. The invisible field.** First, a wooden peg, a copper coin and a steel paper clip lie beside the learner's magnet; then a glass sheet sits over a bar magnet.
+**3. The invisible field.** At the front of the bench, a wooden peg, a copper coin and a steel paper clip lie beside the learner's magnet; at the back, a glass sheet sits over a second bar magnet.
 
-- **Try:** slide the magnet past the peg, the coin and the clip (only the clip jumps across); sprinkle iron filings on the glass and watch them settle into a pattern.
+- **Try:** prediction: "Which of them will your magnet pull?" (all three / the coin and the paper clip / only the paper clip / none of them); most people expect every metal to be pulled. Prompts: slide the magnet past the peg, the coin and the clip (only the clip jumps across); sprinkle iron filings on the glass and watch them settle into a pattern.
 - **Key observations:** magnets pull iron and steel but not copper or wood; filings, being iron, line up in curves from pole to pole, crowded near the poles.
 - **Overlay:** field lines with direction arrows, turned on by Why.
 
 **4. What a compass is.** A compass on a bench, with a bar magnet nearby.
 
-- **Try:** move the compass around the magnet; move it far away.
+- **Try:** prediction: "When you bring the compass to your magnet's red end, which way will the needle's red end point?" (toward the magnet / away from it / still north); "north points to north" misleads. Prompts: drag the compass to the red end; take it round to the blue end; move it far away again.
 - **Key observations:** the needle is a small magnet on a pivot and lines up with the field where it sits; far from any magnet it lines up with Earth's field and points north.
 - **Overlay:** Earth's field.
 

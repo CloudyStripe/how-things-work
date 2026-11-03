@@ -1,7 +1,7 @@
 import type { Lesson } from '@/engine/content/schema';
 import { useSimStore } from '@/engine/sim/store';
 import { instruments } from '@/instruments/registry';
-import type { AnyModel, ControlSpec } from '@/models/types';
+import { isSpot, type AnyModel, type ControlSpec } from '@/models/types';
 import { ExplorerTools } from './ExplorerTools';
 
 interface SidePanelProps {
@@ -103,6 +103,34 @@ function ControlInput({
           <span className="slider-end">{spec.maxLabel}</span>
         </div>
       </div>
+    );
+  }
+
+  if (spec.kind === 'spot') {
+    const spot = isSpot(value) ? value : spec.default;
+    const axes = [
+      { axis: 'across', labels: spec.acrossLabels },
+      { axis: 'depth', labels: spec.depthLabels },
+    ] as const;
+    return (
+      <fieldset className="control spot-control" disabled={disabled}>
+        <legend className="control-label">{spec.label}</legend>
+        {axes.map(({ axis, labels: [minLabel, maxLabel] }) => (
+          <div key={axis} className="slider-row">
+            <span className="slider-end">{minLabel}</span>
+            <input
+              type="range"
+              aria-label={`${spec.label}: ${minLabel} to ${maxLabel}`}
+              min={0}
+              max={1}
+              step={0.01}
+              value={spot[axis]}
+              onChange={(event) => setControl(id, { ...spot, [axis]: Number(event.target.value) })}
+            />
+            <span className="slider-end">{maxLabel}</span>
+          </div>
+        ))}
+      </fieldset>
     );
   }
 

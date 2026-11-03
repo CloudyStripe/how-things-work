@@ -2,17 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Matrix4, type InstancedMesh } from 'three';
 import type { OverlayLayerProps } from '@/models/types';
-import {
-  add,
-  compassBearing,
-  earthField,
-  length,
-  straightWireField,
-  sub,
-  vec3,
-  ZERO,
-  type Vec3,
-} from '@/physics';
+import { compassBearing, length, netField, sub, vec3, type Vec3 } from '@/physics';
 
 // A grid of arrows on the board showing the direction a compass would point at each spot:
 // the horizontal direction of the net field from the model's sources. Every arrow has the same
@@ -58,9 +48,7 @@ export function FieldArrows({ model, getSnapshot }: OverlayLayerProps) {
       const nearWire = sources.wires.some(
         (wire) => horizontalDistance(point, wire.point) < WIRE_CLEARANCE,
       );
-      let field = sources.earth ? earthField() : ZERO;
-      for (const wire of sources.wires) field = add(field, straightWireField(wire, point));
-      const bearing = compassBearing(field);
+      const bearing = compassBearing(netField(sources, point));
       if (nearWire || bearing === null) {
         // Hidden: scaled to nothing.
         scratch.matrix.makeScale(0, 0, 0);

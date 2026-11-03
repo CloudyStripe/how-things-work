@@ -32,15 +32,15 @@ npm run dev                       # http://localhost:5180
 
 ## Status
 
-Phase 4 of 9 (Style, magnets and fields) is in progress. The owner chose the technical
-illustration style.
+Phase 5 of 9 (Current and electromagnets) is next. Phase 4 is complete: the owner chose the
+technical illustration style, and lessons 3 and 4 are built.
 
 | Phase | Name                       | Status                                |
 | ----- | -------------------------- | ------------------------------------- |
 | 1     | Setup                      | Complete                              |
 | 2     | Physics core               | Complete                              |
 | 3     | Engine shell               | Complete                              |
-| 4     | Style, magnets and fields  | In progress                           |
+| 4     | Style, magnets and fields  | Complete                              |
 | 5     | Current and electromagnets | Not started                           |
 | 6     | Induction                  | Not started                           |
 | 7     | The wind turbine           | Not started (turbine review by owner) |
@@ -61,9 +61,17 @@ What exists now:
   localStorage.
 - **Content** (`content/`): typed data files checked by Zod schemas and cross-reference tests,
   including EM Fundamentals' no-numbers rule.
+- **Models** are technical illustrations: realistic parts in flat colours with dark outlines,
+  each bench framed to fill the model view at any window size.
 - **EM Fundamentals:** lesson 1 (The windmill) runs on a stand-in turbine made of plain blocks
-  until the realistic turbine arrives in Phase 7. Lesson 2 (What magnets do) is built for real:
-  a magnet on a rail between two magnets on rolling carts, moved by the physics core's magnet
-  forces. Lessons 3 to 10 are listed as coming later.
+  until the realistic turbine arrives in Phase 7. Lessons 2 to 4 are built:
+  - **What magnets do:** a magnet on a rail between two magnets on rolling carts, moved by the
+    physics core's magnet forces.
+  - **The invisible field:** a magnet slides past a wooden peg, a copper coin and a steel paper
+    clip (only the clip jumps across), and iron filings settle into the field around a magnet
+    under glass. The field-lines overlay draws the same field.
+  - **What a compass is:** a compass dragged around a magnet follows its field, and far away
+    lines up with Earth's. Overlays show the field lines and Earth's field.
+  - Lessons 5 to 10 are listed as coming later.
 - Not built yet: the Review page (spaced review) and the personal glossary page, both in Phase
   8, and JSON export and import, in Phase 9.

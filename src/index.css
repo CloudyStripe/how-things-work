@@ -581,6 +581,15 @@ fieldset.control .control-label {
   color: var(--color-text-muted);
 }
 
+/* A spot's two sliders line up: the same room for the words at each end. */
+.spot-control .slider-end {
+  min-width: 2.4rem;
+}
+
+.spot-control .slider-end:last-child {
+  text-align: right;
+}
+
 /* Explorer: taking the model apart */
 .part-steps {
   flex-direction: column;

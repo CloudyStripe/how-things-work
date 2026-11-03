@@ -15,7 +15,15 @@ export type SurfaceKind =
   | 'rubber'
   | 'metal'
   | 'magnetNorth'
-  | 'magnetSouth';
+  | 'magnetSouth'
+  | 'peg'
+  | 'copper'
+  | 'steel'
+  | 'iron'
+  | 'glass'
+  | 'brass'
+  | 'card'
+  | 'ink';
 
 const COLORS: Readonly<Record<SurfaceKind, string>> = {
   tabletop: '#e6dfd0',
@@ -27,14 +35,34 @@ const COLORS: Readonly<Record<SurfaceKind, string>> = {
   metal: '#c9cdd2',
   magnetNorth: '#d9473a',
   magnetSouth: '#3a6ec0',
+  peg: '#dcc095',
+  copper: '#cf8150',
+  steel: '#959ca5',
+  iron: '#4a4d52',
+  glass: '#cfe6ee',
+  brass: '#cfae5a',
+  card: '#f8f6ef',
+  ink: '#3a3c40',
 };
+
+/** See-through surfaces, and how much of what lies behind them they hide. */
+const OPACITY: Partial<Record<SurfaceKind, number>> = { glass: 0.35 };
 
 /** The outline colour. */
 export const ILLUSTRATION_LINE = '#2a2c2f';
 
 /** The flat-shaded material for one kind of surface. */
 export function SurfaceMaterial({ kind }: { kind: SurfaceKind }) {
-  return <meshToonMaterial color={COLORS[kind]} gradientMap={toonSteps()} />;
+  const opacity = OPACITY[kind];
+  return (
+    <meshToonMaterial
+      color={COLORS[kind]}
+      gradientMap={toonSteps()}
+      transparent={opacity !== undefined}
+      opacity={opacity ?? 1}
+      depthWrite={opacity === undefined}
+    />
+  );
 }
 
 type Vec3 = readonly [number, number, number];
