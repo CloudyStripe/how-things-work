@@ -45,3 +45,23 @@ export function joinPaths(...paths: readonly (readonly Vec3[])[]): Vec3[] {
   }
   return joined;
 }
+
+/**
+ * A coil's winding as drawn, along x: `turns` turns of radius `radius` (m) from its right end to
+ * its left, starting at the back (-z). Each turn goes round from +y toward +z, so by the
+ * right-hand rule a current running this way makes the field inside point along +x.
+ */
+export function windingPath(center: Vec3, radius: number, length: number, turns: number): Vec3[] {
+  const points: Vec3[] = [];
+  const perTurn = 24;
+  const total = turns * perTurn;
+  for (let index = 0; index <= total; index++) {
+    const angle = -Math.PI / 2 + (index / perTurn) * 2 * Math.PI;
+    points.push({
+      x: center.x + length / 2 - (index / total) * length,
+      y: center.y + radius * Math.cos(angle),
+      z: center.z + radius * Math.sin(angle),
+    });
+  }
+  return points;
+}

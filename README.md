@@ -32,7 +32,8 @@ npm run dev                       # http://localhost:5180
 
 ## Status
 
-Phase 6 of 9 (Induction) is next. Phase 5 is complete: lessons 5 to 7 are built.
+Phase 7 of 9 (The wind turbine) is next; it waits for the owner's review before it merges. Phase
+6 is complete: lessons 8 and 9 are built.
 
 | Phase | Name                       | Status                                |
 | ----- | -------------------------- | ------------------------------------- |
@@ -41,7 +42,7 @@ Phase 6 of 9 (Induction) is next. Phase 5 is complete: lessons 5 to 7 are built.
 | 3     | Engine shell               | Complete                              |
 | 4     | Style, magnets and fields  | Complete                              |
 | 5     | Current and electromagnets | Complete                              |
-| 6     | Induction                  | Not started                           |
+| 6     | Induction                  | Complete                              |
 | 7     | The wind turbine           | Not started (turbine review by owner) |
 | 8     | Review and glossary        | Not started                           |
 | 9     | Polish                     | Not started                           |
@@ -77,6 +78,11 @@ What exists now:
     flows, and the other way when the battery is reversed.
   - **Coil it:** a coil over a tray of paper clips; with the iron core in, clips jump up and cling
     to both ends, and drop when the switch opens.
-  - Lessons 8 to 10 are listed as coming later.
+  - **Move a magnet:** a magnet pushed into and pulled out of a coil swings a centre-zero meter
+    opposite ways, and a quick push lights a red or a green LED; held still, nothing. The flux
+    overlay shows the field lines threading the coil.
+  - **Spin it:** a hand-cranked magnet beside an iron-cored coil makes a current that keeps
+    reversing: a generator.
+  - Lesson 10 is listed as coming later.
 - Not built yet: the Review page (spaced review) and the personal glossary page, both in Phase
   8, and JSON export and import, in Phase 9.

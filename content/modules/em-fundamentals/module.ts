@@ -6,6 +6,8 @@ import { whatACompassIs } from './04-what-a-compass-is';
 import { whatCurrentIs } from './05-what-current-is';
 import { currentMakesAField } from './06-current-makes-a-field';
 import { coilIt } from './07-coil-it';
+import { moveAMagnet } from './08-move-a-magnet';
+import { spinIt } from './09-spin-it';
 
 export const emFundamentals = {
   id: 'em-fundamentals',
@@ -26,6 +28,8 @@ export const emFundamentals = {
     whatCurrentIs,
     currentMakesAField,
     coilIt,
+    moveAMagnet,
+    spinIt,
   ],
-  comingLater: ['Move a magnet', 'Spin it', 'Back to the windmill'],
+  comingLater: ['Back to the windmill'],
 } satisfies Module;

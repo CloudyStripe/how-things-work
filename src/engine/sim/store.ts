@@ -13,8 +13,13 @@ import {
 // taken apart, and which overlays are on. Not persisted; it starts fresh each time a lesson
 // opens.
 
-/** Longest step (s) one frame may take, so a stalled tab does not jump the simulation. */
-export const MAX_FRAME = 1 / 30;
+/**
+ * Longest step (s) one frame may take, so a stalled tab does not jump the simulation. Down to
+ * ten frames a second the simulation keeps real time, so a hand's move is as fast to the physics
+ * as it was to the learner (it matters where speed makes the current); models take their own
+ * substeps within a frame.
+ */
+export const MAX_FRAME = 0.1;
 
 interface SimStore {
   model: AnyModel | null;

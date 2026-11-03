@@ -214,10 +214,21 @@ closed-form thin-magnet solution, dipole limits, and energy conservation for the
 - Objects stuck to a magnet ride with it: once a paper clip touches, the grip far exceeds anything
   the hand's motion asks of it.
 
-## Left for later phases
+## LEDs and the meter circuit
 
-- **LED pair (Phase 6):** a forward-voltage threshold across the coil, tuned with the scene.
-- **The flux overlay (Phase 6):** field lines through a coil, from the same tracing.
+An LED passes no current below its forward voltage (1.8 V for a red indicator), then current rising
+steeply, modelled as a straight line through 25 Ω (`ledPairCurrent`). Two wired opposite ways
+light one for each direction. A high-brightness LED glows plainly at a milliamp; the scenes treat
+5 mA as full brightness.
+
+In lessons 8 and 9 the coil drives the meter and the LED pair side by side
+(`solveInductionCircuit`, solved exactly). The meter with its series resistor takes 4000 Ω, so full
+scale (500 µA) is 2 V, just past where the LEDs light. Below 1.8 V only the meter takes current;
+above it the LEDs take most of it, which holds the voltage near 1.8 V. So a jerky push lights an LED
+and moves the needle less than a smooth one: the LEDs take the brief high voltage.
+
+The flux overlay draws the same field lines as the field-lines overlay, with those that pass inside
+the coil bold.
 
 ## Tuning notes for the scenes
 
@@ -254,11 +265,15 @@ Scene parameters must stay physical; these are the starting magnitudes with the 
   below an end reaches about 13 times the weight, and about fourteen of thirty clips lift. A clip
   pressed against the iron stays while the pull on it is more than its weight; the core's surface
   takes any sideways part. The winding is drawn as thirty turns.
-- **Lesson 8 (Move a magnet):** pushing the 3 A·m² magnet into a 100-turn coil at 0.25 m/s gives about
-  23 mV and 440 µA, close to full scale on the ±500 µA meter. Good as is.
-- **Lesson 9 (Spin it):** a 0.5 A·m² magnet 6 cm from a 200-turn coil at 2 rotations per second
-  peaks at only about 1.7 mV. The scene will need a stronger magnet, closer spacing, more turns,
-  or a more sensitive meter.
+- **Lesson 8 (Move a magnet):** a strong (neodymium) 6.5 A·m² magnet, 5 cm long, into a coil of 2000
+  turns of 0.15 mm copper (4 cm across, 240 Ω). The flux linkage changes by up to 4.6 Wb per metre
+  of travel, so a steady push at 13 cm/s makes about 0.6 V and swings the needle about 11 degrees,
+  and a push faster than about 40 cm/s lights an LED. Held still, the emf is exactly zero.
+- **Lesson 9 (Spin it):** a 2.5 A·m² magnet, 3 cm long, spun beside a coil of 3000 turns of 0.2 mm
+  copper (3 cm across, 150 Ω) on a soft-iron core, its end 2.5 cm from the shaft. At half a turn a
+  second the emf peaks near 0.9 V and the needle swings about 18 degrees each way; at 1.2 turns a
+  second it peaks near 2.2 V and the LEDs take turns. The magnet is long for a point dipole that
+  close, so the emf's size is approximate; its shape, and its proportion to speed, hold.
 - **Two coils (the Transformer module's first lesson):** two 200-turn coils 2 cm apart, a 1.5 V battery: coil A's current rises in
   0.35 ms, and the kick moves about 0.46 µC through the meter, a barely visible twitch. That lesson
   will likely need an iron core through both coils or many more turns, as real classroom

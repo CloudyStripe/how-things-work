@@ -475,6 +475,17 @@ a {
   gap: var(--space-2);
 }
 
+/* Toolbar buttons are compact and never wrap their words; a crowded toolbar wraps whole
+   buttons onto a second row instead. */
+.stage-toolbar {
+  flex-wrap: wrap;
+}
+
+.stage-toolbar button {
+  padding: var(--space-1) var(--space-3);
+  white-space: nowrap;
+}
+
 /* Look labels: placed over the model every frame by the viewport's LabelTracker */
 .model-label {
   position: absolute;

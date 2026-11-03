@@ -13,6 +13,7 @@ export * from './filings';
 export * from './forces';
 export * from './generator';
 export * from './induction';
+export * from './led';
 export * from './loop';
 export * from './magnet';
 export * from './motion';

@@ -1,4 +1,4 @@
-import type { FieldSources, Vec3 } from '@/physics';
+import type { Coil, FieldSources, Vec3 } from '@/physics';
 
 // What every model provides to the engine. A model definition is pure TypeScript (no React or
 // three.js): content files and the engine import it freely. Its 3D view is registered
@@ -137,6 +137,8 @@ export interface ModelDefinition<S, C extends ControlValues> {
   readonly anchors?: Readonly<Record<string, Anchor<S, C>>>;
   /** The pieces of an explorer model. */
   readonly parts?: readonly ModelPart[];
+  /** The coil whose magnetic flux the flux overlay shows: field lines through it, drawn bold. */
+  readonly fluxCoil?: Coil;
   /** The wires current flows through, for the current-flow overlay. */
   currentPaths?(snapshot: SimSnapshot<S, C>): readonly CurrentPath[];
   /**
