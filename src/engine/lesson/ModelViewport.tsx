@@ -1,10 +1,12 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useCallback, useEffect, useMemo, useRef, type ComponentRef, type RefObject } from 'react';
-import { Vector3 } from 'three';
+import { NeutralToneMapping, Vector3 } from 'three';
 import { useSimStore } from '@/engine/sim/store';
 import { models } from '@/models/registry';
 import { scenes, type SceneView } from '@/models/scenes';
+import { useRenderStyle } from '@/models/shared/renderStyle';
+import { Stage } from '@/models/shared/Stage';
 import type { AnyModel, ExplorerView, SimSnapshot } from '@/models/types';
 import { overlayLayers } from '@/overlays/layers';
 
@@ -41,6 +43,7 @@ export default function ModelViewport({
   );
   const getView = useCallback((): ExplorerView => useSimStore.getState().view, []);
   const { setControl, selectPart } = useSimStore.getState();
+  const style = useRenderStyle((state) => state.style);
   // The labels are plain elements over the canvas; LabelTracker moves them every frame.
   const labelElements = useRef(new Map<string, HTMLElement>());
   if (model === undefined || view === undefined || !ready) return null;
@@ -48,7 +51,12 @@ export default function ModelViewport({
   const { Scene } = view;
   return (
     <div className="viewport" role="img" aria-label={model.title}>
+      {/* Tone mapping and shadows belong to the renderer, so a style change starts a new canvas. */}
       <Canvas
+        key={style}
+        flat={style === 'illustration'}
+        shadows={style === 'photoreal' ? 'percentage' : false}
+        gl={style === 'photoreal' ? { toneMapping: NeutralToneMapping } : undefined}
         camera={{
           position: view.camera.position,
           fov: 40,
@@ -57,9 +65,7 @@ export default function ModelViewport({
         }}
         dpr={[1, 2]}
       >
-        <color attach="background" args={['#eceeef']} />
-        <ambientLight intensity={0.8} />
-        <directionalLight position={view.light} intensity={1.6} />
+        <Stage view={view} />
         <Scene
           getSnapshot={getSnapshot}
           getView={getView}

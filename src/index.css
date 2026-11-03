@@ -472,7 +472,19 @@ a {
 
 .stage-actions {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
+}
+
+/* Temporary, for the Phase 4 style decision */
+.style-switch {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.style-switch select {
+  font: inherit;
+  color: var(--color-text);
 }
 
 /* Look labels: placed over the model every frame by the viewport's LabelTracker */

@@ -20,6 +20,10 @@ export interface SceneView {
   readonly clip: { readonly near: number; readonly far: number };
   /** Where the main light shines from. */
   readonly light: Vector3Tuple;
+  /** Half the width of the ground the model stands on (metres): what shadows must cover. */
+  readonly extent: number;
+  /** Distances (metres from the camera) over which the backdrop fades distant ground. */
+  readonly fog?: { readonly near: number; readonly far: number };
 }
 
 export const scenes: Readonly<Record<string, SceneView>> = {
@@ -30,13 +34,16 @@ export const scenes: Readonly<Record<string, SceneView>> = {
     pan: 40,
     clip: { near: 0.5, far: 3000 },
     light: [120, 220, 160],
+    extent: 60,
   },
   'magnet-rail': {
     Scene: MagnetRailScene,
-    camera: { position: [0.03, 0.4, 0.8], target: [0, 0.02, 0] },
+    camera: { position: [0.02, 0.52, 0.68], target: [0, 0.02, 0] },
     zoom: { min: 0.12, max: 1.6 },
     pan: 0.2,
     clip: { near: 0.005, far: 10 },
     light: [0.3, 0.6, 0.4],
+    extent: 0.4,
+    fog: { near: 1.2, far: 3.2 },
   },
 };

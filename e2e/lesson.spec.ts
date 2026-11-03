@@ -14,6 +14,8 @@ async function pressSlowly(page: Page, slider: Locator, key: string, presses: nu
 }
 
 test('a learner completes lesson 2, What magnets do', async ({ page }) => {
+  // About 175 slow key presses, while the browser renders the 3D view in software.
+  test.setTimeout(90_000);
   const errors = collectConsoleErrors(page);
   const next = page.getByRole('button', { name: 'Next' });
   const step = (name: string) => page.getByRole('heading', { level: 2, name });
