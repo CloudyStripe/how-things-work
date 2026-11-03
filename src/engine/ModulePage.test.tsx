@@ -42,7 +42,7 @@ describe('module page', () => {
     const items = within(screen.getByRole('list', { name: 'Lessons' })).getAllByRole('listitem');
     const built = emFundamentals.lessons.length;
     expect(items).toHaveLength(10);
-    expect(items[built]).toHaveTextContent('What current isComing later');
+    expect(items[built]).toHaveTextContent(`${emFundamentals.comingLater?.[0] ?? ''}Coming later`);
     expect(items[9]).toHaveTextContent('Back to the windmillComing later');
     expect(within(items[built] as HTMLElement).queryByRole('link')).not.toBeInTheDocument();
   });

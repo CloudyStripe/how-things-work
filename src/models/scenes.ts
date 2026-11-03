@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import { CircuitBoardScene } from './circuit-board/Scene';
 import { CompassBenchScene } from './compass-bench/Scene';
 import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
@@ -84,6 +85,21 @@ export const scenes: Readonly<Record<string, SceneView>> = {
     },
     zoom: { min: 0.2, max: 2.2 },
     pan: 0.25,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'circuit-board': {
+    Scene: CircuitBoardScene,
+    // The board and everything on it, up to the top of the bulb.
+    frame: {
+      center: [0, 0.03, 0],
+      halfSize: [0.18, 0.03, 0.11],
+      azimuth: 26,
+      elevation: 38,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
     clip: { near: 0.005, far: 10 },
     light: [0.3, 0.6, 0.4],
   },

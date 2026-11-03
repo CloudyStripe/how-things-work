@@ -3,6 +3,7 @@ import {
   EAST,
   length,
   netField,
+  NO_SOURCES,
   stepCompassNeedle,
   sub,
   vec3,
@@ -70,7 +71,7 @@ const MAGNET_ON_BENCH: BarMagnet = {
   moment: MAGNET_MOMENT,
 };
 
-const SOURCES: FieldSources = { wires: [], magnets: [MAGNET_ON_BENCH], earth: true };
+const SOURCES: FieldSources = { ...NO_SOURCES, magnets: [MAGNET_ON_BENCH], earth: true };
 
 export const NORTH_POLE = vec3(MAGNET_X + MAGNET.length / 2, COMPASS.needleHeight, 0);
 export const SOUTH_POLE = vec3(MAGNET_X - MAGNET.length / 2, COMPASS.needleHeight, 0);

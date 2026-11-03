@@ -4,6 +4,7 @@ import {
   IRON_FILING,
   magnetizableBody,
   netField,
+  NO_SOURCES,
   sampledPlaneField,
   softIronForce,
   stepSlidingBody,
@@ -168,9 +169,8 @@ function barMagnet(x: number, z: number): BarMagnet {
 /** Both magnets point N to the right (+x). */
 function benchSources(learnerMagnet: number): FieldSources {
   return {
-    wires: [],
+    ...NO_SOURCES,
     magnets: [barMagnet(learnerMagnet, PATH_Z), barMagnet(0, GLASS_MAGNET_Z)],
-    earth: false,
   };
 }
 

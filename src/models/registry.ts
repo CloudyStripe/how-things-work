@@ -1,3 +1,4 @@
+import { circuitBoard } from './circuit-board/definition';
 import { compassBench } from './compass-bench/definition';
 import { filingsBench } from './filings-bench/definition';
 import { magnetRail } from './magnet-rail/definition';
@@ -10,4 +11,5 @@ export const models: Readonly<Record<string, AnyModel>> = {
   [magnetRail.id]: magnetRail,
   [filingsBench.id]: filingsBench,
   [compassBench.id]: compassBench,
+  [circuitBoard.id]: circuitBoard,
 };

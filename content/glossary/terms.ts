@@ -92,6 +92,46 @@ export const glossary = {
       related: ['compass', 'magnetic-field'],
       introducedIn: 'what-a-compass-is',
     },
+    {
+      id: 'electric-current',
+      name: 'electric current',
+      forms: ['current', 'currents', 'electric currents'],
+      definition:
+        'A flow of electricity round a circuit. It is the same all the way round, and stops everywhere when the circuit is broken.',
+      note: 'By convention, current is drawn leaving a battery at its positive end and coming back in at its negative end. How much flows is measured in amperes, in the Electricity module.',
+      related: ['electric-circuit', 'conductor'],
+      introducedIn: 'what-current-is',
+    },
+    {
+      id: 'electric-circuit',
+      name: 'electric circuit',
+      forms: ['circuit', 'circuits', 'electric circuits'],
+      definition:
+        'A complete loop of conductors that current flows round, from one end of a battery or generator and back to the other.',
+      note: 'A switch opens and closes the loop. Open it anywhere and the circuit is broken: no current flows in any part of it.',
+      related: ['electric-current', 'conductor', 'insulator'],
+      introducedIn: 'what-current-is',
+    },
+    {
+      id: 'conductor',
+      name: 'conductor',
+      forms: ['conductors', 'electrical conductor'],
+      definition:
+        'A material that current flows through easily. Metals such as copper and aluminium are good conductors.',
+      note: 'Copper is used for most wires because it conducts well and bends easily. Salty water conducts too, which is one reason electricity and wet hands are dangerous.',
+      related: ['insulator', 'electric-current'],
+      introducedIn: 'what-current-is',
+    },
+    {
+      id: 'insulator',
+      name: 'insulator',
+      forms: ['insulators'],
+      definition:
+        'A material that current cannot flow through, such as plastic, rubber, glass or dry wood.',
+      note: 'Wires are coated in an insulator so the current stays in the copper and cannot pass into anything, or anyone, touching the wire.',
+      related: ['conductor', 'electric-circuit'],
+      introducedIn: 'what-current-is',
+    },
   ],
   confusablePairs: [],
 } satisfies Glossary;
