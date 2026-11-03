@@ -1,11 +1,13 @@
 import type { ComponentType } from 'react';
 import { CircuitBoardScene } from './circuit-board/Scene';
+import { CoilTrayScene } from './coil-tray/Scene';
 import { CompassBenchScene } from './compass-bench/Scene';
 import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
 import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
 import type { SceneProps } from './types';
 import { WindTurbineStandinScene } from './wind-turbine-standin/Scene';
+import { WireBoardScene } from './wire-board/Scene';
 
 // Each model's 3D view, by model id. Imported only by the lesson viewport, which is
 // lazy-loaded, so three.js stays out of the rest of the app.
@@ -96,6 +98,36 @@ export const scenes: Readonly<Record<string, SceneView>> = {
       halfSize: [0.18, 0.03, 0.11],
       azimuth: 26,
       elevation: 38,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'wire-board': {
+    Scene: WireBoardScene,
+    // The board and its compasses, and the wire's foot; the wire runs on up out of view.
+    frame: {
+      center: [0, 0.085, 0],
+      halfSize: [0.17, 0.035, 0.15],
+      azimuth: 28,
+      elevation: 38,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'coil-tray': {
+    Scene: CoilTrayScene,
+    // The coil over its tray, the iron rod in front, the battery and the switch.
+    frame: {
+      center: [-0.005, 0.03, -0.008],
+      halfSize: [0.185, 0.03, 0.1],
+      azimuth: 24,
+      elevation: 30,
       margin: 0.04,
     },
     zoom: { min: 0.2, max: 2.2 },

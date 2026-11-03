@@ -102,8 +102,12 @@ export function fieldLinePaths(sources: FieldSources, region: Region): FieldLine
     // Where the wire crosses the area's level.
     const along = (height - wire.point.y) / (wire.direction.y || 1);
     const crossing = atHeight(add(wire.point, scale(wire.direction, along)), height);
+    // Start on the side where the wire's field works against the rest (Earth's): its loops
+    // close farthest out there, while on the other side they open within a short distance.
+    const side = (ring: number) => length(fieldAt(vec3(crossing.x + ring, height, crossing.z)));
+    const toward = side(WIRE_RINGS[1] ?? 0.02) <= side(-(WIRE_RINGS[1] ?? 0.02)) ? 1 : -1;
     for (const ring of WIRE_RINGS) {
-      const seed = vec3(crossing.x + ring, height, crossing.z);
+      const seed = vec3(crossing.x + toward * ring, height, crossing.z);
       if (outside(seed)) continue;
       let travelled = 0;
       const points = traceHorizontalFieldLine(fieldAt, seed, 1, {

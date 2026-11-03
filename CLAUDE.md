@@ -169,7 +169,9 @@ src/
   engine/        app shell, map, module page, lesson runner and explorer tools, content
                  loading, simulation and progress stores
   models/        model definitions (pure) and their 3D scenes, by ID
-  instruments/   readouts by ID: ammeter (for later modules); compass, meter, LEDs, clips later
+  instruments/   side-panel readouts by ID: ammeter (for later modules). Instruments that sit
+                 in a scene (compass, bulb, clip tray; the meter and LEDs next) are shared
+                 scene parts in src/models/shared/
   overlays/      overlay catalog and 3D layers, by ID
   glossary/      term matching, hover terms, glossary page
   review/        scheduler, review page, card views                     (Phase 8)

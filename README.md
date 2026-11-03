@@ -32,8 +32,7 @@ npm run dev                       # http://localhost:5180
 
 ## Status
 
-Phase 5 of 9 (Current and electromagnets) is next. Phase 4 is complete: the owner chose the
-technical illustration style, and lessons 3 and 4 are built.
+Phase 6 of 9 (Induction) is next. Phase 5 is complete: lessons 5 to 7 are built.
 
 | Phase | Name                       | Status                                |
 | ----- | -------------------------- | ------------------------------------- |
@@ -41,7 +40,7 @@ technical illustration style, and lessons 3 and 4 are built.
 | 2     | Physics core               | Complete                              |
 | 3     | Engine shell               | Complete                              |
 | 4     | Style, magnets and fields  | Complete                              |
-| 5     | Current and electromagnets | Not started                           |
+| 5     | Current and electromagnets | Complete                              |
 | 6     | Induction                  | Not started                           |
 | 7     | The wind turbine           | Not started (turbine review by owner) |
 | 8     | Review and glossary        | Not started                           |
@@ -72,6 +71,12 @@ What exists now:
     under glass. The field-lines overlay draws the same field.
   - **What a compass is:** a compass dragged around a magnet follows its field, and far away
     lines up with Earth's. Overlays show the field lines and Earth's field.
-  - Lessons 5 to 10 are listed as coming later.
+  - **What current is:** a battery, a switch and a bulb; the current-flow overlay shows the
+    current going round the loop, and stopping everywhere when the switch opens.
+  - **Current makes a field:** sixteen compasses round a tall wire turn to circle it when current
+    flows, and the other way when the battery is reversed.
+  - **Coil it:** a coil over a tray of paper clips; with the iron core in, clips jump up and cling
+    to both ends, and drop when the switch opens.
+  - Lessons 8 to 10 are listed as coming later.
 - Not built yet: the Review page (spaced review) and the personal glossary page, both in Phase
   8, and JSON export and import, in Phase 9.

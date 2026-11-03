@@ -23,7 +23,8 @@ describe('module page', () => {
   it('shows the intro, the numbered lessons with their state, and the terms', () => {
     renderModule();
     expect(screen.getByRole('heading', { level: 1, name: 'EM Fundamentals' })).toBeInTheDocument();
-    expect(screen.getByText(/spins magnets past coils of wire/)).toBeInTheDocument();
+    // The hook, up to its first glossary term (terms are split out as their own elements).
+    expect(screen.getByText(/Almost every power station on Earth/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'The windmill' })).toHaveAttribute(
       'href',
       '/module/em-fundamentals/lesson/the-windmill',

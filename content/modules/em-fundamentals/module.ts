@@ -4,6 +4,8 @@ import { whatMagnetsDo } from './02-what-magnets-do';
 import { theInvisibleField } from './03-the-invisible-field';
 import { whatACompassIs } from './04-what-a-compass-is';
 import { whatCurrentIs } from './05-what-current-is';
+import { currentMakesAField } from './06-current-makes-a-field';
+import { coilIt } from './07-coil-it';
 
 export const emFundamentals = {
   id: 'em-fundamentals',
@@ -16,12 +18,14 @@ export const emFundamentals = {
   prerequisites: [],
   // Qualitative: no numbers, units, data tables or Pattern steps.
   numbers: false,
-  lessons: [theWindmill, whatMagnetsDo, theInvisibleField, whatACompassIs, whatCurrentIs],
-  comingLater: [
-    'Current makes a field',
-    'Coil it',
-    'Move a magnet',
-    'Spin it',
-    'Back to the windmill',
+  lessons: [
+    theWindmill,
+    whatMagnetsDo,
+    theInvisibleField,
+    whatACompassIs,
+    whatCurrentIs,
+    currentMakesAField,
+    coilIt,
   ],
+  comingLater: ['Move a magnet', 'Spin it', 'Back to the windmill'],
 } satisfies Module;

@@ -132,6 +132,66 @@ export const glossary = {
       related: ['conductor', 'electric-circuit'],
       introducedIn: 'what-current-is',
     },
+    {
+      id: 'compass-deflection',
+      name: 'compass deflection',
+      forms: ['compass deflections'],
+      definition:
+        'A compass needle turning away from north because another magnetic field, such as the one round a wire, acts on it.',
+      note: 'Ørsted saw exactly this: a compass needle beside a wire twitched when he switched the current on, the first sign that current makes a magnetic field. The stronger the other field, the further the needle turns.',
+      related: ['compass', 'right-hand-rule'],
+      introducedIn: 'current-makes-a-field',
+    },
+    {
+      id: 'right-hand-rule',
+      name: 'right-hand rule',
+      forms: ['right hand rule'],
+      definition:
+        'Point your right thumb along the current; your fingers curl the way the magnetic field circles the wire.',
+      note: "It works for a coil too: curl your right fingers the way the current goes round the turns, and your thumb points to the coil's north pole.",
+      related: ['compass-deflection', 'magnetic-field', 'electric-current'],
+      introducedIn: 'current-makes-a-field',
+    },
+    {
+      id: 'coil',
+      name: 'coil',
+      forms: ['coils'],
+      definition:
+        "Wire wound in many turns. Current in a coil makes a magnetic field like a bar magnet's.",
+      note: 'More turns, or more current, make its field stronger. Coils are at the heart of motors, generators and transformers.',
+      related: ['solenoid', 'electromagnet'],
+      introducedIn: 'coil-it',
+    },
+    {
+      id: 'solenoid',
+      name: 'solenoid',
+      forms: ['solenoids'],
+      definition:
+        "A long coil of wire. Its field runs straight along the middle and loops round outside, like a bar magnet's.",
+      note: 'The word also names devices built round one, such as the solenoid valves that open and shut water and gas pipes.',
+      related: ['coil', 'iron-core'],
+      introducedIn: 'coil-it',
+    },
+    {
+      id: 'iron-core',
+      name: 'iron core',
+      forms: ['iron cores', 'core', 'cores'],
+      definition:
+        "A rod of soft iron inside a coil. It becomes a magnet itself and makes the coil's field far stronger.",
+      note: 'Soft iron is used because it stops being a magnet as soon as the current stops. Hard steel would stay magnetized.',
+      related: ['electromagnet', 'ferromagnetic'],
+      introducedIn: 'coil-it',
+    },
+    {
+      id: 'electromagnet',
+      name: 'electromagnet',
+      forms: ['electromagnets'],
+      definition:
+        'A coil, usually with an iron core, that is a magnet only while current flows through it.',
+      note: 'Because it can be switched on and off, and made stronger with more current, an electromagnet does jobs a permanent magnet cannot: lifting scrap, locking doors, ringing bells.',
+      related: ['coil', 'iron-core', 'solenoid'],
+      introducedIn: 'coil-it',
+    },
   ],
   confusablePairs: [],
 } satisfies Glossary;
