@@ -1,5 +1,5 @@
-/* Minimal tokens only. The visual style (photorealistic vs technical illustration) is
-   chosen early in Phase 4; until then, keep styling plain and token-based. */
+/* Minimal tokens only: plain, token-based styling around the models, which are drawn in the
+   technical illustration style (spec, Teaching principle 3). */
 :root {
   --color-bg: #f6f6f4;
   --color-surface: #ffffff;
@@ -472,19 +472,7 @@ a {
 
 .stage-actions {
   display: flex;
-  align-items: center;
   gap: var(--space-2);
-}
-
-/* Temporary, for the Phase 4 style decision */
-.style-switch {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.style-switch select {
-  font: inherit;
-  color: var(--color-text);
 }
 
 /* Look labels: placed over the model every frame by the viewport's LabelTracker */

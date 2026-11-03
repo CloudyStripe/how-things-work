@@ -2,28 +2,25 @@ import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import type { Group, Texture } from 'three';
 import { useLetterTexture } from '../shared/labelTexture';
-import { useRenderStyle } from '../shared/renderStyle';
-import { Block, Cylinder, SurfaceMaterial } from '../shared/surfaces';
+import { Block, Cylinder } from '../shared/surfaces';
 import { useRailDrag } from '../shared/useRailDrag';
 import type { SceneProps } from '../types';
 import { HOLDER_TRAVEL, MAGNET_HEIGHT, RAIL_END, type MagnetRailState } from './definition';
 
 // A wooden rail on a bench top, painted bar magnets (red N, blue S), wooden carts on rubber
 // wheels. Every position comes from the simulation each frame; nothing here moves on its own.
-// How each surface looks comes from the shared surfaces, in the current style.
 
 const MAGNET = { length: 0.06, side: 0.015 };
 const RAIL = { height: 0.012, width: 0.04, halfLength: RAIL_END + 0.05 };
 const CART = { length: 0.07, width: 0.032, height: 0.0065 };
 const WHEEL_RADIUS = 0.005;
-/** The tabletop in the photorealistic style: wide enough that its edges fade into the fog. */
-const TABLETOP = { width: 8, depth: 6 };
+/** The bench top: wide enough that its edges stay out of the default view. */
+const TABLETOP = { width: 2.4, depth: 1.6 };
 
 export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneProps) {
   const holder = useRef<Group>(null);
   const leftCart = useRef<Group>(null);
   const rightCart = useRef<Group>(null);
-  const style = useRenderStyle((current) => current.style);
   // The engine pairs this scene only with its own model, so the state is this model's.
   const state = () => getSnapshot().state as MagnetRailState;
 
@@ -48,19 +45,15 @@ export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneP
 
   return (
     <group>
-      {style === 'photoreal' ? (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[TABLETOP.width, TABLETOP.depth]} />
-          <SurfaceMaterial kind="tabletop" />
-        </mesh>
-      ) : (
-        <Block kind="tabletop" size={[0.8, 0.02, 0.4]} position={[0, -0.01, 0]} />
-      )}
+      <Block
+        kind="tabletop"
+        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
+        position={[0, -0.01, 0]}
+      />
       <Block
         kind="rail"
         size={[2 * RAIL.halfLength, RAIL.height, RAIL.width]}
         position={[0, RAIL.height / 2, 0]}
-        radius={0.002}
       />
       {[-1, 1].map((side) => (
         <Block
@@ -106,7 +99,7 @@ function BarMagnet({ reversed }: { reversed: boolean }) {
         { x: -northX, kind: 'magnetSouth' as const, letter: south },
       ].map(({ x, kind, letter }) => (
         <group key={kind} position={[x, 0, 0]}>
-          <Block kind={kind} size={[half, MAGNET.side, MAGNET.side]} radius={0.0008} />
+          <Block kind={kind} size={[half, MAGNET.side, MAGNET.side]} />
           <MagnetLetter texture={letter} />
         </group>
       ))}
@@ -116,15 +109,10 @@ function BarMagnet({ reversed }: { reversed: boolean }) {
 
 /** A white letter printed on a magnet's top face. */
 function MagnetLetter({ texture }: { texture: Texture }) {
-  const style = useRenderStyle((current) => current.style);
   return (
     <mesh position={[0, MAGNET.side / 2 + 0.0001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[MAGNET.side * 0.8, MAGNET.side * 0.8]} />
-      {style === 'photoreal' ? (
-        <meshStandardMaterial map={texture} transparent roughness={0.4} />
-      ) : (
-        <meshBasicMaterial map={texture} transparent />
-      )}
+      <meshBasicMaterial map={texture} transparent />
     </mesh>
   );
 }

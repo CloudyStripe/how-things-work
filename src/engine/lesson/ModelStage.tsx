@@ -1,7 +1,6 @@
 import { Component, lazy, Suspense, useState, type ReactNode } from 'react';
 import type { Lesson, StepKind } from '@/engine/content/schema';
 import { useSimStore } from '@/engine/sim/store';
-import { RENDER_STYLES, useRenderStyle, type RenderStyle } from '@/models/shared/renderStyle';
 import type { AnyModel } from '@/models/types';
 import { overlays } from '@/overlays/catalog';
 
@@ -21,8 +20,6 @@ export function ModelStage({ lesson, model, step, interactive }: ModelStageProps
   const setOverlay = useSimStore((state) => state.setOverlay);
   const resetModel = useSimStore((state) => state.reset);
   const [resetSignal, setResetSignal] = useState(0);
-  const style = useRenderStyle((state) => state.style);
-  const setStyle = useRenderStyle((state) => state.setStyle);
   const [labelsOn, setLabelsOn] = useState(false);
   const notToScale = active.some((id) => overlays[id]?.notToScale === true);
   const labels = lesson.steps.look.labels ?? [];
@@ -60,17 +57,6 @@ export function ModelStage({ lesson, model, step, interactive }: ModelStageProps
           )}
         </div>
         <div className="stage-actions">
-          {/* Temporary, for the Phase 4 style decision. */}
-          <label className="style-switch">
-            Style{' '}
-            <select value={style} onChange={(event) => setStyle(event.target.value as RenderStyle)}>
-              {RENDER_STYLES.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
           <button
             type="button"
             className="button-quiet"

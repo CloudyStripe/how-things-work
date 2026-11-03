@@ -1,6 +1,6 @@
 # Interactive Learning Platform — Spec v1: EM Fundamentals
 
-Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine
+Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine; models drawn as technical illustrations
 
 ## Overview
 
@@ -36,7 +36,7 @@ Every screen in the platform follows these rules; when a design choice is unclea
 
 1. **Models first.** Learning happens by manipulating interactive models, not by reading. Text supports the model, never the reverse.
 2. **Look before you try.** Every lesson starts by showing the learner what they are looking at, in plain words, with the parts labelled. A prediction is asked only where it helps (where everyday intuition may mislead), and never about something the learner has not yet been shown.
-3. **Realistic models with overlays.** Models look like real equipment. Invisible physics (field lines, current flow, flux) is drawn as toggleable overlays on top, never by replacing the realistic view.
+3. **Realistic models, drawn as technical illustrations.** Models are realistic in shape, proportion and parts, drawn in a technical illustration style: flat colors, limited shading, dark outlines. Invisible physics (field lines, current flow, flux) is drawn as toggleable overlays on top, never by replacing the model. Overlays and labels must stay clearly readable against it.
 4. **Practical over theoretical.** Each module opens with a real machine and comes back to it at the end. Lessons may add real uses of what was just seen.
 5. **Math only when it earns its place.** A relationship appears only if it has an everyday consequence, shown as a pattern the learner discovers with a control and a data table. No derivations. Patterns, tables and plots belong to the Magnetism and Electricity modules, never to EM Fundamentals.
 6. **Full terminology.** Use the real technical terms (induction, conduction, flux, solenoid). Name each term at the moment the learner sees the thing it describes.
@@ -207,8 +207,8 @@ Every model is a realistic 3D scene driven by a shared physics core, with overla
 
 ### Models
 
-- Realistic materials: copper wire, steel and iron, wood bench, glass-faced meters. Clean, well lit, no clutter.
-- Orbit, zoom and pan within limits; one default camera angle per lesson.
+- Real equipment in real proportions, in the technical illustration style (Teaching principle 3): each material (copper wire, steel and iron, wood bench, glass) has its own flat color, and parts are outlined. Clean, evenly lit, no clutter.
+- Orbit, zoom and pan within limits; one default camera angle per lesson. The default view is fitted to the model view at the screen's size, so the apparatus fills it.
 - Draggable objects (magnet, compass) move with the mouse, constrained to sensible paths, and every drag has a keyboard equivalent in the right panel.
 - Scenes by lesson: the wind turbine (1, 10), the magnet rail (2), the magnet and filings bench (3), the compass bench (4), the circuit board (5), the wire board (6), the coil and clip tray (7), the coil and magnet (8), the crank generator (9).
 
@@ -364,7 +364,7 @@ Claude Code builds in nine phases, each on its own branch and landing through a 
 1. **Setup.** Repository, Vite + React + TypeScript, linting, Vitest and Playwright, CLAUDE.md, empty routes. Done when the app runs and an empty test suite passes.
 2. **Physics core.** Fields, induction and simple circuits as pure TypeScript, with every required test from Physics accuracy. Done when all physics tests pass.
 3. **Engine shell.** Module map, module page, the lesson runner (Look, Try, Why, optional steps, explorer lessons) driven by content files, glossary hover, local progress storage. Lesson 2 built for real; lesson 1 on a stand-in turbine. Done when the owner had clicked through lessons 1 and 2.
-4. **Style, magnets and fields.** **Owner review at the start:** render lesson 2's bench in both styles (photorealistic and clean technical illustration) and the owner picks one. Then restyle lesson 2 and build lessons 3 and 4: the filings bench, the compass bench, the field-line and Earth's-field overlays.
+4. **Style, magnets and fields.** **Owner review at the start:** render lesson 2's bench in both styles (photorealistic and clean technical illustration) and the owner picks one (they chose technical illustration). Then restyle lesson 2 and build lessons 3 and 4: the filings bench, the compass bench, the field-line and Earth's-field overlays.
 5. **Current and electromagnets.** Lessons 5, 6 and 7: the circuit board, the wire board, the coil and clip tray, the bulb and the current-flow overlay.
 6. **Induction.** Lessons 8 and 9: the coil and magnet, the meter and LEDs, the flux overlay, the crank generator.
 7. **The wind turbine.** The realistic turbine model with its rotor physics, the take-apart tools, part descriptions and the generator overlay; lessons 1 and 10 on it. It comes after lesson 9 because the generator overlay reuses that lesson's spinning-magnet physics and visuals. **Owner review before the phase merges:** the turbine.
@@ -389,7 +389,7 @@ v1 is done when the owner can complete EM Fundamentals end to end and every item
 
 ## Open questions
 
-- [ ] Visual style: photorealistic, or clean "technical illustration" realism? Decide at the start of Phase 4: render lesson 2's bench in both styles and pick one before building lessons 3 and 4.
+- [x] Visual style: photorealistic, or clean "technical illustration" realism? Resolved at the start of Phase 4: technical illustration (Teaching principle 3).
 - [ ] Should the Lenz's law drag feel be in the Magnetism module, or deferred further?
 - [ ] Grid frequency example in the Electricity module: show 60 Hz, 50 Hz, or both based on a setting?
 - [x] Where does the repository live (local folder or GitHub)? Resolved: a private GitHub repository, `CloudyStripe/how-things-work`, cloned locally at `C:\Users\savar\Git\how-things-work`.

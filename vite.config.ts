@@ -18,9 +18,17 @@ export default defineConfig({
   server: { port: DEV_PORT, strictPort: true },
   preview: { port: PREVIEW_PORT, strictPort: true },
   build: {
-    // The lesson viewport chunk (three.js, React Three Fiber, drei) is about 940 kB. It
-    // loads only when a lesson opens, from the local machine, so warn only above 1 MB.
+    // three.js is about 700 kB on its own, so it gets a chunk of its own; the lesson viewport
+    // (React Three Fiber, drei, the scenes and overlays) grows with every lesson beside it.
+    // Both load only when a lesson opens, from the local machine, so warn only above 1 MB.
     chunkSizeWarningLimit: 1000,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [{ name: 'three', test: /[\\/]node_modules[\\/]three[\\/]/ }],
+        },
+      },
+    },
   },
   test: {
     passWithNoTests: true,

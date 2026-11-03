@@ -22,7 +22,7 @@ EM Fundamentals.
 | 1     | Setup                      | Done                                         |
 | 2     | Physics core               | Done                                         |
 | 3     | Engine shell               | Done (owner clicked through lessons 1 and 2) |
-| 4     | Style, magnets and fields  | **Stop at the start:** the style decision    |
+| 4     | Style, magnets and fields  | Done (technical illustration chosen)         |
 | 5     | Current and electromagnets | None                                         |
 | 6     | Induction                  | None                                         |
 | 7     | The wind turbine           | **Stop before merging:** the turbine review  |
@@ -33,9 +33,8 @@ EM Fundamentals.
 - Each phase is built on its own branch, `phase-N-short-name` (for example
   `phase-4-style-magnets-fields`), and lands through a PR.
 - **Only two points wait for the owner:**
-  - **The style decision, at the start of Phase 4.** Render lesson 2's magnet-rail bench in both
-    styles (photorealistic and clean technical illustration), show the owner, and build nothing
-    more in Phase 4 until they pick.
+  - **The style decision, at the start of Phase 4.** Done: the owner chose technical
+    illustration (section 6).
   - **The turbine review, in Phase 7.** Build the turbine and lessons 1 and 10 on it, open the
     PR, get CI green, and wait for the owner's review before merging.
 - **Every other phase runs straight through:** build it, open the PR, get CI green (fix any
@@ -130,8 +129,23 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 ## 6. UI
 
 - Laptop only, minimum 1280 × 720. No phone or tablet layouts in v1.
-- The visual style is chosen at the start of Phase 4. Until then keep styling minimal and built
-  on the `:root` tokens in `src/index.css`.
+- **Models are technical illustrations** (spec, Teaching principle 3): realistic in shape,
+  proportion and parts, drawn with flat colours, three tones of shading and dark outlines.
+  - Scenes build parts from `src/models/shared/surfaces.tsx` (`Block`, `Cylinder`,
+    `SurfaceMaterial`) and name a kind of surface, never a colour. A new material gets a new
+    surface kind there, so every model draws from one palette.
+  - Light and backdrop come from `src/models/shared/Stage.tsx`. The canvas is `flat`, with no
+    shadows or tone mapping.
+  - Overlays and labels must stay clearly readable against the model: pick overlay colours
+    that differ from the palette (not the magnets' red and blue, not the wood tones).
+- **Every scene frames its camera with a `CameraFrame`** (`src/models/shared/cameraFrame.ts`):
+  the box that must fill the view (for a bench, the apparatus from end to end, up to the labels
+  over it) and the angle to see it from. The viewport fits the distance to the model view's real
+  size, so the apparatus fills it at 1280 × 720 and on any larger window. Benches look from in
+  front and to the right (about 30° round, 25° up), with a bench top large enough that its edges
+  stay out of view. Check the framing with a screenshot at 1280 × 720.
+- Around the models, keep the page styling minimal and built on the `:root` tokens in
+  `src/index.css`.
 - Reuse existing spacing, type and structural patterns. Avoid new visual styles and premature
   component abstraction.
 
