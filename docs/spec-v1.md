@@ -147,13 +147,13 @@ The module teaches one idea in two directions: current makes a magnetic field, a
 
 **8. Move a magnet.** A coil connected to a centre-zero meter with no scale and two LEDs wired opposite ways. The learner slides a bar magnet along the coil's axis.
 
-- **Try:** push the magnet in; hold it still inside; pull it out; repeat faster.
+- **Try:** prediction: "What will the meter show while the magnet sits still inside the coil?" (a steady current / no current at all / a current that keeps swinging back and forth). Prompts: push the magnet in; hold it still inside; pull it out; push it in again, quickly. The two LEDs are red and green, so each direction has its own colour.
 - **Key observations:** current flows only while the magnet moves; in and out light opposite LEDs; a still magnet gives nothing; faster motion swings the needle further.
 - **Overlay:** field lines threading the coil (magnetic flux); current flow.
 
-**9. Spin it.** A magnet on a shaft beside the coil, turned by a hand crank, with the meter and LEDs.
+**9. Spin it.** A magnet on a shaft beside a coil with an iron core, turned by a hand crank, with the meter and LEDs.
 
-- **Try:** turn the crank slowly; turn it fast.
+- **Try:** prediction: "As the magnet spins, which way will the current in the coil flow?" (always the same way / one way, then the other, over and over / not at all). Prompts: turn the crank slowly; turn it fast.
 - **Key observations:** the needle swings back and forth continuously and the LEDs take turns; faster cranking swings it harder and faster.
 - **Overlay:** current flow.
 

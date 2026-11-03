@@ -14,7 +14,7 @@ import {
   type FieldSources,
   type Vec3,
 } from '@/physics';
-import { joinPaths, roundedPath } from '../shared/paths';
+import { joinPaths, roundedPath, windingPath } from '../shared/paths';
 import type { CurrentPath, ModelDefinition, SimSnapshot } from '../types';
 
 // Lesson 7's bench: a coil of copper wire lying along x, held above a tray of paper clips, wired
@@ -243,21 +243,8 @@ const LEFT_LEAD = vec3(-COIL.length / 2, AXIS_Y, -OUTER);
 /** The winding as drawn: fewer, thicker turns than the real two hundred. */
 const DRAWN_TURNS = 30;
 
-/**
- * The winding's path from its right end to its left. Each turn goes round from +y toward +z,
- * which by the right-hand rule makes the field inside point along +x: north at the right end.
- */
-export const WINDING: Vec3[] = (() => {
-  const points: Vec3[] = [];
-  const perTurn = 24;
-  const total = DRAWN_TURNS * perTurn;
-  for (let index = 0; index <= total; index++) {
-    const angle = -Math.PI / 2 + (index / perTurn) * 2 * Math.PI;
-    const x = COIL.length / 2 - (index / total) * COIL.length;
-    points.push(vec3(x, AXIS_Y + OUTER * Math.cos(angle), OUTER * Math.sin(angle)));
-  }
-  return points;
-})();
+/** The winding's path from its right end to its left: north at the right end. */
+export const WINDING: Vec3[] = windingPath(COIL.center, OUTER, COIL.length, DRAWN_TURNS);
 
 export const WIRES = {
   toSwitch: roundedPath(

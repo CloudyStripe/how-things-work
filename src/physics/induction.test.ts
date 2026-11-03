@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { circuitCurrent } from './circuits';
-import { coilResistance, coilWinding } from './coil';
+import { coilResistance, coilWinding, SOFT_IRON_CORE } from './coil';
 import { MU_0 } from './constants';
 import {
   axialForceOnSource,
@@ -141,5 +141,15 @@ describe("Lenz's law", () => {
     const centred = coaxialFluxLinkageGradient(barMagnetWinding(magnetAt(0)), coilAt(0));
     const offCentre = coaxialFluxLinkageGradient(barMagnetWinding(magnetAt(-0.03)), coilAt(0));
     expect(Math.abs(centred)).toBeLessThan(1e-6 * Math.abs(offCentre));
+  });
+});
+
+describe('dipoleFluxLinkage with an iron core', () => {
+  it('scales the linkage by the core gain', () => {
+    const coil = coilAt(0);
+    const dipole = { position: vec3(0.06, 0, 0), moment: vec3(-1, 0, 0) };
+    const air = dipoleFluxLinkage(coil, dipole);
+    const cored = dipoleFluxLinkage(coil, dipole, SOFT_IRON_CORE);
+    expect(cored / air).toBeCloseTo(SOFT_IRON_CORE.effectivePermeability, 6);
   });
 });

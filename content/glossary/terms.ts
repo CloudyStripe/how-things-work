@@ -115,10 +115,10 @@ export const glossary = {
     {
       id: 'conductor',
       name: 'conductor',
-      forms: ['conductors', 'electrical conductor'],
+      forms: ['conductors', 'electrical conductor', 'conduction'],
       definition:
         'A material that current flows through easily. Metals such as copper and aluminium are good conductors.',
-      note: 'Copper is used for most wires because it conducts well and bends easily. Salty water conducts too, which is one reason electricity and wet hands are dangerous.',
+      note: 'Current flowing through a conductor is called conduction. Copper is used for most wires because it conducts well and bends easily. Salty water conducts too, which is one reason electricity and wet hands are dangerous.',
       related: ['insulator', 'electric-current'],
       introducedIn: 'what-current-is',
     },
@@ -192,6 +192,68 @@ export const glossary = {
       related: ['coil', 'iron-core', 'solenoid'],
       introducedIn: 'coil-it',
     },
+    {
+      id: 'galvanometer',
+      name: 'galvanometer',
+      forms: ['galvanometers'],
+      definition:
+        'A meter that shows small currents. A centre-zero one swings its needle left or right to show which way current flows.',
+      note: 'Named after Luigi Galvani. Inside, the current runs through a small coil between the poles of a magnet, and the coil turns the needle.',
+      related: ['induced-current', 'electric-current'],
+      introducedIn: 'move-a-magnet',
+    },
+    {
+      id: 'magnetic-flux',
+      name: 'magnetic flux',
+      forms: ['flux'],
+      definition:
+        'How much magnetic field passes through a loop or coil. More field, or a bigger coil, means more flux.',
+      note: 'Field and flux are easily mixed up: the field is at a point, while flux counts the field passing through an area, like water through a hoop. Flux is measured in webers, in the Magnetism module.',
+      related: ['magnetic-field', 'electromagnetic-induction'],
+      introducedIn: 'move-a-magnet',
+    },
+    {
+      id: 'induced-current',
+      name: 'induced current',
+      forms: ['induced currents'],
+      definition:
+        'A current made by electromagnetic induction. It flows only while the magnetic flux through the circuit is changing.',
+      note: 'Reverse the change and the induced current reverses: a magnet going in and coming out push current opposite ways.',
+      related: ['electromagnetic-induction', 'magnetic-flux'],
+      introducedIn: 'move-a-magnet',
+    },
+    {
+      id: 'electromagnetic-induction',
+      name: 'electromagnetic induction',
+      forms: ['induction'],
+      definition:
+        'Making a current in a conductor by changing the magnetic field through it, for example by moving a magnet near a coil.',
+      note: "Faraday discovered it: the current lasts only while the field is changing. Almost all the world's electricity is made this way, in generators. Not to be confused with conduction, which is current flowing through a conductor.",
+      related: ['induced-current', 'magnetic-flux', 'conductor'],
+      introducedIn: 'move-a-magnet',
+    },
+    {
+      id: 'alternating-current',
+      name: 'alternating current',
+      forms: ['alternating currents'],
+      definition:
+        'Current that keeps reversing direction, flowing one way and then the other, over and over, as a generator makes it.',
+      note: "The sockets in a home supply alternating current. Current that always flows one way, like a battery's, is called direct current; both come in the Electricity module.",
+      related: ['generator', 'induced-current'],
+      introducedIn: 'spin-it',
+    },
+    {
+      id: 'generator',
+      name: 'generator',
+      forms: ['generators'],
+      definition: 'A machine that makes electric current by spinning magnets past coils of wire.',
+      note: 'Its current alternates, reversing as each pole passes. Power stations, wind turbines and bicycle dynamos all use generators.',
+      related: ['alternating-current', 'electromagnetic-induction'],
+      introducedIn: 'spin-it',
+    },
   ],
-  confusablePairs: [],
+  confusablePairs: [
+    ['electromagnetic-induction', 'conductor'],
+    ['magnetic-field', 'magnetic-flux'],
+  ],
 } satisfies Glossary;

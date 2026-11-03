@@ -81,13 +81,20 @@ function overlay(page: Page, name: string): Locator {
 }
 
 /** Moves a slider from one value to another in small steps, waiting between them, as a hand would. */
-async function slideTo(page: Page, slider: Locator, from: number, to: number, step = 0.05) {
+async function slideTo(
+  page: Page,
+  slider: Locator,
+  from: number,
+  to: number,
+  step = 0.05,
+  pause = 120,
+) {
   const count = Math.ceil(Math.abs(to - from) / step);
   for (let index = 1; index <= count; index++) {
     // A range input takes only values on its step (0.01), written as the browser writes them.
     const value = from + ((to - from) * index) / count;
     await slider.fill(String(Number(value.toFixed(2))));
-    await page.waitForTimeout(120);
+    await page.waitForTimeout(pause);
   }
 }
 
@@ -274,6 +281,73 @@ test('a learner completes lesson 7, Coil it', async ({ page }) => {
   await next.click();
   await page.getByRole('button', { name: 'Finish' }).click();
   await expect(page.locator('.lesson-list-item', { hasText: 'Coil it' })).toContainText('Complete');
+  expect(errors).toEqual([]);
+});
+
+test('a learner completes lesson 8, Move a magnet', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const done = page.locator('.prompt.is-done');
+  const slider = page.getByRole('slider', { name: 'Magnet' });
+
+  await page.goto('/#/module/em-fundamentals/lesson/move-a-magnet');
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'Meter' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('radio', { name: 'No current at all' }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  // A steady push in, a pause inside, a steady pull out, then one quick push. Small, quick steps:
+  // big jumps would be quick pushes of their own, flashing the lights instead.
+  await slideTo(page, slider, 0, 1, 0.02, 40);
+  await expect(done).toHaveCount(2, { timeout: 15_000 });
+  await slideTo(page, slider, 1, 0, 0.02, 40);
+  await expect(done).toHaveCount(3);
+  await slider.fill('1');
+  await expect(done).toHaveCount(4);
+  await next.click();
+
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/You predicted:/)).toContainText('That matches what happened.');
+  await expect(page.getByText(/Named here:/)).toContainText(
+    'galvanometer, magnetic flux, induced current, electromagnetic induction',
+  );
+  await expect(overlay(page, 'Magnetic flux')).toHaveAttribute('aria-pressed', 'true');
+  await next.click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.locator('.lesson-list-item', { hasText: 'Move a magnet' })).toContainText(
+    'Complete',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('a learner completes lesson 9, Spin it', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const done = page.locator('.prompt.is-done');
+
+  await page.goto('/#/module/em-fundamentals/lesson/spin-it');
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'Crank' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('radio', { name: 'One way, then the other, over and over' }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  await page.getByRole('radio', { name: 'Slow' }).check();
+  await expect(done).toHaveCount(1, { timeout: 15_000 });
+  await page.getByRole('radio', { name: 'Fast' }).check();
+  await expect(done).toHaveCount(2, { timeout: 15_000 });
+  await next.click();
+
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/Named here:/)).toContainText('alternating current, generator');
+  await next.click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.locator('.lesson-list-item', { hasText: 'Spin it' })).toContainText('Complete');
   expect(errors).toEqual([]);
 });
 

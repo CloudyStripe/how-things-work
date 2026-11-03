@@ -1,4 +1,4 @@
-import { coilWinding, type Coil } from './coil';
+import { coilWinding, electromagnetWinding, type Coil, type IronCore } from './coil';
 import { coaxialLoopMutualInductance } from './loop';
 import type { PointDipole } from './magnet';
 import { gaussLegendre } from './quadrature';
@@ -44,10 +44,16 @@ export function coaxialFluxLinkageGradient(
 /**
  * Flux linkage (Wb) through a coil from a point dipole anywhere. By reciprocity it equals the
  * dipole moment dotted with the coil's field per ampere at the dipole. Accurate when the
- * magnet is small compared with its distance from the coil.
+ * magnet is small compared with its distance from the coil. An iron core in the coil gathers
+ * the flux as it strengthens the coil's own field: the linkage scales with the core's gain.
  */
-export function dipoleFluxLinkage(coil: Coil, dipole: PointDipole): number {
-  return dot(dipole.moment, windingField(coilWinding(coil, 1), dipole.position));
+export function dipoleFluxLinkage(
+  coil: Coil,
+  dipole: PointDipole,
+  core: IronCore | null = null,
+): number {
+  const perAmpere = core === null ? coilWinding(coil, 1) : electromagnetWinding(coil, 1, core);
+  return dot(dipole.moment, windingField(perAmpere, dipole.position));
 }
 
 /**

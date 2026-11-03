@@ -1,7 +1,9 @@
 import type { ComponentType } from 'react';
 import { CircuitBoardScene } from './circuit-board/Scene';
+import { CoilMagnetScene } from './coil-magnet/Scene';
 import { CoilTrayScene } from './coil-tray/Scene';
 import { CompassBenchScene } from './compass-bench/Scene';
+import { CrankGeneratorScene } from './crank-generator/Scene';
 import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
 import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
@@ -128,6 +130,36 @@ export const scenes: Readonly<Record<string, SceneView>> = {
       halfSize: [0.185, 0.03, 0.1],
       azimuth: 24,
       elevation: 30,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'coil-magnet': {
+    Scene: CoilMagnetScene,
+    // From the magnet's pusher at its farthest out, past the coil, to the meter and the LEDs.
+    frame: {
+      center: [-0.005, 0.04, 0],
+      halfSize: [0.23, 0.04, 0.09],
+      azimuth: 22,
+      elevation: 28,
+      margin: 0.04,
+    },
+    zoom: { min: 0.2, max: 2.2 },
+    pan: 0.2,
+    clip: { near: 0.005, far: 10 },
+    light: [0.3, 0.6, 0.4],
+  },
+  'crank-generator': {
+    Scene: CrankGeneratorScene,
+    // The crank, magnet and coil, the meter and the LEDs.
+    frame: {
+      center: [0.06, 0.06, -0.005],
+      halfSize: [0.14, 0.055, 0.1],
+      azimuth: 24,
+      elevation: 26,
       margin: 0.04,
     },
     zoom: { min: 0.2, max: 2.2 },
