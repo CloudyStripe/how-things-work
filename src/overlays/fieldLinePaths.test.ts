@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EAST, NO_SOURCES, vec3, type BarMagnet, type Vec3 } from '@/physics';
+import { EAST, NO_SOURCES, UP, vec3, type BarMagnet, type Vec3 } from '@/physics';
 import { fieldLinePaths } from './fieldLinePaths';
 
 const MAGNET: BarMagnet = {
@@ -52,5 +52,39 @@ describe('fieldLinePaths', () => {
 
   it('draws nothing where nothing makes a field', () => {
     expect(fieldLinePaths(NO_SOURCES, REGION)).toEqual([]);
+  });
+
+  it('draws closed circles round a wire carrying current, the right-hand way', () => {
+    const wire = { point: vec3(0, 0, 0), direction: UP, radius: 0.001, current: 10 };
+    const paths = fieldLinePaths({ ...NO_SOURCES, wires: [wire] }, REGION);
+    expect(paths.length).toBeGreaterThan(2);
+    const first = paths[0]?.points ?? [];
+    const start = first[0];
+    const end = first.at(-1);
+    // It comes back round to where it started, at the same distance all the way.
+    expect(
+      start !== undefined && end !== undefined && Math.hypot(end.x - start.x, end.z - start.z),
+    ).toBeLessThan(0.003);
+    for (const point of first) expect(Math.hypot(point.x, point.z)).toBeCloseTo(0.012, 3);
+    // Current flowing up: seen from above the field runs anticlockwise, from +x toward -z.
+    expect(first[5]?.z).toBeLessThan(0);
+  });
+
+  it('treats a coil carrying current like a bar magnet, poles at its ends', () => {
+    const coil = {
+      center: vec3(0, 0, 0),
+      axis: EAST,
+      radius: 0.012,
+      length: 0.06,
+      ampereTurns: 500,
+    };
+    const paths = fieldLinePaths({ ...NO_SOURCES, windings: [coil] }, GLASS);
+    expect(paths.filter((path) => near(path.points[0], 0.03)).length).toBeGreaterThan(8);
+    // Reverse the current and the poles swap ends.
+    const reversed = fieldLinePaths(
+      { ...NO_SOURCES, windings: [{ ...coil, ampereTurns: -500 }] },
+      GLASS,
+    );
+    expect(reversed.filter((path) => near(path.points[0], -0.03)).length).toBeGreaterThan(8);
   });
 });

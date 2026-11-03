@@ -10,5 +10,6 @@ export interface OverlayInfo {
 export const overlays: Readonly<Record<string, OverlayInfo>> = {
   'field-lines': { label: 'Field lines', notToScale: true },
   'earth-field': { label: "Earth's field", notToScale: true },
+  'current-flow': { label: 'Current flow', notToScale: true },
   'field-arrows': { label: 'Field direction', notToScale: true },
 };

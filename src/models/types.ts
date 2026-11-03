@@ -98,6 +98,15 @@ export interface Reading<S, C extends ControlValues> {
  */
 type Anchor<S, C extends ControlValues> = { at(snapshot: SimSnapshot<S, C>): Vec3 }['at'];
 
+/**
+ * A path current flows along, for the current-flow overlay: its points in the order positive
+ * current runs, and the current in it (A). A negative current runs the other way.
+ */
+export interface CurrentPath {
+  readonly points: readonly Vec3[];
+  readonly current: number;
+}
+
 /** A piece of an explorer model. Removable parts come off in the order they are listed. */
 export interface ModelPart {
   readonly id: string;
@@ -128,6 +137,13 @@ export interface ModelDefinition<S, C extends ControlValues> {
   readonly anchors?: Readonly<Record<string, Anchor<S, C>>>;
   /** The pieces of an explorer model. */
   readonly parts?: readonly ModelPart[];
+  /** The wires current flows through, for the current-flow overlay. */
+  currentPaths?(snapshot: SimSnapshot<S, C>): readonly CurrentPath[];
+  /**
+   * How fast the current-flow dots move per ampere (m/s). Display only: chosen so the dots are
+   * easy to follow at this model's currents.
+   */
+  readonly flowSpeed?: number;
 }
 
 /** Any registered model, with its state and controls types erased. */

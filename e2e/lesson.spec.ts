@@ -174,6 +174,109 @@ test('a learner completes lesson 4, What a compass is', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('a learner completes lesson 5, What current is', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const done = page.locator('.prompt.is-done');
+  const toggle = page.getByRole('switch', { name: 'Switch' });
+
+  await page.goto('/#/module/em-fundamentals/lesson/what-current-is');
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'Bulb' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('radio', { name: /^Out of one end of the battery/ }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  await toggle.click();
+  await expect(done).toHaveCount(1);
+  await toggle.click();
+  await expect(done).toHaveCount(2);
+  await next.click();
+
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/You predicted:/)).toContainText('That matches what happened.');
+  await expect(page.getByText(/Named here:/)).toContainText(
+    'electric current, electric circuit, conductor, insulator',
+  );
+  await expect(overlay(page, 'Current flow')).toHaveAttribute('aria-pressed', 'true');
+  await next.click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.locator('.lesson-list-item', { hasText: 'What current is' })).toContainText(
+    'Complete',
+  );
+  expect(errors).toEqual([]);
+});
+
+test('a learner completes lesson 6, Current makes a field', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const done = page.locator('.prompt.is-done');
+  const toggle = page.getByRole('switch', { name: 'Switch' });
+
+  await page.goto('/#/module/em-fundamentals/lesson/current-makes-a-field');
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'Copper wire' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('radio', { name: 'Turn to point round the wire, in a circle' }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  await toggle.click();
+  await expect(done).toHaveCount(1);
+  await page.getByRole('switch', { name: 'Battery' }).click();
+  await expect(done).toHaveCount(2);
+  await toggle.click();
+  // The needles take a moment to swing back to north.
+  await expect(done).toHaveCount(3, { timeout: 15_000 });
+  await next.click();
+
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/Named here:/)).toContainText('compass deflection, right-hand rule');
+  await expect(overlay(page, 'Field lines')).toHaveAttribute('aria-pressed', 'true');
+  await next.click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(
+    page.locator('.lesson-list-item', { hasText: 'Current makes a field' }),
+  ).toContainText('Complete');
+  expect(errors).toEqual([]);
+});
+
+test('a learner completes lesson 7, Coil it', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  const next = page.getByRole('button', { name: 'Next' });
+  const step = (name: string) => page.getByRole('heading', { level: 2, name });
+  const done = page.locator('.prompt.is-done');
+  const toggle = page.getByRole('switch', { name: 'Switch' });
+
+  await page.goto('/#/module/em-fundamentals/lesson/coil-it');
+  await expect(step('Step 1 of 4: Look')).toBeVisible();
+  await expect(page.locator('.model-label', { hasText: 'Iron rod' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('radio', { name: 'Lift more clips' }).check();
+  await page.getByRole('button', { name: 'Commit prediction' }).click();
+  await toggle.click();
+  await expect(done).toHaveCount(1);
+  await page.getByRole('switch', { name: 'Iron core' }).click();
+  await expect(done).toHaveCount(2);
+  await toggle.click();
+  await expect(done).toHaveCount(3);
+  await next.click();
+
+  await expect(step('Step 3 of 4: Why')).toBeVisible();
+  await expect(page.getByText(/Named here:/)).toContainText(
+    'coil, solenoid, iron core, electromagnet',
+  );
+  await next.click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.locator('.lesson-list-item', { hasText: 'Coil it' })).toContainText('Complete');
+  expect(errors).toEqual([]);
+});
+
 test('a learner takes the turbine apart in lesson 1, The windmill', async ({ page }) => {
   const errors = collectConsoleErrors(page);
   // Exact: "Remove next part" also contains the word.

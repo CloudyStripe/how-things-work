@@ -33,8 +33,9 @@ accuracy) sets the requirements; this file explains how the code meets them.
 A compass on a level board responds only to the horizontal part of the field, so the wire's
 field competes with Earth's 25 µT, not the full 50 µT. A 5 A wire makes 33 µT at 3 cm.
 
-A model lists its sources (`FieldSources`: wires, bar magnets, and whether Earth's field counts),
-and `netField` adds them up. Overlays read a model's field only this way.
+A model lists its sources (`FieldSources`: wires, bar magnets, coils carrying current, and
+whether Earth's field counts), and `netField` adds them up. Overlays read a model's field only this
+way.
 
 ## Induction
 
@@ -136,6 +137,13 @@ once on a 2 mm grid over the glass (`sampledPlaneField`, bilinear, within 2% of 
 every filing reads that. The filings settle as they land, while the glass is tapped; afterwards
 friction holds them, so moving the other magnet leaves them be.
 
+## Bulbs
+
+`stepBulbGlow` gives a filament bulb's glow from 0 (dark) to 1 (its rated current). The power heating
+the filament goes as current squared, so the glow settles at (current / rated)², whichever way the
+current flows, and follows a change with the filament's warm-up time (about 0.05 s for a torch bulb).
+The filament's resistance is taken as its hot value throughout.
+
 ## Wind turbine rotor
 
 `stepRotor` is a first-order model: in a steady wind the rotor settles at tip-speed ratio × wind
@@ -199,6 +207,8 @@ closed-form thin-magnet solution, dipole limits, and energy conservation for the
   drag. Compass needles do not disturb the field or each other, and a magnetized clip adds no
   field of its own.
 - A magnet the learner holds is moved by the hand: the force on it is computed but not felt.
+- A clip that jumps to an electromagnet moves straight to its place there; the cored coil has no
+  surface of its own in the field model, so where clips cling is set by the scene.
 - A sampled field (iron filings) has no vertical gradient, so a filing feels only the horizontal
   part of its pull; the vertical part only presses it on the glass harder or lifts it slightly.
 - Objects stuck to a magnet ride with it: once a paper clip touches, the grip far exceeds anything
@@ -206,8 +216,6 @@ closed-form thin-magnet solution, dipole limits, and energy conservation for the
 
 ## Left for later phases
 
-- **Paper clip tray (Phase 5, lesson 7):** clips lift by `softIronForce` against their weight; how
-  many hang on is tuned with the scene. EM Fundamentals shows no count.
 - **LED pair (Phase 6):** a forward-voltage threshold across the coil, tuned with the scene.
 - **The flux overlay (Phase 6):** field lines through a coil, from the same tracing.
 
@@ -227,6 +235,25 @@ Scene parameters must stay physical; these are the starting magnitudes with the 
   36 cm away, off its end, about four degrees off north; a full-strength 3 A·m² magnet would turn it
   more than twenty degrees there.
 
+- **Lesson 5 (What current is):** two AA cells (3 V, 0.8 Ω inside) and a torch bulb (8.3 Ω hot):
+  0.33 A, so the bulb glows a little past its rating. The wires' 0.05 Ω hardly matter. The circuit's
+  inductance is far too small to see, so the current switches at once.
+- **Lesson 6 (Current makes a field):** one D cell (1.5 V, 0.1 Ω inside) through a short, thick wire
+  (0.05 Ω): 10 A, about what a fresh cell drives into a near short. Its field is 57 µT at 3.5 cm,
+  27 µT at 7.5 cm and 17 µT at 12 cm, against Earth's 25 µT, so the near compasses point round the
+  wire and the far ones turn less. Only the tall wire's field counts: its leads run up and over,
+  35 cm above the board, and down beyond its left edge, and are left out. No compass sits due east
+  or west of the wire, where reversing the current would leave a needle balanced exactly backwards.
+  With Earth's field added, the field lines close round the wire out to about 8 cm on the side where
+  the two fields oppose, but only about 2 cm on the side where they add; the overlay starts its lines
+  on the far side.
+- **Lesson 7 (Coil it):** 200 turns of 0.5 mm copper, 24 mm across and 6 cm long (1.3 Ω), on three
+  AA cells (4.5 V, 0.6 Ω inside): 2.4 A. Air-cored it pulls a clip in the tray, 22 mm below its axis,
+  with at most 0.2 mN against the clip's 3.9 mN weight, so none lifts: a few amps through a small
+  coil make a weak magnet. With the soft-iron core (gain 30), the upward pull at the tray floor
+  below an end reaches about 13 times the weight, and about fourteen of thirty clips lift. A clip
+  pressed against the iron stays while the pull on it is more than its weight; the core's surface
+  takes any sideways part. The winding is drawn as thirty turns.
 - **Lesson 8 (Move a magnet):** pushing the 3 A·m² magnet into a 100-turn coil at 0.25 m/s gives about
   23 mV and 440 µA, close to full scale on the ±500 µA meter. Good as is.
 - **Lesson 9 (Spin it):** a 0.5 A·m² magnet 6 cm from a 200-turn coil at 2 rotations per second

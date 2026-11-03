@@ -23,7 +23,11 @@ export type SurfaceKind =
   | 'glass'
   | 'brass'
   | 'card'
-  | 'ink';
+  | 'ink'
+  | 'board'
+  | 'battery'
+  | 'wireRed'
+  | 'wireBlack';
 
 const COLORS: Readonly<Record<SurfaceKind, string>> = {
   tabletop: '#e6dfd0',
@@ -43,10 +47,17 @@ const COLORS: Readonly<Record<SurfaceKind, string>> = {
   brass: '#cfae5a',
   card: '#f8f6ef',
   ink: '#3a3c40',
+  board: '#dcc6a0',
+  battery: '#4f7a62',
+  wireRed: '#c9483f',
+  wireBlack: '#35373b',
 };
 
 /** See-through surfaces, and how much of what lies behind them they hide. */
 const OPACITY: Partial<Record<SurfaceKind, number>> = { glass: 0.35 };
+
+/** The warm light of a glowing bulb filament. */
+export const GLOW = '#ffd34d';
 
 /** The outline colour. */
 export const ILLUSTRATION_LINE = '#2a2c2f';

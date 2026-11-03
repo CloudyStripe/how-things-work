@@ -2,6 +2,7 @@ import {
   add,
   barMagnetForce,
   EAST,
+  NO_SOURCES,
   scale,
   stepSlidingBody,
   vec3,
@@ -159,7 +160,7 @@ export const magnetRail: ModelDefinition<MagnetRailState, MagnetRailControls> = 
 
   fieldSources({ state }) {
     const { holder, left, right } = railMagnets(state);
-    return { wires: [], magnets: [holder, left, right], earth: false };
+    return { ...NO_SOURCES, magnets: [holder, left, right] };
   },
 
   overlayRegion: { center: vec3(0, MAGNET_HEIGHT, 0), halfWidth: RAIL_END },

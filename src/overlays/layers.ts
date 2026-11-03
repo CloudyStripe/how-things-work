@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import type { OverlayLayerProps } from '@/models/types';
+import { CurrentFlow } from './CurrentFlow';
 import { EarthField } from './EarthField';
 import { FieldArrows } from './FieldArrows';
 import { FieldLines } from './FieldLines';
@@ -8,5 +9,6 @@ import { FieldLines } from './FieldLines';
 export const overlayLayers: Readonly<Record<string, ComponentType<OverlayLayerProps>>> = {
   'field-lines': FieldLines,
   'earth-field': EarthField,
+  'current-flow': CurrentFlow,
   'field-arrows': FieldArrows,
 };

@@ -129,19 +129,19 @@ The module teaches one idea in two directions: current makes a magnetic field, a
 
 **5. What current is.** A battery, a switch, a bulb and copper wires with plastic coating.
 
-- **Try:** close the switch; open it.
+- **Try:** prediction: "When you close the switch, how will the current flow?" (out of one end of the battery, round through the bulb and back into the other end / out of both ends, meeting at the bulb / out to the bulb, where it is used up). Prompts: close the switch; open it.
 - **Key observations:** the bulb glows only while the loop is closed; current flows all the way around through the copper, not the coating.
 - **Overlay:** current flow (moving dots in the wires).
 
 **6. Current makes a field.** A vertical copper wire passes through a horizontal board, with compasses on the board around it, and the switch from lesson 5.
 
-- **Try:** close the switch; reverse the battery; compare the compasses nearest the wire with the farthest.
+- **Try:** prediction: "Copper is not pulled by a magnet. When current flows up the wire, what will the compasses near it do?" (point toward the wire / point away / turn to point round it, in a circle / stay pointing north). Prompts: close the switch; reverse the battery; open the switch and watch the compasses swing back. Why compares the compasses nearest the wire with the farthest.
 - **Key observations:** the compasses turn to form a circle around the wire; reversing the battery reverses the circle; compasses farther out turn less.
 - **Overlay:** circular field lines with arrows; current flow.
 
 **7. Coil it.** The wire wound into a coil above a tray of paper clips, with the switch.
 
-- **Try:** close the switch; push the iron core in; open the switch.
+- **Try:** prediction: "The iron rod is not a magnet. With current flowing, what will pushing it into the coil do?" (lift more clips / make no difference / lift fewer clips). Prompts: close the switch; push the iron core in; open the switch.
 - **Key observations:** the coil acts like a bar magnet with north and south poles; the iron core makes it lift many more clips; switching off drops them.
 - **Overlay:** field lines.
 
