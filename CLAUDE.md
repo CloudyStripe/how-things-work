@@ -15,30 +15,39 @@ EM Fundamentals.
   `docs/spec-v1.md` in the same PR as the code it governs.
 - When a design choice is unclear, the spec's Teaching principles decide it.
 
-## 2. Build phases and gates
+## 2. Build phases and review stops
 
-| Phase | Name                       | Gate                                            |
-| ----- | -------------------------- | ----------------------------------------------- |
-| 1     | Setup                      | The app runs and an empty test suite passes     |
-| 2     | Physics core               | All physics tests pass                          |
-| 3     | Engine shell               | Owner clicks through lessons 1 and 2            |
-| 4     | Style, magnets and fields  | Owner review of the look and feel (lessons 2–4) |
-| 5     | Current and electromagnets | Owner review (lessons 5–7)                      |
-| 6     | Induction                  | Owner review (lessons 8–9)                      |
-| 7     | The wind turbine           | Owner review of the turbine (lessons 1 and 10)  |
-| 8     | Review and glossary        | Owner completes the whole module                |
-| 9     | Polish                     | v1 accepted                                     |
+| Phase | Name                       | Owner review                                 |
+| ----- | -------------------------- | -------------------------------------------- |
+| 1     | Setup                      | Done                                         |
+| 2     | Physics core               | Done                                         |
+| 3     | Engine shell               | Done (owner clicked through lessons 1 and 2) |
+| 4     | Style, magnets and fields  | **Stop at the start:** the style decision    |
+| 5     | Current and electromagnets | None                                         |
+| 6     | Induction                  | None                                         |
+| 7     | The wind turbine           | **Stop before merging:** the turbine review  |
+| 8     | Review and glossary        | None                                         |
+| 9     | Polish                     | The owner accepts v1 after the phase merges  |
 
 - Phases are numbered 1 to 9 everywhere: spec, README, branches, commits.
-- Stop at every gate and report back. **Never start the next phase without the owner's
-  approval.** The README's Status section records where the build stands.
-- From Phase 2 on, each phase is built on its own branch, `phase-N-short-name` (for example
-  `phase-2-physics-core`), and lands through a PR. The PR review is the gate.
-- **Phase 4 opens with a style decision:** render lesson 2's magnet-rail bench in both styles
-  (photorealistic and clean technical illustration) and get the owner's pick before building
-  lessons 3 and 4.
+- Each phase is built on its own branch, `phase-N-short-name` (for example
+  `phase-4-style-magnets-fields`), and lands through a PR.
+- **Only two points wait for the owner:**
+  - **The style decision, at the start of Phase 4.** Render lesson 2's magnet-rail bench in both
+    styles (photorealistic and clean technical illustration), show the owner, and build nothing
+    more in Phase 4 until they pick.
+  - **The turbine review, in Phase 7.** Build the turbine and lessons 1 and 10 on it, open the
+    PR, get CI green, and wait for the owner's review before merging.
+- **Every other phase runs straight through:** build it, open the PR, get CI green (fix any
+  failure on the branch), merge, post a short report, then start the next phase without waiting.
+  The report says what was built, any decision made on the owner's behalf, and anything that
+  worries you.
+- **Still stop and ask** when a decision would change the spec, the teaching principles or the
+  one-idea-per-lesson rule, or when you hit something you can't resolve.
+- The README's Status section records where the build stands; each phase's PR updates it.
 - Within a phase, plan before coding anything non-trivial: summarize the change, name the
-  affected areas, list tradeoffs, and ask when the spec leaves a requirement open.
+  affected areas and list tradeoffs. Where the spec leaves a detail open, decide it by the
+  Teaching principles and list the decision in the phase report.
 
 ## 3. Architecture rules
 
@@ -131,8 +140,9 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 - Explicitness over cleverness, readability over abstraction, stable boundaries between
   physics, rendering and content.
 - Add a dependency in the phase that first uses it, not before. Zod, Zustand, three.js, React
-  Three Fiber and drei arrived in Phase 3. The chart library (uPlot vs Recharts) waits for the
-  first Pattern plot or oscilloscope, which is in the Magnetism or Electricity module, not v1.
+  Three Fiber and drei arrived in Phase 3. The chart library (uPlot vs Recharts) is chosen when
+  the first of the Magnetism and Electricity modules is built. EM Fundamentals has no plots, so
+  v1 has no chart library.
 - **Version pins:** `typescript ~6.0`, because typescript-eslint supports only `<6.1` (move to
   TS 7 once it does). `react` and `react-dom ~19.3`, because React Three Fiber 9 requires
   `<19.4`.
