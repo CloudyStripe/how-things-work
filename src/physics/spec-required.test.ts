@@ -7,6 +7,8 @@ import {
 } from './circuits';
 import { coilInductance, coilResistance, coilWinding, type Coil } from './coil';
 import { earthField } from './earth';
+import { magnetizableBody, softIronForce } from './ferromagnet';
+import { barMagnetForce } from './forces';
 import {
   crankAngle,
   generatorFrequency,
@@ -15,11 +17,14 @@ import {
   type RotatingMagnet,
 } from './generator';
 import { coaxialFluxLinkage, dipoleFluxLinkage, inducedEmf } from './induction';
+import { barMagnetField } from './magnet';
 import { compassBearing } from './needles';
+import { LARGE_TURBINE_ROTOR, steadyRotorSpeed } from './rotor';
 import {
   coilAt,
   GALVANOMETER_RESISTANCE,
   holdAt,
+  magnetAt,
   relativeError,
   simulateAxialMotion,
   steadyMove,
@@ -28,7 +33,7 @@ import { add, EAST, length, UP, vec3, ZERO, type Vec3 } from './vector';
 import { straightWireField, type StraightWire } from './wire';
 
 // One test per bullet of the spec's "Required tests" list (docs/spec-v1.md, Physics accuracy).
-// Each must pass before an experiment ships.
+// Each must pass before a lesson ships.
 
 const FRAME = 1 / 60;
 
@@ -200,7 +205,7 @@ describe('Spec: required physics tests', () => {
     expect(slow.frequency).toBe(generatorFrequency(2));
   });
 
-  it("capstone: coil B shows current only while coil A's current is changing", () => {
+  it("two coils: coil B shows current only while coil A's current is changing", () => {
     // Two coils side by side on one axis, 2 cm apart. A has heavier wire and a battery.
     const coilA: Coil = { ...coilAt(-0.035, 200), wireDiameter: 0.5e-3 };
     const coilB = coilAt(0.035, 200);
@@ -255,5 +260,40 @@ describe('Spec: required physics tests', () => {
     const closingCharge = charge(during(closeStep + 1, openStep));
     const openingCharge = charge(during(openStep + 1, endStep));
     expect(relativeError(openingCharge, -closingCharge)).toBeLessThan(1e-9);
+  });
+
+  it('like poles repel and unlike poles attract; turning either magnet around reverses the force', () => {
+    // Both magnets point east, so the left one's N faces the right one's S.
+    const unlike = barMagnetForce(magnetAt(0), magnetAt(0.1));
+    expect(unlike.x).toBeLessThan(0);
+    const like = barMagnetForce(magnetAt(0), magnetAt(0.1, true));
+    expect(like.x).toBeGreaterThan(0);
+    expect(relativeError(like.x, -unlike.x)).toBeLessThan(1e-12);
+    const sourceTurned = barMagnetForce(magnetAt(0, true), magnetAt(0.1));
+    expect(relativeError(sourceTurned.x, -unlike.x)).toBeLessThan(1e-12);
+  });
+
+  it('the forces two magnets exert on each other are equal and opposite', () => {
+    const a = magnetAt(0);
+    const b = { ...magnetAt(0, true), center: vec3(0.09, 0.004, 0.015) };
+    const onA = barMagnetForce(b, a);
+    const onB = barMagnetForce(a, b);
+    expect(length(add(onA, onB)) / length(onB)).toBeLessThan(1e-12);
+  });
+
+  it('steel is pulled toward the stronger field; copper and wood feel no force', () => {
+    const magnet = magnetAt(0);
+    const field = (point: Vec3) => barMagnetField(magnet, point);
+    const beside = vec3(0.045, 0, 0);
+    expect(softIronForce(magnetizableBody('steel', 5e-8), field, beside).x).toBeLessThan(0);
+    for (const material of ['copper', 'wood'] as const) {
+      expect(length(softIronForce(magnetizableBody(material, 5e-8), field, beside))).toBe(0);
+    }
+  });
+
+  it("a turbine rotor's steady speed is proportional to the wind speed", () => {
+    const gentle = steadyRotorSpeed(4, LARGE_TURBINE_ROTOR);
+    const strong = steadyRotorSpeed(12, LARGE_TURBINE_ROTOR);
+    expect(relativeError(strong, 3 * gentle)).toBeLessThan(1e-12);
   });
 });

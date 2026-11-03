@@ -3,7 +3,7 @@ import type { PointDipole } from './magnet';
 import { add, cross, dot, length, scale, sub, type Vec3 } from './vector';
 import { windingField } from './winding';
 
-/** A bar magnet spun on a shaft by a hand crank, as in Experiment 2 Part B. */
+/** A bar magnet spun on a shaft by a hand crank, as in lesson 9 (Spin it). */
 export interface RotatingMagnet {
   /** Centre of the magnet, on the shaft. */
   readonly position: Vec3;

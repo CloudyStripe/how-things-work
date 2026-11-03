@@ -1,21 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
+import { collectConsoleErrors } from './console';
 
 const ROUTES = [
   { path: '/', heading: 'Module map' },
-  { path: '/module/em-fundamentals', heading: 'Module' },
-  { path: '/module/em-fundamentals/experiment/exp1-current-makes-field', heading: 'Experiment' },
+  { path: '/module/em-fundamentals', heading: 'EM Fundamentals' },
+  { path: '/module/em-fundamentals/lesson/the-windmill', heading: 'The windmill' },
+  { path: '/module/em-fundamentals/lesson/what-magnets-do', heading: 'What magnets do' },
   { path: '/glossary', heading: 'Glossary' },
   { path: '/review', heading: 'Review' },
 ];
-
-function collectConsoleErrors(page: Page): string[] {
-  const errors: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
-  });
-  page.on('pageerror', (error) => errors.push(error.message));
-  return errors;
-}
 
 async function expectGlobalNav(page: Page) {
   const nav = page.getByRole('navigation', { name: 'Main' });
@@ -38,15 +31,15 @@ for (const route of ROUTES) {
   });
 }
 
-test('clicks from the map through an experiment to the global pages', async ({ page }) => {
+test('clicks from the map through a lesson to the global pages', async ({ page }) => {
   const errors = collectConsoleErrors(page);
 
   await page.goto('/');
-  await page.getByRole('link', { name: 'Open EM Fundamentals' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Module', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: /EM Fundamentals/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'EM Fundamentals' })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Open Experiment 1' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Experiment' })).toBeVisible();
+  await page.getByRole('link', { name: 'What magnets do' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'What magnets do' })).toBeVisible();
 
   const nav = page.getByRole('navigation', { name: 'Main' });
   await nav.getByRole('link', { name: 'Glossary' }).click();
