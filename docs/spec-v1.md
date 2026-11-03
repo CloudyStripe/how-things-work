@@ -1,6 +1,6 @@
 # Interactive Learning Platform — Spec v1: EM Fundamentals
 
-Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type)
+Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine
 
 ## Overview
 
@@ -316,16 +316,16 @@ Wind turbine rotor: in steady wind the rotor turns at a speed proportional to th
 
 A local single-page web app in TypeScript, with lesson content stored as typed data files and physics isolated from rendering.
 
-| Layer              | Choice                                                            | Why                                                             |
-| ------------------ | ----------------------------------------------------------------- | --------------------------------------------------------------- |
-| App                | Vite + React + TypeScript                                         | Fast local dev; strong typing for content files                 |
-| 3D models          | three.js via React Three Fiber and drei                           | Realistic scenes with React components                          |
-| State              | Zustand                                                           | Simple shared state between model, instruments and lesson panel |
-| Content validation | Zod schemas                                                       | Catches malformed lesson and glossary files at build time       |
-| Charts             | A light chart library (e.g. uPlot or Recharts)                    | Pattern-step plots and the oscilloscope (later modules)         |
-| Math display       | KaTeX                                                             | Rare formulas, reserved for later modules                       |
-| Storage            | localStorage, versioned schema, JSON export/import                | No server needed                                                |
-| Tests              | Vitest (physics, content); Playwright (smoke test of each lesson) | Enforces the accuracy requirements                              |
+| Layer              | Choice                                                            | Why                                                                                                                   |
+| ------------------ | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| App                | Vite + React + TypeScript                                         | Fast local dev; strong typing for content files                                                                       |
+| 3D models          | three.js via React Three Fiber and drei                           | Realistic scenes with React components                                                                                |
+| State              | Zustand                                                           | Simple shared state between model, instruments and lesson panel                                                       |
+| Content validation | Zod schemas                                                       | Catches malformed lesson and glossary files at build time                                                             |
+| Charts             | A light chart library (e.g. uPlot or Recharts)                    | Pattern-step plots and the oscilloscope. Chosen when the first of Magnetism and Electricity is built; v1 has no plots |
+| Math display       | KaTeX                                                             | Rare formulas, reserved for later modules                                                                             |
+| Storage            | localStorage, versioned schema, JSON export/import                | No server needed                                                                                                      |
+| Tests              | Vitest (physics, content); Playwright (smoke test of each lesson) | Enforces the accuracy requirements                                                                                    |
 
 ### Key rules
 
@@ -359,17 +359,17 @@ content/
 
 ## Build phases for Claude Code
 
-Claude Code builds in nine phases and stops for the owner's review at the end of each; it does not start the next phase without approval.
+Claude Code builds in nine phases, each on its own branch and landing through a pull request. Two points stop for the owner's review: the style decision at the start of Phase 4, and the turbine review in Phase 7. Every other phase runs straight through: once CI is green, Claude Code merges it, posts a short report (what was built, decisions made on the owner's behalf, anything that worries it) and starts the next phase. It still stops to ask whenever a decision would change this spec, the teaching principles or the one-idea-per-lesson rule, or when it hits something it can't resolve.
 
-1. **Setup.** Repository, Vite + React + TypeScript, linting, Vitest and Playwright, CLAUDE.md, empty routes. Gate: the app runs and an empty test suite passes.
-2. **Physics core.** Fields, induction and simple circuits as pure TypeScript, with every required test from Physics accuracy. Gate: all physics tests pass.
-3. **Engine shell.** Module map, module page, the lesson runner (Look, Try, Why, optional steps, explorer lessons) driven by content files, glossary hover, local progress storage. Lesson 2 built for real; lesson 1 on a stand-in turbine. Gate: the owner clicks through lessons 1 and 2.
-4. **Style, magnets and fields.** The style decision first: render lesson 2's bench in both styles (photorealistic and clean technical illustration) and pick one; restyle lesson 2. Then lessons 3 and 4: the filings bench, the compass bench, the field-line and Earth's-field overlays. Gate: owner review of the look and feel.
-5. **Current and electromagnets.** Lessons 5, 6 and 7: the circuit board, the wire board, the coil and clip tray, the bulb and the current-flow overlay. Gate: owner review.
-6. **Induction.** Lessons 8 and 9: the coil and magnet, the meter and LEDs, the flux overlay, the crank generator. Gate: owner review.
-7. **The wind turbine.** The realistic turbine model with its rotor physics, the take-apart tools, part descriptions and the generator overlay; lessons 1 and 10 on it. It comes after lesson 9 because the generator overlay reuses that lesson's spinning-magnet physics and visuals. Gate: owner review of the turbine.
-8. **Review and glossary.** Spaced-review scheduler and Review page, personal glossary page. Gate: the owner completes the whole module.
-9. **Polish.** Visual consistency pass, 60 fps on the owner's laptop, Playwright smoke test for every lesson, JSON export/import, reset everything. Gate: v1 accepted.
+1. **Setup.** Repository, Vite + React + TypeScript, linting, Vitest and Playwright, CLAUDE.md, empty routes. Done when the app runs and an empty test suite passes.
+2. **Physics core.** Fields, induction and simple circuits as pure TypeScript, with every required test from Physics accuracy. Done when all physics tests pass.
+3. **Engine shell.** Module map, module page, the lesson runner (Look, Try, Why, optional steps, explorer lessons) driven by content files, glossary hover, local progress storage. Lesson 2 built for real; lesson 1 on a stand-in turbine. Done when the owner had clicked through lessons 1 and 2.
+4. **Style, magnets and fields.** **Owner review at the start:** render lesson 2's bench in both styles (photorealistic and clean technical illustration) and the owner picks one. Then restyle lesson 2 and build lessons 3 and 4: the filings bench, the compass bench, the field-line and Earth's-field overlays.
+5. **Current and electromagnets.** Lessons 5, 6 and 7: the circuit board, the wire board, the coil and clip tray, the bulb and the current-flow overlay.
+6. **Induction.** Lessons 8 and 9: the coil and magnet, the meter and LEDs, the flux overlay, the crank generator.
+7. **The wind turbine.** The realistic turbine model with its rotor physics, the take-apart tools, part descriptions and the generator overlay; lessons 1 and 10 on it. It comes after lesson 9 because the generator overlay reuses that lesson's spinning-magnet physics and visuals. **Owner review before the phase merges:** the turbine.
+8. **Review and glossary.** Spaced-review scheduler and Review page, personal glossary page.
+9. **Polish.** Visual consistency pass, 60 fps on the owner's laptop, Playwright smoke test for every lesson, JSON export/import, reset everything. Once it merges, the owner checks the acceptance criteria and accepts v1.
 
 ## Acceptance criteria
 

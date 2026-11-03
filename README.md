@@ -32,19 +32,22 @@ npm run dev                       # http://localhost:5180
 
 ## Status
 
-Phase 3 of 9 (Engine shell) is built and awaiting gate review.
+Phase 4 of 9 (Style, magnets and fields) is in progress, starting with the style decision.
 
-| Phase | Name                       | Status               |
-| ----- | -------------------------- | -------------------- |
-| 1     | Setup                      | Complete             |
-| 2     | Physics core               | Complete             |
-| 3     | Engine shell               | Awaiting gate review |
-| 4     | Style, magnets and fields  | Not started          |
-| 5     | Current and electromagnets | Not started          |
-| 6     | Induction                  | Not started          |
-| 7     | The wind turbine           | Not started          |
-| 8     | Review and glossary        | Not started          |
-| 9     | Polish                     | Not started          |
+| Phase | Name                       | Status                                |
+| ----- | -------------------------- | ------------------------------------- |
+| 1     | Setup                      | Complete                              |
+| 2     | Physics core               | Complete                              |
+| 3     | Engine shell               | Complete                              |
+| 4     | Style, magnets and fields  | In progress: style decision (owner)   |
+| 5     | Current and electromagnets | Not started                           |
+| 6     | Induction                  | Not started                           |
+| 7     | The wind turbine           | Not started (turbine review by owner) |
+| 8     | Review and glossary        | Not started                           |
+| 9     | Polish                     | Not started                           |
+
+Only the Phase 4 style decision and the Phase 7 turbine review wait for the owner. Every other
+phase merges once CI is green and is followed by a short report.
 
 What exists now:
 
