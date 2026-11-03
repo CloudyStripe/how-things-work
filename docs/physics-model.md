@@ -58,9 +58,10 @@ field competes with Earth's 25 µT, not the full 50 µT. A 5 A wire makes 33 µT
   modelled as a large resistance, so it falls fast but not instantly. The update is exact for any
   step size.
 - **Capstone coil B:** emf = -M dI_A/dt, using the same flux linkage and `inducedEmf`. Coil B's own
-  inductance and its pull back on coil A are neglected. This is sound because the galvanometer's
-  resistance (about 56 Ω with the coil) far exceeds coil B's reactance over a millisecond pulse
-  (about 1 Ω).
+  inductance and its pull back on coil A are neglected. Coil B's own time constant (0.93 mH over
+  the meter circuit's 56 Ω, about 17 µs) is far shorter than coil A's 0.35 ms rise, so its
+  inductance only rounds the brief current peak. The galvanometer needle responds to the charge
+  the pulse moves, and that charge does not depend on coil B's inductance.
 
 ## Crank generator
 
@@ -97,16 +98,25 @@ The spec's eight required tests are `src/physics/spec-required.test.ts`, one tes
 Supporting tests check the maths against independent results: reference elliptic-integral
 values, the textbook on-axis loop field, a direct flux integral against Maxwell's formula, the
 closed-form thin-magnet solution, dipole limits, and energy conservation for the Lenz drag.
+`known-values.test.ts` checks absolute magnitudes against textbook numbers written as literals
+(20 µT at 1 cm from a 1 A wire, and others), so a wrong constant or unit cannot cancel out.
 
 ## Approximations and limits
 
 - Fields are accurate everywhere except within a few millimetres of a winding's own surface, where
   the 24-loop integration is coarse. This only matters for field lines drawn right against a coil.
 - The iron core scales the coil's field everywhere by one factor, as if the magnetized core had the
-  coil's shape.
+  coil's shape. It has no hysteresis or remanence: no current, no field.
+- The straight wire is infinitely long, which holds while compasses sit close beside it.
+- Earth's field has no declination: north on the board is magnetic north.
 - The crank generator's magnet is a point dipole, good while it is small beside the coil.
 - Flux linkage between two windings needs them on one axis. A magnet that enters a coil must be
   narrower than the coil (enforced).
+- A coil driven only by induction carries I = emf / R, with its own inductance neglected. With the
+  meter, a 100-turn coil's L / R is about 4 µs, far shorter than any hand movement.
+- Copper resistance is the room-temperature value, with no heating.
+- The only force computed is the Lenz drag. Magnets do not pull on each other or on iron, and
+  compass needles do not disturb the field or each other.
 
 ## Left for later phases
 
