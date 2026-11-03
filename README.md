@@ -32,21 +32,29 @@ npm run dev                       # http://localhost:5180
 
 ## Status
 
-Phase 2 of 8 (Physics core) is built and awaiting gate review.
+Phase 3 of 8 (Engine shell) is built and awaiting gate review.
 
 | Phase | Name                 | Status               |
 | ----- | -------------------- | -------------------- |
 | 1     | Setup                | Complete             |
-| 2     | Physics core         | Awaiting gate review |
-| 3     | Engine shell         | Not started          |
+| 2     | Physics core         | Complete             |
+| 3     | Engine shell         | Awaiting gate review |
 | 4     | Experiment 1         | Not started          |
 | 5     | Experiment 2, Part A | Not started          |
 | 6     | Experiment 2, Part B | Not started          |
 | 7     | Capstone and review  | Not started          |
 | 8     | Polish               | Not started          |
 
-What exists now: the toolchain (Vite, React, TypeScript, ESLint, Prettier, Vitest, Playwright,
-CI), placeholder routes for the module map, module page, experiment, glossary and review, and
-the physics core in `src/physics/` with all of the spec's required physics tests passing. How the
-physics is modelled is in [`docs/physics-model.md`](docs/physics-model.md). There is no lesson
-content or 3D yet.
+What exists now:
+
+- **Physics core** (`src/physics/`), with all of the spec's required physics tests passing. How
+  it models the spec is in [`docs/physics-model.md`](docs/physics-model.md).
+- **Engine:** the module map, module pages, and an experiment runner that renders the eight-step
+  flow from a content file. Glossary terms are one hover away, and progress is kept in this
+  browser's localStorage.
+- **Content** (`content/`): typed data files checked by Zod schemas and cross-reference tests.
+- **Placeholder:** EM Fundamentals currently holds one dummy experiment, a grey wire and compass
+  on the real physics core. It carries the engine through every step until Experiment 1
+  replaces it in Phase 4.
+- Not built yet: the Review page (spaced review) and the personal glossary page, both in Phase
+  7, and JSON export and import, in Phase 8.

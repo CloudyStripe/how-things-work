@@ -55,9 +55,24 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
   exaggerated visual carries a "not to scale" tag.
 - **Experiments are data.** A content file under `content/` names the model, controls,
   instruments, overlays, steps, prediction, prompts, terms, challenge and review cards; the
-  engine renders it. No per-lesson custom pages. Content is validated with Zod schemas.
+  engine renders it. No per-lesson custom pages.
+  - The schemas are in `src/engine/content/schema.ts`.
+  - `src/engine/content/validate.ts` checks every file, every cross-reference (models, controls,
+    readings, overlays, terms, the map) and the copy rules. It runs at load, so the app refuses
+    to start on bad content, and in the test suite.
+  - Content may import only the schema, model definitions and the physics core (ESLint
+    enforces this).
 - **Registered by ID.** Models, instruments and overlays are reusable components looked up by
   ID, so later modules can reuse them.
+- **3D code loads only with the experiment viewport.** Each model has two parts:
+  - a pure definition (`src/models/*/definition.ts`: controls, state, `step`, readings, field
+    sources) that content and the engine import;
+  - a 3D scene, registered in `src/models/scenes.ts`.
+
+  Overlays split the same way: `src/overlays/catalog.ts` holds the labels and
+  `src/overlays/layers.ts` holds the 3D layers. Only the lazily loaded viewport imports the
+  scene and layer registries, so three.js stays out of the map and module pages.
+
 - **Challenges are state functions.** A challenge's success condition is a function of
   simulation state, checked every frame.
 - **Modules are self-contained.** Each declares its prerequisites and does not re-teach another
@@ -102,9 +117,9 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 
 - Explicitness over cleverness, readability over abstraction, stable boundaries between
   physics, rendering and content.
-- Add a dependency in the phase that first uses it, not before. Planned: Zod and Zustand
-  (Phase 3); three.js, React Three Fiber and drei (Phase 3 placeholder model, then Phase 4);
-  a chart library (Phase 5 or 6, uPlot vs Recharts decided then).
+- Add a dependency in the phase that first uses it, not before. Zod, Zustand, three.js, React
+  Three Fiber and drei arrived in Phase 3. Still to come: a chart library in Phase 4, where
+  Experiment 1's Pattern step first needs a plot (uPlot vs Recharts decided then).
 - **Version pins:** `typescript ~6.0`, because typescript-eslint supports only `<6.1` (move to
   TS 7 once it does). `react` and `react-dom ~19.3`, because React Three Fiber 9 requires
   `<19.4`.
@@ -114,14 +129,15 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 ```
 src/
   physics/       pure TS: fields, induction, circuits, needles (+ tests)
-  engine/        app shell, map, module page, experiment runner, steps
-  models/        3D scenes registered by ID                             (Phase 3+)
-  instruments/   compass, galvanometer, ammeter, oscilloscope, clips    (Phase 4+)
-  overlays/      field lines, current flow, flux, induced field, Earth  (Phase 4+)
-  glossary/      hover terms, glossary page
-  review/        scheduler, review page, card views
+  engine/        app shell, map, module page, experiment runner, content loading,
+                 simulation and progress stores
+  models/        model definitions (pure) and their 3D scenes, by ID
+  instruments/   readouts by ID: ammeter now; compass, galvanometer, oscilloscope, clips later
+  overlays/      overlay catalog and 3D layers, by ID
+  glossary/      term matching, hover terms, glossary page
+  review/        scheduler, review page, card views                     (Phase 7)
   test/          Vitest setup
-content/         map, glossary terms, module and experiment files       (Phase 3)
+content/         map, glossary terms, module and experiment files
 e2e/             Playwright smoke tests
 docs/spec-v1.md        the canonical spec
 docs/physics-model.md  how the physics core models the spec, and its limits

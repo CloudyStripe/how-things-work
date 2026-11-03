@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router';
 import { AppShell } from '@/engine/AppShell';
-import { ExperimentPage } from '@/engine/ExperimentPage';
+import { ExperimentPage } from '@/engine/experiment/ExperimentPage';
 import { MapPage } from '@/engine/MapPage';
 import { ModulePage } from '@/engine/ModulePage';
 import { NotFoundPage } from '@/engine/NotFoundPage';
