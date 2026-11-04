@@ -34,6 +34,20 @@ export const LAYOUT = {
   generator: { front: -6.2, back: -8.6, radius: 1.05 },
 } as const;
 
+/**
+ * How far (m) and which way each part moves at the fully exploded view. The scene moves each part
+ * by this times the explode slider, and the camera follows a part there.
+ */
+export const EXPLODE: Readonly<Record<string, readonly [number, number, number]>> = {
+  blades: [0, 0, 18],
+  hub: [0, 0, 11],
+  nacelleCover: [0, 10, 0],
+  mainShaft: [0, 0, 5],
+  gearbox: [0, 4, 0],
+  generator: [0, 0, -8],
+  tower: [0, 0, 0],
+};
+
 /** The generator overlay's model: four magnet poles on the generator's rotor, six coils round it. */
 export const GENERATOR = {
   // On the fast shaft, which sits half a metre above the main shaft.

@@ -4,23 +4,12 @@ import { ExtrudeGeometry, Shape, type Group } from 'three';
 import { Block, Cylinder, Outline, SurfaceMaterial, type SurfaceKind } from '../shared/surfaces';
 import type { ExplorerView, SceneProps } from '../types';
 import { bladeGeometry } from './blade';
-import { HUB_HEIGHT, LAYOUT, type TurbineState } from './definition';
+import { EXPLODE, HUB_HEIGHT, LAYOUT, type TurbineState } from './definition';
 
 // The wind turbine: a tapered tower, a nacelle holding the drivetrain (main shaft and bearing,
 // gearbox, brake and generator on a cast bedplate), and a hub with three twisted, tapered blades.
 // Each part moves out along its own direction as the exploded view opens, hides once removed,
 // and turns yellow when picked. The rotor's angle comes from the simulation every frame.
-
-/** How far (m) and which way each part moves at the fully exploded view. */
-const EXPLODE: Readonly<Record<string, readonly [number, number, number]>> = {
-  blades: [0, 0, 18],
-  hub: [0, 0, 11],
-  nacelleCover: [0, 10, 0],
-  mainShaft: [0, 0, 5],
-  gearbox: [0, 4, 0],
-  generator: [0, 0, -8],
-  tower: [0, 0, 0],
-};
 
 const GROUND_RADIUS = 160;
 const { nacelle, hub, blades, mainShaft, gearbox, generator, tower } = LAYOUT;

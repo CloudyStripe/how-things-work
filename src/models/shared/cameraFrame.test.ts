@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { framedCamera, type CameraFrame, type Vector3Tuple } from './cameraFrame';
+import {
+  boxFrame,
+  framedCamera,
+  movedFrame,
+  type CameraFrame,
+  type Vector3Tuple,
+} from './cameraFrame';
 
 const BENCH: CameraFrame = {
   center: [0, 0.03, 0],
@@ -85,3 +91,23 @@ function normalize(a: Vector3Tuple): Vector3Tuple {
   const size = Math.hypot(...a);
   return [a[0] / size, a[1] / size, a[2] / size];
 }
+
+describe('moved and boxed frames', () => {
+  it('moves the framed camera with the frame, keeping its view', () => {
+    const offset: Vector3Tuple = [1, 2, -3];
+    const before = framedCamera(BENCH, FOV, 1.5);
+    const after = framedCamera(movedFrame(BENCH, offset), FOV, 1.5);
+    expect(after.distance).toBeCloseTo(before.distance, 9);
+    for (const axis of [0, 1, 2]) {
+      expect(after.position[axis]).toBeCloseTo(before.position[axis]! + offset[axis]!, 9);
+      expect(after.target[axis]).toBeCloseTo(before.target[axis]! + offset[axis]!, 9);
+    }
+  });
+
+  it('fits a box given by its corners', () => {
+    const frame = boxFrame([-0.2, 0, -0.1], [0.4, 0.02, 0.1], BENCH);
+    expect(frame.center).toEqual([0.1, 0.01, 0]);
+    expect(frame.halfSize.map((half) => Number(half.toFixed(9)))).toEqual([0.3, 0.01, 0.1]);
+    expect(frame.azimuth).toBe(BENCH.azimuth);
+  });
+});

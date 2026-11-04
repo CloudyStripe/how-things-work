@@ -150,6 +150,12 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
   size, so the apparatus fills it at 1280 × 720 and on any larger window. Benches look from in
   front and to the right (about 30° round, 25° up), with a bench top large enough that its edges
   stay out of view. Check the framing with a screenshot at 1280 × 720.
+  - A bench whose objects move far apart can have the camera follow them instead (`follow` on
+    its scene view, as lesson 4 does): a frame worked out from the model's state, eased to every
+    frame. While the learner drags, it only widens, so the dragged object stays under the
+    pointer; it closes in once they let go. Turning or zooming the view stops it until Reset view.
+  - An explorer's part frames are for the part in place; the camera moves them out with the part
+    (`explode`) as the exploded view opens.
 - Around the models, keep the page styling minimal and built on the `:root` tokens in
   `src/index.css`.
 - Reuse existing spacing, type and structural patterns. Avoid new visual styles and premature
