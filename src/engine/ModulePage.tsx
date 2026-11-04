@@ -108,7 +108,7 @@ function ResetModule({ module }: { module: Module }) {
   }
 
   return (
-    <div className="module-reset" role="group" aria-label="Confirm reset">
+    <div className="module-reset confirm-box" role="group" aria-label="Confirm reset">
       <p>
         This clears your steps, predictions, challenges, terms met and review cards for{' '}
         {module.title}. It cannot be undone.

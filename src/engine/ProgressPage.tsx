@@ -102,12 +102,13 @@ function LoadBackup({ onLoaded }: { onLoaded: () => void }) {
   }
 
   if (loading.kind === 'confirming') {
-    const saved =
+    const day =
       loading.from === null
-        ? 'This backup has'
-        : `This backup, saved on ${new Date(loading.from).toLocaleDateString()}, has`;
+        ? null
+        : new Date(loading.from).toLocaleDateString(undefined, { dateStyle: 'long' });
+    const saved = day === null ? 'This backup has' : `This backup, saved on ${day}, has`;
     return (
-      <div className="progress-confirm" role="group" aria-label="Confirm loading">
+      <div className="confirm-box" role="group" aria-label="Confirm loading">
         <p>
           {saved} {describeProgress(loading.data)} Loading it replaces the progress in this browser.
           It cannot be undone.
@@ -163,7 +164,7 @@ function ResetEverything({ onReset }: { onReset: () => void }) {
   }
 
   return (
-    <div className="progress-confirm" role="group" aria-label="Confirm reset">
+    <div className="confirm-box" role="group" aria-label="Confirm reset">
       <p>
         This clears your steps, predictions, challenges, terms met and review cards in every module.
         It cannot be undone, so save a backup first if you may want it back.

@@ -285,7 +285,7 @@ a {
 /* Module page */
 
 .module-page {
-  max-width: 720px;
+  max-width: 760px;
 }
 
 .module-hook {
@@ -302,6 +302,16 @@ a {
 .lesson-list,
 .term-list {
   padding-left: var(--space-6);
+}
+
+/* Twenty-odd short terms read better across than down one long column. */
+.term-list {
+  columns: 3;
+  column-gap: var(--space-8);
+}
+
+.term-list li {
+  break-inside: avoid;
 }
 
 .lesson-list-item {
@@ -738,7 +748,8 @@ fieldset.control .control-label {
 
 /* Review */
 .review-page,
-.glossary-page {
+.glossary-page,
+.progress-page {
   max-width: 760px;
 }
 
@@ -849,10 +860,6 @@ fieldset.control .control-label {
 
 /* Your progress */
 
-.progress-page {
-  max-width: 760px;
-}
-
 .progress-summary {
   font-weight: 600;
 }
@@ -875,13 +882,15 @@ fieldset.control .control-label {
   outline-offset: 2px;
 }
 
-.progress-confirm {
+/* A confirm before anything that cannot be undone: resetting a module or everything, and
+   loading a backup. */
+.confirm-box {
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-surface);
 }
 
-.progress-confirm p {
+.confirm-box p {
   margin-top: 0;
 }
