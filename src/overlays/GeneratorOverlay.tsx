@@ -6,7 +6,8 @@ import type { OverlayLayerProps } from '@/models/types';
 // The generator overlay: inside the generator, its magnets spinning on the shaft and the coils
 // round them, with dots running round each coil as fast as the current it makes, and reversing
 // with it. It shows the generator slowed right down (a hundred times the blades' speed would be
-// a blur), so it is tagged "not to scale". Drawn through the casing, as if it were cut away.
+// a blur), and larger than life, so it is tagged "not to scale". Drawn through the casing, as if
+// it were cut away.
 
 const NORTH = '#d9473a';
 const SOUTH = '#3a6ec0';
@@ -19,6 +20,8 @@ const DOT_SPEED = 6;
 /** A ring's own axis, before it is turned to face along its coil's. */
 const FACING = new Vector3(0, 0, 1);
 const HIDDEN = new Vector3(0, 0, 0);
+/** How much larger than life the overlay draws the generator's insides. */
+const ENLARGE = 1.8;
 
 export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
   const first = useMemo(() => model.generatorView?.(getSnapshot()), [model, getSnapshot]);
@@ -70,38 +73,47 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
   });
 
   if (first === undefined) return null;
+  // Drawn larger than life about the generator's middle, so its parts read from outside.
+  const middle = first.coils
+    .reduce(
+      (sum, coil) => sum.add(new Vector3(coil.center.x, coil.center.y, coil.center.z)),
+      new Vector3(),
+    )
+    .divideScalar(Math.max(1, first.coils.length));
   return (
-    <group renderOrder={20}>
-      {first.magnets.map((magnet, index) => (
-        <group
-          key={index}
-          ref={(group) => {
-            magnets.current[index] = group;
-          }}
+    <group position={middle} scale={ENLARGE} renderOrder={20}>
+      <group position={middle.clone().negate()}>
+        {first.magnets.map((magnet, index) => (
+          <group
+            key={index}
+            ref={(group) => {
+              magnets.current[index] = group;
+            }}
+          >
+            {/* Lying out from the shaft: its outer half shows the pole that faces the coils. */}
+            <mesh position={[0.12, 0, 0]} renderOrder={20}>
+              <boxGeometry args={[0.24, 0.3, 0.9]} />
+              <meshBasicMaterial color={magnet.north ? NORTH : SOUTH} depthTest={false} />
+            </mesh>
+            <mesh position={[-0.12, 0, 0]} renderOrder={20}>
+              <boxGeometry args={[0.24, 0.3, 0.9]} />
+              <meshBasicMaterial color={magnet.north ? SOUTH : NORTH} depthTest={false} />
+            </mesh>
+          </group>
+        ))}
+        {first.coils.map((coil, index) => (
+          <Coil key={index} center={coil.center} axis={coil.axis} radius={coil.radius} />
+        ))}
+        <instancedMesh
+          ref={dots}
+          args={[undefined, undefined, first.coils.length * DOTS_PER_COIL]}
+          frustumCulled={false}
+          renderOrder={21}
         >
-          {/* Lying out from the shaft: its outer half shows the pole that faces the coils. */}
-          <mesh position={[0.12, 0, 0]} renderOrder={20}>
-            <boxGeometry args={[0.24, 0.3, 0.9]} />
-            <meshBasicMaterial color={magnet.north ? NORTH : SOUTH} depthTest={false} />
-          </mesh>
-          <mesh position={[-0.12, 0, 0]} renderOrder={20}>
-            <boxGeometry args={[0.24, 0.3, 0.9]} />
-            <meshBasicMaterial color={magnet.north ? SOUTH : NORTH} depthTest={false} />
-          </mesh>
-        </group>
-      ))}
-      {first.coils.map((coil, index) => (
-        <Coil key={index} center={coil.center} axis={coil.axis} radius={coil.radius} />
-      ))}
-      <instancedMesh
-        ref={dots}
-        args={[undefined, undefined, first.coils.length * DOTS_PER_COIL]}
-        frustumCulled={false}
-        renderOrder={21}
-      >
-        <sphereGeometry args={[0.05, 10, 8]} />
-        <meshBasicMaterial color={CURRENT} depthTest={false} />
-      </instancedMesh>
+          <sphereGeometry args={[0.05, 10, 8]} />
+          <meshBasicMaterial color={CURRENT} depthTest={false} />
+        </instancedMesh>
+      </group>
     </group>
   );
 }

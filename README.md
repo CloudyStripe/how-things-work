@@ -30,6 +30,11 @@ npm run dev                       # http://localhost:5180
 | `npm run build`  | Production build into `dist/`       |
 | `npm run format` | Format with Prettier                |
 
+To measure the frame rate, add `?debug` before the `#` in a lesson's address, for example
+`http://localhost:5180/?debug#/module/em-fundamentals/lesson/current-makes-a-field`. A readout in
+the corner of the model shows frames per second, time per frame and the graphics chip drawing it.
+Keep the window in front: a hidden tab stops drawing.
+
 ## Status
 
 Phase 7 of 9 (The wind turbine) is built and waiting for the owner's review before it merges.

@@ -156,6 +156,8 @@ export interface ModelDefinition<S, C extends ControlValues> {
   readonly anchors?: Readonly<Record<string, Anchor<S, C>>>;
   /** The pieces of an explorer model. */
   readonly parts?: readonly ModelPart[];
+  /** What the button that returns the camera to the default view says, such as "Whole turbine". */
+  readonly wholeViewLabel?: string;
   /** The inside of a generator, for the generator overlay. */
   generatorView?(snapshot: SimSnapshot<S, C>): GeneratorView;
   /** The coil whose magnetic flux the flux overlay shows: field lines through it, drawn bold. */

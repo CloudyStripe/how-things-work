@@ -1,6 +1,6 @@
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useMemo, useRef, useState, type ReactNode } from 'react';
-import type { Group } from 'three';
+import { ExtrudeGeometry, Shape, type Group } from 'three';
 import { Block, Cylinder, Outline, SurfaceMaterial, type SurfaceKind } from '../shared/surfaces';
 import type { ExplorerView, SceneProps } from '../types';
 import { bladeGeometry } from './blade';
@@ -100,11 +100,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
       {part(
         'nacelleCover',
         <>
-          <Block
-            kind={paint('nacelleCover', 'whitePaint')}
-            size={[nacelle.width, nacelle.height, NACELLE_LENGTH]}
-            position={[0, nacelle.bottom + nacelle.height / 2, NACELLE_MIDDLE]}
-          />
+          <NacelleShell kind={paint('nacelleCover', 'whitePaint')} />
           {/* The cooler on the roof, and the wind vane and anemometer mast behind it. */}
           <Block
             kind={paint('nacelleCover', 'whitePaint')}
@@ -230,6 +226,38 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
         )}
       </group>
     </group>
+  );
+}
+
+/**
+ * The nacelle's cover: flat sides, and a roof and floor that curve in to a rounded nose where it
+ * meets the spinner. Its side profile is drawn once and stretched across the nacelle's width.
+ */
+function NacelleShell({ kind }: { kind: SurfaceKind }) {
+  const geometry = useMemo(() => {
+    const { front, back, height, width } = nacelle;
+    // In the side profile, x runs along the rotor's axis (toward the wind) and y up from the floor.
+    const profile = new Shape();
+    profile.moveTo(back, 0);
+    profile.lineTo(front - 1.2, 0);
+    profile.quadraticCurveTo(front, 0, front, height * 0.3);
+    profile.lineTo(front, height * 0.72);
+    profile.quadraticCurveTo(front - 0.3, height, front - 3, height);
+    profile.lineTo(back, height);
+    profile.closePath();
+    return new ExtrudeGeometry(profile, { depth: width, bevelEnabled: false, curveSegments: 16 });
+  }, []);
+  // A quarter turn about y lays the profile along z and stretches it across x, from one side to
+  // the other.
+  return (
+    <mesh
+      geometry={geometry}
+      position={[nacelle.width / 2, nacelle.bottom, 0]}
+      rotation={[0, -Math.PI / 2, 0]}
+    >
+      <SurfaceMaterial kind={kind} />
+      <Outline />
+    </mesh>
   );
 }
 

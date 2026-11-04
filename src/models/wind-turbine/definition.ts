@@ -130,6 +130,7 @@ const FULL_SPEED = steadyRotorSpeed(WIND_SPEED, LARGE_TURBINE_ROTOR);
 export const windTurbine: ModelDefinition<TurbineState, TurbineControls> = {
   id: 'wind-turbine',
   title: 'A three-blade wind turbine on its tower',
+  wholeViewLabel: 'Whole turbine',
   controls: {
     wind: { kind: 'switch', label: 'Wind', onLabel: 'Blowing', offLabel: 'Calm', default: false },
   },

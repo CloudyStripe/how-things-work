@@ -15,10 +15,11 @@ export const coilIt = {
   overlays: ['field-lines', 'current-flow'],
   steps: {
     look: {
-      text: 'The copper wire is wound into a coil, held over a tray of steel paper clips. The battery and switch send current round its turns. In front of the tray lies a rod of soft iron, which can slide into the middle of the coil. You can click the switch and the rod, or use the buttons on the right.',
+      text: "The copper wire is wound into a coil, held over a tray of steel paper clips, with a small compass beside the coil's right-hand end. The battery and switch send current round its turns. In front of the tray lies a rod of soft iron, which can slide into the middle of the coil. You can click the switch and the rod, or use the buttons on the right.",
       labels: [
         { anchor: 'coil', text: 'Coil' },
         { anchor: 'clips', text: 'Paper clips' },
+        { anchor: 'compass', text: 'Compass' },
         { anchor: 'core', text: 'Iron rod' },
         { anchor: 'battery', text: 'Battery' },
         { anchor: 'switch', text: 'Switch' },
@@ -37,8 +38,8 @@ export const coilIt = {
       },
       prompts: [
         {
-          text: 'Close the switch.',
-          doneWhen: (snapshot: CoilTraySnapshot) => snapshot.state.closedOnce,
+          text: 'Close the switch, and watch the compass and the clips.',
+          doneWhen: (snapshot: CoilTraySnapshot) => snapshot.state.compassSwung,
         },
         {
           text: 'Push the iron rod into the coil, with the switch closed.',
@@ -53,9 +54,9 @@ export const coilIt = {
     },
     why: {
       observation:
-        'With the coil alone, the clips stayed in the tray. With the iron rod in, clips jumped up and clung to both ends. When the switch opened, they all dropped.',
+        'With the switch closed, the compass by the coil swung round to point away from it, but no clip lifted. With the iron rod in, clips jumped up and clung to both ends. When the switch opened, the clips dropped and the compass swung back to north.',
       explanation:
-        'A coil is wire wound in turns. The circles of field round each turn add up along the middle, so the coil has a north pole at one end and a south pole at the other, like a bar magnet. A long coil is called a solenoid. An iron core inside becomes a magnet itself, as iron does near any magnet, and makes the field far stronger. That is an electromagnet: switch it off and the clips drop.',
+        'A coil is wire wound in turns: a long one is a solenoid. The circles of field round each turn add up along the middle, so it has a north pole at one end and a south pole at the other, like a bar magnet. Alone it is weak: it turns a compass but lifts no clip. An iron core becomes a magnet and makes the field far stronger. That is an electromagnet: switch it off and the clips drop.',
       names: ['coil', 'solenoid', 'iron-core', 'electromagnet'],
       overlay: 'field-lines',
     },

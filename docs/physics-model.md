@@ -275,7 +275,10 @@ Scene parameters must stay physical; these are the starting magnitudes with the 
   coil make a weak magnet. With the soft-iron core (gain 30), the upward pull at the tray floor
   below an end reaches about 13 times the weight, and about fourteen of thirty clips lift. A clip
   pressed against the iron stays while the pull on it is more than its weight; the core's surface
-  takes any sideways part. The winding is drawn as thirty turns.
+  takes any sideways part. The winding is drawn as thirty turns. A compass 10 cm out along the
+  axis, beyond the north end, feels about 50 µT from the air-cored coil against Earth's 25 µT, so it
+  turns about sixty degrees toward the coil's axis: the coil is a magnet, just too weak to lift a
+  clip.
 - **Lesson 8 (Move a magnet):** a strong (neodymium) 6.5 A·m² magnet, 5 cm long, into a coil of 2000
   turns of 0.15 mm copper (4 cm across, 240 Ω). The flux linkage changes by up to 4.6 Wb per metre
   of travel, so a steady push at 13 cm/s makes about 0.6 V and swings the needle about 11 degrees,

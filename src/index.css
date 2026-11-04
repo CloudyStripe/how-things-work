@@ -486,6 +486,21 @@ a {
   white-space: nowrap;
 }
 
+/* The frame-rate readout, shown with ?debug in the address */
+.fps-meter {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: 4px;
+  background: rgb(29 31 33 / 75%);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  white-space: pre;
+  pointer-events: none;
+}
+
 /* Look labels: placed over the model every frame by the viewport's LabelTracker */
 .model-label {
   position: absolute;

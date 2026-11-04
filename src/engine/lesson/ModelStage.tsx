@@ -70,7 +70,7 @@ export function ModelStage({ lesson, model, step, interactive }: ModelStageProps
             className="button-quiet"
             onClick={() => setResetSignal((count) => count + 1)}
           >
-            Reset view
+            {model.wholeViewLabel ?? 'Reset view'}
           </button>
         </div>
       </div>

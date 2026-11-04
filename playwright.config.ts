@@ -9,8 +9,8 @@ export default defineConfig({
   fullyParallel: true,
   // Every worker renders WebGL in software, and the dev server serves three.js unbundled, so
   // too many at once starve each other: the 3D view can take several seconds to appear.
-  workers: isCI ? undefined : 4,
-  expect: { timeout: 10_000 },
+  workers: isCI ? undefined : 2,
+  expect: { timeout: 15_000 },
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : 'list',
