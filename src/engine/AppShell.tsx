@@ -3,11 +3,12 @@ import { useProgressStore } from '@/engine/progress/store';
 import { isDue } from '@/review/scheduler';
 import { useNow } from '@/review/useNow';
 
-// Glossary and Review are global pages, reachable from every screen.
+// Glossary, Review and Progress are global pages, reachable from every screen.
 const NAV_ITEMS = [
   { to: '/', label: 'Map', end: true },
   { to: '/glossary', label: 'Glossary', end: false },
   { to: '/review', label: 'Review', end: false },
+  { to: '/progress', label: 'Progress', end: false },
 ];
 
 export function AppShell() {
