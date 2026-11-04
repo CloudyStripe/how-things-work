@@ -721,3 +721,128 @@ fieldset.control .control-label {
 .readings-table td:last-child {
   font-family: var(--font-mono);
 }
+
+/* The due-card count on the Review link */
+.nav-badge {
+  display: inline-block;
+  min-width: 1.4em;
+  margin-left: var(--space-1);
+  padding: 0 var(--space-1);
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.4em;
+  text-align: center;
+}
+
+/* Review */
+.review-page,
+.glossary-page {
+  max-width: 760px;
+}
+
+.review-card {
+  margin-top: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.review-card-kind {
+  margin: 0 0 var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.review-card-prompt {
+  margin: 0 0 var(--space-2);
+  font-size: 1.1rem;
+}
+
+.review-card-from {
+  margin: 0 0 var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.review-card-answer {
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.review-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/* A lesson's model, live, outside the lesson */
+.live-model {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.live-model-view {
+  position: relative;
+  height: 320px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.live-model-controls {
+  margin: 0;
+}
+
+/* Glossary */
+.glossary-entries {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.glossary-entry {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.glossary-entry h3,
+.glossary-pair-term h3 {
+  margin: 0 0 var(--space-1);
+  font-size: 1rem;
+}
+
+.glossary-entry p,
+.glossary-pair-term p {
+  margin: 0 0 var(--space-2);
+}
+
+.glossary-note,
+.glossary-meta {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.glossary-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.glossary-pair-term {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}

@@ -37,23 +37,23 @@ Keep the window in front: a hidden tab stops drawing.
 
 ## Status
 
-Phase 7 of 9 (The wind turbine) is built and waiting for the owner's review before it merges.
-All ten EM Fundamentals lessons now run.
+Phase 9 of 9 (Polish) is next. Phase 8 is complete: spaced review and the personal glossary.
+All ten EM Fundamentals lessons run, and the owner reviewed the turbine.
 
-| Phase | Name                       | Status            |
-| ----- | -------------------------- | ----------------- |
-| 1     | Setup                      | Complete          |
-| 2     | Physics core               | Complete          |
-| 3     | Engine shell               | Complete          |
-| 4     | Style, magnets and fields  | Complete          |
-| 5     | Current and electromagnets | Complete          |
-| 6     | Induction                  | Complete          |
-| 7     | The wind turbine           | In review (owner) |
-| 8     | Review and glossary        | Not started       |
-| 9     | Polish                     | Not started       |
+| Phase | Name                       | Status      |
+| ----- | -------------------------- | ----------- |
+| 1     | Setup                      | Complete    |
+| 2     | Physics core               | Complete    |
+| 3     | Engine shell               | Complete    |
+| 4     | Style, magnets and fields  | Complete    |
+| 5     | Current and electromagnets | Complete    |
+| 6     | Induction                  | Complete    |
+| 7     | The wind turbine           | Complete    |
+| 8     | Review and glossary        | Complete    |
+| 9     | Polish                     | Not started |
 
-Only the Phase 4 style decision (made) and the Phase 7 turbine review wait for the owner.
-Every other phase merges once CI is green and is followed by a short report.
+The owner has made both review stops: the Phase 4 style decision and the Phase 7 turbine review.
+Phase 9 merges once CI is green; the owner then checks the acceptance criteria and accepts v1.
 
 What exists now:
 
@@ -92,5 +92,10 @@ What exists now:
   - **Back to the windmill:** the turbine again, every part explained with the ideas of lessons 2
     to 9, and an overlay inside the generator showing its magnets passing its coils and the
     current each coil makes.
-- Not built yet: the Review page (spaced review) and the personal glossary page, both in Phase
-  8, and JSON export and import, in Phase 9.
+- **Review:** finishing a lesson queues its recall cards and two cards for each term it named.
+  They come back after one, three, seven, fourteen and thirty days as you remember them, and back
+  to a day when you don't. The Review link shows how many are due; prediction cards can open
+  their lesson's model to try first.
+- **Glossary:** every term you have met, by module, with where it was named, and confusable pairs
+  side by side.
+- Not built yet: JSON export and import, and resetting everything, in Phase 9.

@@ -25,7 +25,7 @@ EM Fundamentals.
 | 4     | Style, magnets and fields  | Done (technical illustration chosen)         |
 | 5     | Current and electromagnets | None                                         |
 | 6     | Induction                  | None                                         |
-| 7     | The wind turbine           | **Stop before merging:** the turbine review  |
+| 7     | The wind turbine           | Done (owner reviewed the turbine)            |
 | 8     | Review and glossary        | None                                         |
 | 9     | Polish                     | The owner accepts v1 after the phase merges  |
 
@@ -35,8 +35,8 @@ EM Fundamentals.
 - **Only two points wait for the owner:**
   - **The style decision, at the start of Phase 4.** Done: the owner chose technical
     illustration (section 6).
-  - **The turbine review, in Phase 7.** Build the turbine and lessons 1 and 10 on it, open the
-    PR, get CI green, and wait for the owner's review before merging.
+  - **The turbine review, in Phase 7.** Done: the owner reviewed it and asked for camera
+    flights, a rounded nacelle, a compass in lesson 7 and a frame-rate readout before it merged.
 - **Every other phase runs straight through:** build it, open the PR, get CI green (fix any
   failure on the branch), merge, post a short report, then start the next phase without waiting.
   The report says what was built, any decision made on the owner's behalf, and anything that
@@ -180,7 +180,7 @@ src/
                  scene parts in src/models/shared/
   overlays/      overlay catalog and 3D layers, by ID
   glossary/      term matching, hover terms, glossary page
-  review/        scheduler, review page, card views                     (Phase 8)
+  review/        spaced-review scheduler, Review page, card views
   test/          Vitest setup
 content/         map, glossary terms, module and lesson files
 e2e/             Playwright smoke tests
