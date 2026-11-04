@@ -128,15 +128,14 @@ export function useLessonRunner(module: Module, lesson: Lesson, model: AnyModel)
       store.completeStep(lesson.id, step);
       const following = sequence[stepIndex + 1];
       if (following === undefined) {
-        // Finishing queues the review cards quietly; there is no Recall screen.
+        // Finishing queues the review cards quietly (there is no Recall screen): its recall cards,
         store.completeLesson(lesson.id);
-        const cards = lesson.recall ?? [];
-        if (cards.length > 0) {
-          store.addReviewCards(
-            lesson.id,
-            cards.map((card) => card.id),
-          );
-        }
+        // with two cards for each term its Why named.
+        store.addReviewCards(
+          lesson.id,
+          (lesson.recall ?? []).map((card) => card.id),
+          lesson.steps.why?.names ?? [],
+        );
         void navigate(`/module/${module.id}`);
         return;
       }

@@ -50,7 +50,7 @@ export function SidePanel({ lesson, model, interactive }: SidePanelProps) {
   );
 }
 
-function ControlInput({
+export function ControlInput({
   id,
   spec,
   disabled,

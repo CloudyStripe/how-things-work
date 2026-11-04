@@ -2,12 +2,13 @@ import { z } from 'zod';
 import { create } from 'zustand';
 import { persist, type PersistStorage, type StorageValue } from 'zustand/middleware';
 import { STEP_KINDS, type StepKind } from '@/engine/content/schema';
+import { afterAnswer, firstSchedule } from '@/review/scheduler';
 
 // The learner's progress, kept in this browser's localStorage. The stored shape is versioned
 // and checked on load; anything unreadable is set aside under a backup key, never discarded.
 
 export const PROGRESS_KEY = 'how-things-work:progress';
-export const PROGRESS_VERSION = 2;
+export const PROGRESS_VERSION = 3;
 
 const timestamp = z.iso.datetime();
 const stepKind = z.enum(STEP_KINDS);
@@ -25,19 +26,85 @@ const lessonProgressSchema = z.object({
 });
 export type LessonProgress = z.infer<typeof lessonProgressSchema>;
 
+/** Where a review card sits in the spaced-review boxes, and when it is next due. */
+const scheduled = {
+  /** The lesson it came from: resetting that lesson removes it. */
+  lessonId: z.string(),
+  addedAt: timestamp,
+  box: z.int().min(0),
+  dueAt: timestamp,
+};
+
+/**
+ * A card in the review queue: one of a lesson's recall cards, or one of the two cards every term
+ * makes once it is met ("What is this called?" and "Explain this term").
+ */
+const reviewCardSchema = z.discriminatedUnion('source', [
+  z.object({ source: z.literal('recall'), cardId: z.string(), ...scheduled }),
+  z.object({
+    source: z.literal('term'),
+    termId: z.string(),
+    ask: z.enum(['name', 'explain']),
+    ...scheduled,
+  }),
+]);
+export type ReviewCard = z.infer<typeof reviewCardSchema>;
+
+/** One card's identity in the queue, whatever its source. */
+export function reviewCardKey(card: ReviewCard): string {
+  return card.source === 'recall'
+    ? `recall:${card.lessonId}:${card.cardId}`
+    : `term:${card.termId}:${card.ask}`;
+}
+
+const TERM_ASKS = ['name', 'explain'] as const;
+
 const progressDataSchema = z.object({
   lessons: z.record(z.string(), lessonProgressSchema),
   /** Each term the learner has met: the lesson that named it, and when. */
   terms: z.record(z.string(), z.object({ lessonId: z.string(), at: timestamp })),
-  /** Recall cards waiting for review. Scheduling them arrives with the Review page (Phase 8). */
-  reviewQueue: z.array(z.object({ lessonId: z.string(), cardId: z.string(), addedAt: timestamp })),
+  /** Review cards, each with its place in the spaced-review boxes. */
+  reviewQueue: z.array(reviewCardSchema),
 });
 export type ProgressData = z.infer<typeof progressDataSchema>;
 
 // When the stored shape changes, bump PROGRESS_VERSION and migrate older data here. Version 1
 // (experiments, before the lesson redesign) held only the Phase 3 dummy lesson, so it is not
-// migrated: like any unreadable data, it is set aside under a backup key.
+// migrated: like any unreadable data, it is set aside under a backup key. Version 2 queued
+// recall cards with no schedule; each is scheduled as if new from when it was added, and every
+// term already met gets its two term cards.
 const storedSchema = z.object({ version: z.literal(PROGRESS_VERSION), state: progressDataSchema });
+
+const versionTwoSchema = z.object({
+  version: z.literal(2),
+  state: z.object({
+    lessons: z.record(z.string(), lessonProgressSchema),
+    terms: z.record(z.string(), z.object({ lessonId: z.string(), at: timestamp })),
+    reviewQueue: z.array(
+      z.object({ lessonId: z.string(), cardId: z.string(), addedAt: timestamp }),
+    ),
+  }),
+});
+
+function fromVersionTwo(stored: z.infer<typeof versionTwoSchema>): ProgressData {
+  const { lessons, terms, reviewQueue } = stored.state;
+  const recall = reviewQueue.map((card): ReviewCard => ({
+    source: 'recall',
+    ...card,
+    ...firstSchedule(new Date(card.addedAt)),
+  }));
+  const termCards = Object.entries(terms).flatMap(([termId, met]) =>
+    TERM_ASKS.map((ask): ReviewCard => ({
+      source: 'term',
+      termId,
+      ask,
+      lessonId: met.lessonId,
+      addedAt: met.at,
+      ...firstSchedule(new Date(met.at)),
+    })),
+  );
+  return { lessons, terms, reviewQueue: [...recall, ...termCards] };
+}
 
 const EMPTY: ProgressData = { lessons: {}, terms: {}, reviewQueue: [] };
 
@@ -49,7 +116,10 @@ interface ProgressActions {
   completeChallenge(lessonId: string): void;
   completeLesson(lessonId: string): void;
   encounterTerms(lessonId: string, termIds: readonly string[]): void;
-  addReviewCards(lessonId: string, cardIds: readonly string[]): void;
+  /** Queues a finished lesson's recall cards, and the two cards for each term it named. */
+  addReviewCards(lessonId: string, cardIds: readonly string[], termIds?: readonly string[]): void;
+  /** Reschedules a card once the learner says whether they remembered it. */
+  answerCard(key: string, remembered: boolean): void;
   /** Clears everything recorded for these lessons, including terms met and queued cards. */
   resetLessons(lessonIds: readonly string[]): void;
 }
@@ -61,7 +131,10 @@ const storage: PersistStorage<ProgressData> = {
     const raw = localStorage.getItem(name);
     if (raw === null) return null;
     try {
-      return storedSchema.parse(JSON.parse(raw)) as StorageValue<ProgressData>;
+      const parsed: unknown = JSON.parse(raw);
+      const older = versionTwoSchema.safeParse(parsed);
+      if (older.success) return { version: PROGRESS_VERSION, state: fromVersionTwo(older.data) };
+      return storedSchema.parse(parsed) as StorageValue<ProgressData>;
     } catch {
       localStorage.setItem(`${name}:unreadable:${new Date().toISOString()}`, raw);
       return null;
@@ -154,15 +227,44 @@ export const useProgressStore = create<ProgressStore>()(
           set({ terms: { ...get().terms, ...met } });
         },
 
-        addReviewCards(lessonId, cardIds) {
+        addReviewCards(lessonId, cardIds, termIds = []) {
           const queue = get().reviewQueue;
-          const fresh = cardIds.filter(
-            (cardId) => !queue.some((card) => card.lessonId === lessonId && card.cardId === cardId),
-          );
+          const at = new Date();
+          const addedAt = at.toISOString();
+          const candidates: ReviewCard[] = [
+            ...cardIds.map((cardId): ReviewCard => ({
+              source: 'recall',
+              cardId,
+              lessonId,
+              addedAt,
+              ...firstSchedule(at),
+            })),
+            ...termIds.flatMap((termId) =>
+              TERM_ASKS.map((ask): ReviewCard => ({
+                source: 'term',
+                termId,
+                ask,
+                lessonId,
+                addedAt,
+                ...firstSchedule(at),
+              })),
+            ),
+          ];
+          // Each card is queued once: finishing a lesson again leaves its schedule alone.
+          const known = new Set(queue.map(reviewCardKey));
+          const fresh = candidates.filter((card) => !known.has(reviewCardKey(card)));
           if (fresh.length === 0) return;
-          const addedAt = now();
+          set({ reviewQueue: [...queue, ...fresh] });
+        },
+
+        answerCard(key, remembered) {
+          const at = new Date();
           set({
-            reviewQueue: [...queue, ...fresh.map((cardId) => ({ lessonId, cardId, addedAt }))],
+            reviewQueue: get().reviewQueue.map((card) =>
+              reviewCardKey(card) === key
+                ? { ...card, ...afterAnswer(card.box, remembered, at) }
+                : card,
+            ),
           });
         },
 

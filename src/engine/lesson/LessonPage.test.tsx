@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StepKind } from '@/engine/content/schema';
-import { clearProgressForTests, useProgressStore } from '@/engine/progress/store';
+import { clearProgressForTests, reviewCardKey, useProgressStore } from '@/engine/progress/store';
 import { useSimStore } from '@/engine/sim/store';
 import type { MagnetRailState } from '@/models/magnet-rail/definition';
 import { routes } from '@/routes';
@@ -164,10 +164,17 @@ describe('a model lesson (lesson 2)', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'EM Fundamentals' }),
     ).toBeInTheDocument();
-    expect(useProgressStore.getState().reviewQueue.map((card) => card.cardId)).toEqual([
-      'two-north-poles',
-      'north-meets-south',
-      'name-the-ends',
+    // Its three recall cards, and two cards for each of the three terms its Why names.
+    expect(useProgressStore.getState().reviewQueue.map(reviewCardKey)).toEqual([
+      'recall:what-magnets-do:two-north-poles',
+      'recall:what-magnets-do:north-meets-south',
+      'recall:what-magnets-do:name-the-ends',
+      'term:magnetic-pole:name',
+      'term:magnetic-pole:explain',
+      'term:repulsion:name',
+      'term:repulsion:explain',
+      'term:attraction:name',
+      'term:attraction:explain',
     ]);
     expect(useProgressStore.getState().lessons[MAGNETS]?.completedAt).toBeDefined();
   });

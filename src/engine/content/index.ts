@@ -24,6 +24,20 @@ export function findLesson(module: Module, lessonId: string): Lesson | undefined
   return module.lessons.find((lesson) => lesson.id === lessonId);
 }
 
+/** A lesson by id, wherever it is, with its module. */
+export function findLessonAnywhere(
+  lessonId: string,
+): { module: Module; lesson: Lesson } | undefined {
+  for (const module of content.modules) {
+    const lesson = findLesson(module, lessonId);
+    if (lesson !== undefined) return { module, lesson };
+  }
+  return undefined;
+}
+
+/** Every module that has a module file, in content order. */
+export const modules: readonly Module[] = content.modules;
+
 /** The model a lesson runs. Validation guarantees it exists. */
 export function modelFor(lesson: Lesson): AnyModel {
   const model = models[lesson.model];

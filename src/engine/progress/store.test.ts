@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { clearProgressForTests, PROGRESS_KEY, PROGRESS_VERSION, useProgressStore } from './store';
+import {
+  clearProgressForTests,
+  PROGRESS_KEY,
+  PROGRESS_VERSION,
+  reviewCardKey,
+  useProgressStore,
+} from './store';
 
 const progress = () => useProgressStore.getState();
 
@@ -47,10 +53,31 @@ describe('progress actions', () => {
     expect(progress().terms.repulsion?.lessonId).toBe('lesson-2');
   });
 
-  it('queues each recall card once', () => {
+  it('queues each recall card once, due a day later, with two cards per term named', () => {
+    progress().addReviewCards('lesson', ['a', 'b'], ['magnetic-pole']);
+    progress().addReviewCards('lesson', ['b', 'c'], ['magnetic-pole']);
+    expect(progress().reviewQueue.map(reviewCardKey)).toEqual([
+      'recall:lesson:a',
+      'recall:lesson:b',
+      'term:magnetic-pole:name',
+      'term:magnetic-pole:explain',
+      'recall:lesson:c',
+    ]);
+    for (const card of progress().reviewQueue) {
+      expect(card.box).toBe(0);
+      const wait = new Date(card.dueAt).getTime() - new Date(card.addedAt).getTime();
+      expect(wait).toBe(24 * 60 * 60 * 1000);
+    }
+  });
+
+  it('moves a remembered card up a box and a forgotten one back to the first', () => {
     progress().addReviewCards('lesson', ['a', 'b']);
-    progress().addReviewCards('lesson', ['b', 'c']);
-    expect(progress().reviewQueue.map((card) => card.cardId)).toEqual(['a', 'b', 'c']);
+    progress().answerCard('recall:lesson:a', true);
+    progress().answerCard('recall:lesson:b', true);
+    progress().answerCard('recall:lesson:b', false);
+    const [a, b] = progress().reviewQueue;
+    expect(a?.box).toBe(1);
+    expect(b?.box).toBe(0);
   });
 
   it('resets only the given lessons, with their terms and cards', () => {
@@ -78,6 +105,31 @@ describe('progress storage', () => {
     localStorage.setItem(PROGRESS_KEY, JSON.stringify(stored));
     await useProgressStore.persist.rehydrate();
     expect(progress().lessons.lesson?.prediction?.choice).toBe('away');
+  });
+
+  it('brings version 2 progress forward, scheduling its queued cards and met terms', async () => {
+    const addedAt = '2026-11-03T10:00:00.000Z';
+    localStorage.setItem(
+      PROGRESS_KEY,
+      JSON.stringify({
+        version: 2,
+        state: {
+          lessons: {},
+          terms: { repulsion: { lessonId: 'what-magnets-do', at: addedAt } },
+          reviewQueue: [{ lessonId: 'what-magnets-do', cardId: 'two-north-poles', addedAt }],
+        },
+      }),
+    );
+    await useProgressStore.persist.rehydrate();
+    expect(progress().reviewQueue.map(reviewCardKey)).toEqual([
+      'recall:what-magnets-do:two-north-poles',
+      'term:repulsion:name',
+      'term:repulsion:explain',
+    ]);
+    expect(progress().reviewQueue[0]?.dueAt).toBe('2026-11-04T10:00:00.000Z');
+    expect(
+      Object.keys(localStorage).some((key) => key.startsWith(PROGRESS_KEY + ':unreadable:')),
+    ).toBe(false);
   });
 
   it('sets version 1 (experiment) progress aside, since the lesson redesign replaced it', async () => {

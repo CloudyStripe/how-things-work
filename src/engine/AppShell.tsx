@@ -1,4 +1,7 @@
 import { Link, NavLink, Outlet } from 'react-router';
+import { useProgressStore } from '@/engine/progress/store';
+import { isDue } from '@/review/scheduler';
+import { useNow } from '@/review/useNow';
 
 // Glossary and Review are global pages, reachable from every screen.
 const NAV_ITEMS = [
@@ -8,6 +11,10 @@ const NAV_ITEMS = [
 ];
 
 export function AppShell() {
+  const queue = useProgressStore((state) => state.reviewQueue);
+  const now = useNow();
+  const due = queue.filter((card) => isDue(card, now)).length;
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -20,6 +27,12 @@ export function AppShell() {
               <li key={item.to}>
                 <NavLink to={item.to} end={item.end} className="app-nav-link">
                   {item.label}
+                  {/* Cards due for review, counted on every screen, the map included. */}
+                  {item.to === '/review' && due > 0 && (
+                    <span className="nav-badge" aria-label={`${due} due`}>
+                      {due}
+                    </span>
+                  )}
                 </NavLink>
               </li>
             ))}
