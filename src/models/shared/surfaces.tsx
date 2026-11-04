@@ -27,7 +27,13 @@ export type SurfaceKind =
   | 'board'
   | 'battery'
   | 'wireRed'
-  | 'wireBlack';
+  | 'wireBlack'
+  | 'whitePaint'
+  | 'castIron'
+  | 'gearCase'
+  | 'generatorCase'
+  | 'grass'
+  | 'selected';
 
 const COLORS: Readonly<Record<SurfaceKind, string>> = {
   tabletop: '#e6dfd0',
@@ -51,6 +57,13 @@ const COLORS: Readonly<Record<SurfaceKind, string>> = {
   battery: '#4f7a62',
   wireRed: '#c9483f',
   wireBlack: '#35373b',
+  whitePaint: '#eef1f3',
+  castIron: '#6b737b',
+  gearCase: '#8197ad',
+  generatorCase: '#6f8f78',
+  grass: '#cbd8bf',
+  /** A part the learner has picked out, in an explorer. */
+  selected: '#f2c14e',
 };
 
 /** See-through surfaces, and how much of what lies behind them they hide. */

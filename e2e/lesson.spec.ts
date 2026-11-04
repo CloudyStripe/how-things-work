@@ -81,20 +81,13 @@ function overlay(page: Page, name: string): Locator {
 }
 
 /** Moves a slider from one value to another in small steps, waiting between them, as a hand would. */
-async function slideTo(
-  page: Page,
-  slider: Locator,
-  from: number,
-  to: number,
-  step = 0.05,
-  pause = 120,
-) {
+async function slideTo(page: Page, slider: Locator, from: number, to: number, step = 0.05) {
   const count = Math.ceil(Math.abs(to - from) / step);
   for (let index = 1; index <= count; index++) {
     // A range input takes only values on its step (0.01), written as the browser writes them.
     const value = from + ((to - from) * index) / count;
     await slider.fill(String(Number(value.toFixed(2))));
-    await page.waitForTimeout(pause);
+    await page.waitForTimeout(120);
   }
 }
 
@@ -299,11 +292,10 @@ test('a learner completes lesson 8, Move a magnet', async ({ page }) => {
 
   await page.getByRole('radio', { name: 'No current at all' }).check();
   await page.getByRole('button', { name: 'Commit prediction' }).click();
-  // A steady push in, a pause inside, a steady pull out, then one quick push. Small, quick steps:
-  // big jumps would be quick pushes of their own, flashing the lights instead.
-  await slideTo(page, slider, 0, 1, 0.02, 40);
+  // A push in, a pause inside, a pull out, then one quick push to light an LED.
+  await slideTo(page, slider, 0, 1);
   await expect(done).toHaveCount(2, { timeout: 15_000 });
-  await slideTo(page, slider, 1, 0, 0.02, 40);
+  await slideTo(page, slider, 1, 0);
   await expect(done).toHaveCount(3);
   await slider.fill('1');
   await expect(done).toHaveCount(4);
@@ -382,6 +374,39 @@ test('a learner takes the turbine apart in lesson 1, The windmill', async ({ pag
   await expect(page.locator('.lesson-list-item', { hasText: /^The windmill/ })).toContainText(
     'Complete',
   );
+  expect(errors).toEqual([]);
+});
+
+test('a learner completes lesson 10, Back to the windmill', async ({ page }) => {
+  test.setTimeout(60_000);
+  const errors = collectConsoleErrors(page);
+  // Exact: "Remove next part" also contains the word.
+  const next = page.getByRole('button', { name: 'Next', exact: true });
+  const done = page.locator('.prompt.is-done');
+
+  await page.goto('/#/module/em-fundamentals/lesson/back-to-the-windmill');
+  await expect(page.getByRole('heading', { level: 2, name: 'Step 1 of 3: Look' })).toBeVisible();
+  await next.click();
+
+  await page.getByRole('switch', { name: 'Wind' }).click();
+  for (const part of ['Blades', 'Hub', 'Nacelle cover', 'Main shaft', 'Gearbox']) {
+    await page.getByRole('button', { name: `Remove next part: ${part}` }).click();
+  }
+  await page.getByRole('button', { name: 'Generator', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Generator' })).toContainText(
+    'magnets spin past coils of copper wire',
+  );
+  await overlay(page, 'Inside the generator').click();
+  // The rotor takes a few seconds to spin up in the wind.
+  await expect(done).toHaveCount(3, { timeout: 10_000 });
+  await next.click();
+
+  await expect(page.getByRole('heading', { level: 2, name: 'Step 3 of 3: Why' })).toBeVisible();
+  await expect(page.getByText(/Named here:/)).toContainText('electric motor');
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(
+    page.locator('.lesson-list-item', { hasText: 'Back to the windmill' }),
+  ).toContainText('Complete');
   expect(errors).toEqual([]);
 });
 

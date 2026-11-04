@@ -139,10 +139,10 @@ The module teaches one idea in two directions: current makes a magnetic field, a
 - **Key observations:** the compasses turn to form a circle around the wire; reversing the battery reverses the circle; compasses farther out turn less.
 - **Overlay:** circular field lines with arrows; current flow.
 
-**7. Coil it.** The wire wound into a coil above a tray of paper clips, with the switch.
+**7. Coil it.** The wire wound into a coil above a tray of paper clips, with the switch, and a small compass beside the coil's end.
 
-- **Try:** prediction: "The iron rod is not a magnet. With current flowing, what will pushing it into the coil do?" (lift more clips / make no difference / lift fewer clips). Prompts: close the switch; push the iron core in; open the switch.
-- **Key observations:** the coil acts like a bar magnet with north and south poles; the iron core makes it lift many more clips; switching off drops them.
+- **Try:** prediction: "The iron rod is not a magnet. With current flowing, what will pushing it into the coil do?" (lift more clips / make no difference / lift fewer clips). Prompts: close the switch and watch the compass and the clips; push the iron core in; open the switch.
+- **Key observations:** the coil acts like a bar magnet with north and south poles: alone it turns the compass but is too weak to lift a clip; the iron core makes it lift many clips; switching off drops them and the compass swings back to north.
 - **Overlay:** field lines.
 
 **8. Move a magnet.** A coil connected to a centre-zero meter with no scale and two LEDs wired opposite ways. The learner slides a bar magnet along the coil's axis.

@@ -144,13 +144,24 @@ the filament goes as current squared, so the glow settles at (current / rated)²
 current flows, and follows a change with the filament's warm-up time (about 0.05 s for a torch bulb).
 The filament's resistance is taken as its hot value throughout.
 
+## The turbine's generator
+
+The gearbox turns the generator a hundred times for each turn of the blades. The generator
+overlay models its inside as four magnet poles on the generator's rotor, north and south in turn,
+passing six coils round it. Each pole is a point dipole, so each coil's flux linkage comes from
+`dipoleFluxLinkage` (the same physics as the crank generator), and its emf is minus the linkage's
+rate of change: the linkage's rate with shaft angle times the shaft's speed. The overlay shows each
+coil's current as a share of the most it makes in the lesson's breeze, and shows the generator
+turning forty times slower than it does, since at its real speed it would be a blur.
+
 ## Wind turbine rotor
 
 `stepRotor` is a first-order model: in a steady wind the rotor settles at tip-speed ratio × wind
 speed / blade length (a large three-blade turbine holds a tip-speed ratio near 7), and it follows a
 change in wind with one time constant (about 8 s for a large rotor). The update is exact for any
-step size. Phase 7 refines it with the generator's load and the turbine's cut-in and rated wind
-speeds.
+step size. The lessons run the turbine in one steady breeze (10 m/s), inside its working range, so
+the model leaves out the cut-in speed below which a turbine stands still and the rated speed above
+which its blades pitch to hold the rotor steady.
 
 ## Instruments' needles
 
@@ -264,7 +275,10 @@ Scene parameters must stay physical; these are the starting magnitudes with the 
   coil make a weak magnet. With the soft-iron core (gain 30), the upward pull at the tray floor
   below an end reaches about 13 times the weight, and about fourteen of thirty clips lift. A clip
   pressed against the iron stays while the pull on it is more than its weight; the core's surface
-  takes any sideways part. The winding is drawn as thirty turns.
+  takes any sideways part. The winding is drawn as thirty turns. A compass 10 cm out along the
+  axis, beyond the north end, feels about 50 µT from the air-cored coil against Earth's 25 µT, so it
+  turns about sixty degrees toward the coil's axis: the coil is a magnet, just too weak to lift a
+  clip.
 - **Lesson 8 (Move a magnet):** a strong (neodymium) 6.5 A·m² magnet, 5 cm long, into a coil of 2000
   turns of 0.15 mm copper (4 cm across, 240 Ω). The flux linkage changes by up to 4.6 Wb per metre
   of travel, so a steady push at 13 cm/s makes about 0.6 V and swings the needle about 11 degrees,

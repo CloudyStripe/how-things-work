@@ -39,6 +39,17 @@ describe('lesson 7 against its model', () => {
     expect(clipsHeld(withCore)).toBeGreaterThanOrEqual(6);
   });
 
+  it('turns the compass by the coil even when the coil alone lifts no clip', () => {
+    const coilAlone = hold(start, { switch: true, core: false }, 3);
+    expect(clipsHeld(coilAlone)).toBe(0);
+    // Turned well round from north, toward east: away from the coil's north end, beyond it.
+    expect(coilAlone.needle.angle).toBeGreaterThan(0.9);
+    expect(coilAlone.compassSwung).toBe(true);
+    // And back to north once the current stops.
+    const opened = hold(coilAlone, { switch: false, core: false }, 4);
+    expect(Math.abs(opened.needle.angle)).toBeLessThan(0.1);
+  });
+
   it('hangs clips from both ends, like a bar magnet', () => {
     const lit = hold(start, { switch: true, core: true }, 2);
     const held = lit.clips.filter((clip) => clip.phase === 'held');
@@ -56,7 +67,7 @@ describe('lesson 7 against its model', () => {
 
   it('starts with no prompt done, and ticks each by doing what it says', () => {
     expect(prompts.map((_, index) => done(index, start, OFF))).toEqual([false, false, false]);
-    const closed = hold(start, { switch: true, core: false }, 0.5);
+    const closed = hold(start, { switch: true, core: false }, 1);
     expect(done(0, closed, { switch: true, core: false })).toBe(true);
     expect(done(1, closed, { switch: true, core: false })).toBe(false);
     const cored = hold(closed, { switch: true, core: true }, 1);

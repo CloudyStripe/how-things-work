@@ -2,6 +2,7 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useRef } from 'react';
 import type { Group } from 'three';
 import { Battery, KnifeSwitch, Wire } from '../shared/circuitParts';
+import { Compass } from '../shared/Compass';
 import { PaperClip } from '../shared/PaperClip';
 import { Block, Cylinder } from '../shared/surfaces';
 import type { SceneProps } from '../types';
@@ -11,6 +12,7 @@ import {
   BOARD,
   CLIP,
   COIL,
+  COMPASS,
   CORE,
   CORE_OUT_Z,
   SWITCH,
@@ -22,8 +24,9 @@ import {
 } from './definition';
 
 // The coil and clip tray: a copper coil held over a shallow tray of paper clips by a wooden arm
-// from a post behind it, the iron core lying in front (or pushed into the coil), and the
-// battery and switch. Every clip's place, and the core's, come from the simulation each frame.
+// from a post behind it, the iron core lying in front (or pushed into the coil), a compass
+// beyond the coil's right-hand end, and the battery and switch. Every clip's place, the core's
+// and the compass needle's come from the simulation each frame.
 
 /** The bench top: wide enough that its edges stay out of the default view. */
 const TABLETOP = { width: 2.4, depth: 1.6 };
@@ -126,6 +129,13 @@ export function CoilTrayScene({ getSnapshot, interactive, setControl }: ScenePro
 
       <group position={[BATTERY.x, BOARD.top, BATTERY.z]}>
         <Battery length={BATTERY.cellLength} radius={BATTERY.cellRadius} cells={BATTERY.cells} />
+      </group>
+      <group position={[COMPASS.x, BOARD.top, COMPASS.z]}>
+        <Compass
+          radius={COMPASS.radius}
+          needleHeight={COMPASS.needleHeight}
+          getAngle={() => snapshot().state.needle.angle}
+        />
       </group>
       <group position={[SWITCH.x, BOARD.top, SWITCH.z]}>
         <KnifeSwitch

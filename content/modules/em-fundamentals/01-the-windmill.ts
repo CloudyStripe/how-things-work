@@ -1,19 +1,15 @@
 import type { ExplorerLesson } from '@/engine/content/schema';
-import {
-  rotorTurning,
-  windTurbineStandin,
-  type TurbineSnapshot,
-} from '@/models/wind-turbine-standin/definition';
+import { rotorTurning, windTurbine, type TurbineSnapshot } from '@/models/wind-turbine/definition';
 import type { ExplorerView } from '@/models/types';
 
 // Lesson 1, the hook: a wind turbine to take apart. Lesson 10 comes back to it with every part
-// explained. Until Phase 7 it runs on a stand-in model made of plain blocks.
+// explained.
 
 export const theWindmill = {
   kind: 'explorer',
   id: 'the-windmill',
   title: 'The windmill',
-  model: windTurbineStandin.id,
+  model: windTurbine.id,
   controls: ['wind'],
   overlays: [],
   parts: [

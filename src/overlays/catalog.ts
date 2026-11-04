@@ -12,5 +12,6 @@ export const overlays: Readonly<Record<string, OverlayInfo>> = {
   'earth-field': { label: "Earth's field", notToScale: true },
   'current-flow': { label: 'Current flow', notToScale: true },
   flux: { label: 'Magnetic flux', notToScale: true },
+  generator: { label: 'Inside the generator', notToScale: true },
   'field-arrows': { label: 'Field direction', notToScale: true },
 };

@@ -8,7 +8,7 @@ import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
 import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
 import type { SceneProps } from './types';
-import { WindTurbineStandinScene } from './wind-turbine-standin/Scene';
+import { WindTurbineScene } from './wind-turbine/Scene';
 import { WireBoardScene } from './wire-board/Scene';
 
 // Each model's 3D view, by model id. Imported only by the lesson viewport, which is
@@ -29,11 +29,15 @@ export interface SceneView {
   readonly clip: { readonly near: number; readonly far: number };
   /** Where the main light shines from. */
   readonly light: Vector3Tuple;
+  /** In an explorer: what the camera flies to when a part is picked, removed or put back. */
+  readonly partFrames?: Readonly<Record<string, CameraFrame>>;
+  /** What the camera flies to when an overlay turns on, where it reads best. */
+  readonly overlayFrames?: Readonly<Record<string, CameraFrame>>;
 }
 
 export const scenes: Readonly<Record<string, SceneView>> = {
-  'wind-turbine-standin': {
-    Scene: WindTurbineStandinScene,
+  'wind-turbine': {
+    Scene: WindTurbineScene,
     // The tower and the rotor, with room for the parts to pull out.
     frame: {
       center: [0, 58, 4],
@@ -42,10 +46,61 @@ export const scenes: Readonly<Record<string, SceneView>> = {
       elevation: 6,
       margin: 0.06,
     },
-    zoom: { min: 0.13, max: 1.6 },
+    // Close enough to look into the nacelle.
+    zoom: { min: 0.02, max: 1.6 },
     pan: 40,
     clip: { near: 0.5, far: 3000 },
     light: [120, 220, 160],
+    partFrames: {
+      blades: {
+        center: [0, 80, 2.6],
+        halfSize: [40, 40, 2],
+        azimuth: 20,
+        elevation: 10,
+        margin: 0.05,
+      },
+      hub: { center: [0, 80, 3], halfSize: [3, 3, 2.5], azimuth: 35, elevation: 14, margin: 0.08 },
+      nacelleCover: {
+        center: [0, 81, -3.9],
+        halfSize: [2.4, 2.6, 6],
+        azimuth: 55,
+        elevation: 22,
+        margin: 0.06,
+      },
+      mainShaft: {
+        center: [0, 80, -0.7],
+        halfSize: [1.8, 1.8, 2.8],
+        azimuth: 55,
+        elevation: 22,
+        margin: 0.08,
+      },
+      gearbox: {
+        center: [0, 80, -4.1],
+        halfSize: [2, 1.8, 2],
+        azimuth: 55,
+        elevation: 22,
+        margin: 0.08,
+      },
+      generator: {
+        center: [0, 80.5, -7.4],
+        halfSize: [1.5, 1.5, 1.6],
+        azimuth: 55,
+        elevation: 22,
+        margin: 0.08,
+      },
+      tower: { center: [0, 40, 0], halfSize: [4, 41, 4], azimuth: 36, elevation: 10, margin: 0.05 },
+    },
+    overlayFrames: {
+      // From in front, along the shaft, where the magnets and coils lie side by side; far enough
+      // out to stand clear of the spinner.
+      generator: {
+        center: [0, 80.5, -7.4],
+        halfSize: [4, 4, 0.5],
+        azimuth: 6,
+        elevation: 10,
+        margin: 0.04,
+      },
+    },
   },
   'magnet-rail': {
     Scene: MagnetRailScene,

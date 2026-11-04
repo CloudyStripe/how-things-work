@@ -107,6 +107,25 @@ export interface CurrentPath {
   readonly current: number;
 }
 
+/**
+ * Inside a generator, for the generator overlay: its magnets where they are now, and its coils
+ * with the current each is making, as a share of the most it makes in the lesson's wind.
+ */
+export interface GeneratorView {
+  readonly magnets: readonly {
+    readonly position: Vec3;
+    /** Points out from the shaft. */
+    readonly outward: Vec3;
+    readonly north: boolean;
+  }[];
+  readonly coils: readonly {
+    readonly center: Vec3;
+    readonly axis: Vec3;
+    readonly radius: number;
+    readonly current: number;
+  }[];
+}
+
 /** A piece of an explorer model. Removable parts come off in the order they are listed. */
 export interface ModelPart {
   readonly id: string;
@@ -137,6 +156,10 @@ export interface ModelDefinition<S, C extends ControlValues> {
   readonly anchors?: Readonly<Record<string, Anchor<S, C>>>;
   /** The pieces of an explorer model. */
   readonly parts?: readonly ModelPart[];
+  /** What the button that returns the camera to the default view says, such as "Whole turbine". */
+  readonly wholeViewLabel?: string;
+  /** The inside of a generator, for the generator overlay. */
+  generatorView?(snapshot: SimSnapshot<S, C>): GeneratorView;
   /** The coil whose magnetic flux the flux overlay shows: field lines through it, drawn bold. */
   readonly fluxCoil?: Coil;
   /** The wires current flows through, for the current-flow overlay. */

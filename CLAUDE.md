@@ -43,10 +43,16 @@ EM Fundamentals.
   worries you.
 - **Still stop and ask** when a decision would change the spec, the teaching principles or the
   one-idea-per-lesson rule, or when you hit something you can't resolve.
+  - **Lesson outlines are spec.** Adding, removing or rewording a lesson's prediction, prompts,
+    key observations, objects on its bench or overlays in `docs/spec-v1.md` is a spec
+    change: propose it and wait for the owner's yes before writing it, even when it only fills
+    in a detail. (The owner kept the predictions added to lessons 3 to 9 in Phases 4 to 6, and
+    asked for this from then on.)
 - The README's Status section records where the build stands; each phase's PR updates it.
 - Within a phase, plan before coding anything non-trivial: summarize the change, name the
-  affected areas and list tradeoffs. Where the spec leaves a detail open, decide it by the
-  Teaching principles and list the decision in the phase report.
+  affected areas and list tradeoffs. Where the spec leaves a detail open that is not part of a
+  lesson outline (code, tuning, layout), decide it by the Teaching principles and list the
+  decision in the phase report.
 
 ## 3. Architecture rules
 

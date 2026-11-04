@@ -30,22 +30,27 @@ npm run dev                       # http://localhost:5180
 | `npm run build`  | Production build into `dist/`       |
 | `npm run format` | Format with Prettier                |
 
+To measure the frame rate, add `?debug` before the `#` in a lesson's address, for example
+`http://localhost:5180/?debug#/module/em-fundamentals/lesson/current-makes-a-field`. A readout in
+the corner of the model shows frames per second, time per frame and the graphics chip drawing it.
+Keep the window in front: a hidden tab stops drawing.
+
 ## Status
 
-Phase 7 of 9 (The wind turbine) is next; it waits for the owner's review before it merges. Phase
-6 is complete: lessons 8 and 9 are built.
+Phase 7 of 9 (The wind turbine) is built and waiting for the owner's review before it merges.
+All ten EM Fundamentals lessons now run.
 
-| Phase | Name                       | Status                                |
-| ----- | -------------------------- | ------------------------------------- |
-| 1     | Setup                      | Complete                              |
-| 2     | Physics core               | Complete                              |
-| 3     | Engine shell               | Complete                              |
-| 4     | Style, magnets and fields  | Complete                              |
-| 5     | Current and electromagnets | Complete                              |
-| 6     | Induction                  | Complete                              |
-| 7     | The wind turbine           | Not started (turbine review by owner) |
-| 8     | Review and glossary        | Not started                           |
-| 9     | Polish                     | Not started                           |
+| Phase | Name                       | Status            |
+| ----- | -------------------------- | ----------------- |
+| 1     | Setup                      | Complete          |
+| 2     | Physics core               | Complete          |
+| 3     | Engine shell               | Complete          |
+| 4     | Style, magnets and fields  | Complete          |
+| 5     | Current and electromagnets | Complete          |
+| 6     | Induction                  | Complete          |
+| 7     | The wind turbine           | In review (owner) |
+| 8     | Review and glossary        | Not started       |
+| 9     | Polish                     | Not started       |
 
 Only the Phase 4 style decision (made) and the Phase 7 turbine review wait for the owner.
 Every other phase merges once CI is green and is followed by a short report.
@@ -63,8 +68,9 @@ What exists now:
   including EM Fundamentals' no-numbers rule.
 - **Models** are technical illustrations: realistic parts in flat colours with dark outlines,
   each bench framed to fill the model view at any window size.
-- **EM Fundamentals:** lesson 1 (The windmill) runs on a stand-in turbine made of plain blocks
-  until the realistic turbine arrives in Phase 7. Lessons 2 to 4 are built:
+- **EM Fundamentals:** all ten lessons:
+  - **The windmill:** a realistic three-blade turbine to run in the wind and take apart: blades,
+    hub, nacelle cover, main shaft, gearbox and generator, each with what it does.
   - **What magnets do:** a magnet on a rail between two magnets on rolling carts, moved by the
     physics core's magnet forces.
   - **The invisible field:** a magnet slides past a wooden peg, a copper coin and a steel paper
@@ -83,6 +89,8 @@ What exists now:
     overlay shows the field lines threading the coil.
   - **Spin it:** a hand-cranked magnet beside an iron-cored coil makes a current that keeps
     reversing: a generator.
-  - Lesson 10 is listed as coming later.
+  - **Back to the windmill:** the turbine again, every part explained with the ideas of lessons 2
+    to 9, and an overlay inside the generator showing its magnets passing its coils and the
+    current each coil makes.
 - Not built yet: the Review page (spaced review) and the personal glossary page, both in Phase
   8, and JSON export and import, in Phase 9.

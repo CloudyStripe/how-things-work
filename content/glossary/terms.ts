@@ -251,9 +251,20 @@ export const glossary = {
       related: ['alternating-current', 'electromagnetic-induction'],
       introducedIn: 'spin-it',
     },
+    {
+      id: 'electric-motor',
+      name: 'electric motor',
+      forms: ['electric motors', 'motor', 'motors'],
+      definition:
+        'A machine that turns electric current into turning, using the push and pull between magnets and coils carrying current.',
+      note: 'A motor and a generator are the same kind of machine run opposite ways: put turning in and get current out, or put current in and get turning out. Motors come in the Motor module.',
+      related: ['generator', 'electromagnet'],
+      introducedIn: 'back-to-the-windmill',
+    },
   ],
   confusablePairs: [
     ['electromagnetic-induction', 'conductor'],
     ['magnetic-field', 'magnetic-flux'],
+    ['generator', 'electric-motor'],
   ],
 } satisfies Glossary;

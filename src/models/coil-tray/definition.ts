@@ -4,14 +4,17 @@ import {
   EAST,
   electromagnetWinding,
   magnetizableBody,
+  netField,
   NO_SOURCES,
   softIronForce,
   SOFT_IRON_CORE,
+  stepCompassNeedle,
   vec3,
   windingField,
   ZERO,
   type Coil,
   type FieldSources,
+  type NeedleState,
   type Vec3,
 } from '@/physics';
 import { joinPaths, roundedPath, windingPath } from '../shared/paths';
@@ -21,7 +24,8 @@ import type { CurrentPath, ModelDefinition, SimSnapshot } from '../types';
 // to a battery through a switch. With current, the coil is a magnet (physics core: a winding),
 // and with the soft-iron core pushed in, its field is far stronger (electromagnetWinding). Each
 // clip is pulled as softIronForce says; one lifts when the upward pull beats its weight, and
-// hangs from the end it jumped to until the pull there no longer holds it.
+// hangs from the end it jumped to until the pull there no longer holds it. A compass beyond the
+// coil's end shows the coil is a magnet even when it is too weak to lift a clip.
 
 /** The board lies on the bench; its top is this high (m). */
 export const BOARD = { width: 0.4, depth: 0.26, top: 0.012 } as const;
@@ -54,7 +58,16 @@ export const CORE_OUT_Z = 0.08;
 export const BATTERY = { x: -0.1, z: -0.095, cellLength: 0.05, cellRadius: 0.007, cells: 3 };
 const EMF = 4.5;
 const INTERNAL_RESISTANCE = 0.6;
-export const SWITCH = { x: 0.12, z: 0, span: 0.044 } as const;
+export const SWITCH = { x: 0.13, z: 0.075, span: 0.044 } as const;
+
+/**
+ * A plotting compass on the board beyond the coil's right-hand (north) end, on its axis. With
+ * current, the coil alone turns it well round from north, though it lifts no clip.
+ */
+export const COMPASS = { x: 0.1, z: 0, radius: 0.018, needleHeight: 0.009 } as const;
+const COMPASS_NEEDLE_AT = vec3(COMPASS.x, BOARD.top + COMPASS.needleHeight, COMPASS.z);
+/** A needle turned this far from north (rad) counts as swung. */
+const SWUNG = 0.5;
 
 /** About two and a half amps with the switch closed. */
 export const CLOSED_CURRENT = circuitCurrent(EMF, INTERNAL_RESISTANCE + coilResistance(COIL));
@@ -93,6 +106,9 @@ export interface CoilTrayState {
   readonly current: number;
   readonly clips: readonly TrayClip[];
   readonly closedOnce: boolean;
+  readonly needle: NeedleState;
+  /** Whether the compass has swung with current flowing. */
+  readonly compassSwung: boolean;
   /** Whether clips have hung from the coil with the core in, and dropped again since. */
   readonly heldWithCore: boolean;
   readonly droppedAfterCore: boolean;
@@ -305,6 +321,8 @@ export const coilTray: ModelDefinition<CoilTrayState, CoilTrayControls> = {
       current: 0,
       clips: START_CLIPS,
       closedOnce: false,
+      needle: { angle: 0, angularVelocity: 0 },
+      compassSwung: false,
       heldWithCore: false,
       droppedAfterCore: false,
     };
@@ -313,7 +331,15 @@ export const coilTray: ModelDefinition<CoilTrayState, CoilTrayControls> = {
   step({ state, controls }, dt) {
     // The coil's time constant is under a millisecond: the current switches at once.
     const current = controls.switch ? CLOSED_CURRENT : 0;
-    const clips = stepClips(state.clips, sources(current, controls.core), dt);
+    const field = sources(current, controls.core);
+    const clips = stepClips(state.clips, field, dt);
+    // The compass feels the coil and Earth.
+    const needle = stepCompassNeedle(
+      state.needle,
+      netField({ ...field, earth: true }, COMPASS_NEEDLE_AT),
+      dt,
+    );
+    const turned = Math.abs(Math.atan2(Math.sin(needle.angle), Math.cos(needle.angle)));
     const hanging = clips.some((clip) => clip.phase === 'held');
     const heldWithCore = state.heldWithCore || (hanging && controls.core);
     const allDown = clips.every((clip) => clip.phase === 'resting');
@@ -321,6 +347,8 @@ export const coilTray: ModelDefinition<CoilTrayState, CoilTrayControls> = {
       current,
       clips,
       closedOnce: state.closedOnce || current > 0,
+      needle,
+      compassSwung: state.compassSwung || (current > 0 && turned > SWUNG),
       heldWithCore,
       droppedAfterCore: state.droppedAfterCore || (heldWithCore && current === 0 && allDown),
     };
@@ -329,7 +357,7 @@ export const coilTray: ModelDefinition<CoilTrayState, CoilTrayControls> = {
   readings: {},
 
   fieldSources({ state, controls }) {
-    return sources(state.current, controls.core);
+    return { ...sources(state.current, controls.core), earth: true };
   },
 
   // Field overlays draw in the level through the coil's axis.
@@ -348,6 +376,7 @@ export const coilTray: ModelDefinition<CoilTrayState, CoilTrayControls> = {
         : vec3(0, BOARD.top + 0.02, CORE_OUT_Z),
     battery: () => vec3(BATTERY.x, BOARD.top + 0.03, BATTERY.z),
     switch: () => vec3(SWITCH.x, BOARD.top + 0.04, SWITCH.z),
+    compass: () => vec3(COMPASS.x, BOARD.top + 0.03, COMPASS.z),
   },
 };
 
