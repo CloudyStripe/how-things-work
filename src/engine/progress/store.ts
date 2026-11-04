@@ -122,23 +122,40 @@ interface ProgressActions {
   answerCard(key: string, remembered: boolean): void;
   /** Clears everything recorded for these lessons, including terms met and queued cards. */
   resetLessons(lessonIds: readonly string[]): void;
+  /** Replaces all progress, as when a backup file is imported. */
+  replaceProgress(data: ProgressData): void;
+  /** Clears all progress in every module. */
+  resetEverything(): void;
 }
 
 export type ProgressStore = ProgressData & ProgressActions;
+
+/**
+ * Progress from its stored form ({ version, state }), whether saved by this browser or in a
+ * backup file: the current version as it is, version 2 brought forward. Null if it is neither.
+ */
+export function readStoredProgress(stored: unknown): ProgressData | null {
+  const older = versionTwoSchema.safeParse(stored);
+  if (older.success) return fromVersionTwo(older.data);
+  const current = storedSchema.safeParse(stored);
+  return current.success ? current.data.state : null;
+}
 
 const storage: PersistStorage<ProgressData> = {
   getItem(name) {
     const raw = localStorage.getItem(name);
     if (raw === null) return null;
+    let state: ProgressData | null = null;
     try {
-      const parsed: unknown = JSON.parse(raw);
-      const older = versionTwoSchema.safeParse(parsed);
-      if (older.success) return { version: PROGRESS_VERSION, state: fromVersionTwo(older.data) };
-      return storedSchema.parse(parsed) as StorageValue<ProgressData>;
+      state = readStoredProgress(JSON.parse(raw));
     } catch {
+      // Not JSON at all: set aside below, like any other unreadable data.
+    }
+    if (state === null) {
       localStorage.setItem(`${name}:unreadable:${new Date().toISOString()}`, raw);
       return null;
     }
+    return { version: PROGRESS_VERSION, state } as StorageValue<ProgressData>;
   },
   setItem(name, value) {
     localStorage.setItem(name, JSON.stringify(value));
@@ -278,6 +295,14 @@ export const useProgressStore = create<ProgressStore>()(
             ),
             reviewQueue: reviewQueue.filter((card) => !cleared.has(card.lessonId)),
           });
+        },
+
+        replaceProgress(data) {
+          set({ lessons: data.lessons, terms: data.terms, reviewQueue: data.reviewQueue });
+        },
+
+        resetEverything() {
+          set(EMPTY);
         },
       };
     },

@@ -4,6 +4,7 @@ import { LessonPage } from '@/engine/lesson/LessonPage';
 import { MapPage } from '@/engine/MapPage';
 import { ModulePage } from '@/engine/ModulePage';
 import { NotFoundPage } from '@/engine/NotFoundPage';
+import { ProgressPage } from '@/engine/ProgressPage';
 import { GlossaryPage } from '@/glossary/GlossaryPage';
 import { ReviewPage } from '@/review/ReviewPage';
 
@@ -16,6 +17,7 @@ export const routes: RouteObject[] = [
       { path: '/module/:moduleId/lesson/:lessonId', element: <LessonPage /> },
       { path: '/glossary', element: <GlossaryPage /> },
       { path: '/review', element: <ReviewPage /> },
+      { path: '/progress', element: <ProgressPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

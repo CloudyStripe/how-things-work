@@ -285,7 +285,7 @@ a {
 /* Module page */
 
 .module-page {
-  max-width: 720px;
+  max-width: 760px;
 }
 
 .module-hook {
@@ -302,6 +302,16 @@ a {
 .lesson-list,
 .term-list {
   padding-left: var(--space-6);
+}
+
+/* Twenty-odd short terms read better across than down one long column. */
+.term-list {
+  columns: 3;
+  column-gap: var(--space-8);
+}
+
+.term-list li {
+  break-inside: avoid;
 }
 
 .lesson-list-item {
@@ -738,7 +748,8 @@ fieldset.control .control-label {
 
 /* Review */
 .review-page,
-.glossary-page {
+.glossary-page,
+.progress-page {
   max-width: 760px;
 }
 
@@ -845,4 +856,41 @@ fieldset.control .control-label {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-surface);
+}
+
+/* Your progress */
+
+.progress-summary {
+  font-weight: 600;
+}
+
+.progress-done {
+  color: var(--color-success);
+}
+
+.progress-problem {
+  font-weight: 600;
+}
+
+/* The file input is hidden inside its label, which looks and focuses like a button. */
+.progress-file {
+  display: inline-block;
+}
+
+.progress-file:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* A confirm before anything that cannot be undone: resetting a module or everything, and
+   loading a backup. */
+.confirm-box {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.confirm-box p {
+  margin-top: 0;
 }

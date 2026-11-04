@@ -173,7 +173,7 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
 src/
   physics/       pure TS: fields, forces, induction, circuits, needles, motion (+ tests)
   engine/        app shell, map, module page, lesson runner and explorer tools, content
-                 loading, simulation and progress stores
+                 loading, simulation and progress stores, Progress page and backup files
   models/        model definitions (pure) and their 3D scenes, by ID
   instruments/   side-panel readouts by ID: ammeter (for later modules). Instruments that sit
                  in a scene (compass, bulb, clip tray; the meter and LEDs next) are shared

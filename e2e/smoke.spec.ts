@@ -8,11 +8,12 @@ const ROUTES = [
   { path: '/module/em-fundamentals/lesson/what-magnets-do', heading: 'What magnets do' },
   { path: '/glossary', heading: 'Glossary' },
   { path: '/review', heading: 'Review' },
+  { path: '/progress', heading: 'Your progress' },
 ];
 
 async function expectGlobalNav(page: Page) {
   const nav = page.getByRole('navigation', { name: 'Main' });
-  for (const name of ['Map', 'Glossary', 'Review']) {
+  for (const name of ['Map', 'Glossary', 'Review', 'Progress']) {
     await expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
   }
 }
@@ -47,6 +48,9 @@ test('clicks from the map through a lesson to the global pages', async ({ page }
 
   await nav.getByRole('link', { name: 'Review' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Review' })).toBeVisible();
+
+  await nav.getByRole('link', { name: 'Progress' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Your progress' })).toBeVisible();
 
   await nav.getByRole('link', { name: 'Map' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Module map' })).toBeVisible();

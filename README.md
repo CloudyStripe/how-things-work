@@ -37,23 +37,23 @@ Keep the window in front: a hidden tab stops drawing.
 
 ## Status
 
-Phase 9 of 9 (Polish) is next. Phase 8 is complete: spaced review and the personal glossary.
-All ten EM Fundamentals lessons run, and the owner reviewed the turbine.
+All nine phases are built. Phase 9 (Polish) added saving, loading and resetting progress, and a
+visual consistency pass. Version 1 now waits on the owner: frame rates from the owner's laptop
+(see the `?debug` readout above), then a check of the spec's acceptance criteria.
 
-| Phase | Name                       | Status      |
-| ----- | -------------------------- | ----------- |
-| 1     | Setup                      | Complete    |
-| 2     | Physics core               | Complete    |
-| 3     | Engine shell               | Complete    |
-| 4     | Style, magnets and fields  | Complete    |
-| 5     | Current and electromagnets | Complete    |
-| 6     | Induction                  | Complete    |
-| 7     | The wind turbine           | Complete    |
-| 8     | Review and glossary        | Complete    |
-| 9     | Polish                     | Not started |
+| Phase | Name                       | Status   |
+| ----- | -------------------------- | -------- |
+| 1     | Setup                      | Complete |
+| 2     | Physics core               | Complete |
+| 3     | Engine shell               | Complete |
+| 4     | Style, magnets and fields  | Complete |
+| 5     | Current and electromagnets | Complete |
+| 6     | Induction                  | Complete |
+| 7     | The wind turbine           | Complete |
+| 8     | Review and glossary        | Complete |
+| 9     | Polish                     | Complete |
 
 The owner has made both review stops: the Phase 4 style decision and the Phase 7 turbine review.
-Phase 9 merges once CI is green; the owner then checks the acceptance criteria and accepts v1.
 
 What exists now:
 
@@ -98,4 +98,6 @@ What exists now:
   their lesson's model to try first.
 - **Glossary:** every term you have met, by module, with where it was named, and confusable pairs
   side by side.
-- Not built yet: JSON export and import, and resetting everything, in Phase 9.
+- **Your progress:** the Progress page sums up what this browser keeps. It saves it all to a
+  backup file, loads a backup back (after a confirm, since it replaces what is there) and resets
+  everything. Resetting one module stays on that module's page.
