@@ -7,7 +7,8 @@ import type { OverlayLayerProps } from '@/models/types';
 // round them, with dots running round each coil as fast as the current it makes, and reversing
 // with it. It shows the generator slowed right down (a hundred times the blades' speed would be
 // a blur), and larger than life, so it is tagged "not to scale". Drawn through the casing, as if
-// it were cut away.
+// it were cut away. Its materials count as transparent only so they draw after a see-through
+// cover, and so stay on top of it.
 
 const NORTH = '#d9473a';
 const SOUTH = '#3a6ec0';
@@ -93,11 +94,19 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
             {/* Lying out from the shaft: its outer half shows the pole that faces the coils. */}
             <mesh position={[0.12, 0, 0]} renderOrder={20}>
               <boxGeometry args={[0.24, 0.3, 0.9]} />
-              <meshBasicMaterial color={magnet.north ? NORTH : SOUTH} depthTest={false} />
+              <meshBasicMaterial
+                color={magnet.north ? NORTH : SOUTH}
+                depthTest={false}
+                transparent
+              />
             </mesh>
             <mesh position={[-0.12, 0, 0]} renderOrder={20}>
               <boxGeometry args={[0.24, 0.3, 0.9]} />
-              <meshBasicMaterial color={magnet.north ? SOUTH : NORTH} depthTest={false} />
+              <meshBasicMaterial
+                color={magnet.north ? SOUTH : NORTH}
+                depthTest={false}
+                transparent
+              />
             </mesh>
           </group>
         ))}
@@ -111,7 +120,7 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
           renderOrder={21}
         >
           <sphereGeometry args={[0.05, 10, 8]} />
-          <meshBasicMaterial color={CURRENT} depthTest={false} />
+          <meshBasicMaterial color={CURRENT} depthTest={false} transparent />
         </instancedMesh>
       </group>
     </group>
@@ -135,7 +144,7 @@ function Coil({
   return (
     <mesh position={[center.x, center.y, center.z]} quaternion={turn} renderOrder={20}>
       <torusGeometry args={[radius * 1.25, 0.05, 10, 32]} />
-      <meshBasicMaterial color={COPPER} depthTest={false} />
+      <meshBasicMaterial color={COPPER} depthTest={false} transparent />
     </mesh>
   );
 }

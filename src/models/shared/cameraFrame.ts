@@ -87,6 +87,33 @@ export function framedCamera(
   return { position: add(target, scale(back, distance)), target, distance };
 }
 
+/** The same frame moved by `offset` (m): a part's frame once the exploded view has moved it. */
+export function movedFrame(frame: CameraFrame, offset: Vector3Tuple): CameraFrame {
+  return { ...frame, center: add(frame.center, offset) };
+}
+
+/** The frame that fits the box from corner `min` to corner `max` (m), seen from `angle`. */
+export function boxFrame(
+  min: Vector3Tuple,
+  max: Vector3Tuple,
+  angle: Pick<CameraFrame, 'azimuth' | 'elevation' | 'margin'>,
+): CameraFrame {
+  return { ...angle, center: scale(add(min, max), 0.5), halfSize: scale(sub(max, min), 0.5) };
+}
+
+/** The frame that fits both boxes, seen from the first one's angle. */
+export function joinedFrame(first: CameraFrame, second: CameraFrame): CameraFrame {
+  const corner = (frame: CameraFrame, side: 1 | -1) =>
+    add(frame.center, scale(frame.halfSize, side));
+  const [a, b] = [corner(first, -1), corner(second, -1)];
+  const [c, d] = [corner(first, 1), corner(second, 1)];
+  return boxFrame(
+    [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.min(a[2], b[2])],
+    [Math.max(c[0], d[0]), Math.max(c[1], d[1]), Math.max(c[2], d[2])],
+    first,
+  );
+}
+
 function add(a: Vector3Tuple, b: Vector3Tuple): Vector3Tuple {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }

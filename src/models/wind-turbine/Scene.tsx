@@ -4,23 +4,13 @@ import { ExtrudeGeometry, Shape, type Group } from 'three';
 import { Block, Cylinder, Outline, SurfaceMaterial, type SurfaceKind } from '../shared/surfaces';
 import type { ExplorerView, SceneProps } from '../types';
 import { bladeGeometry } from './blade';
-import { HUB_HEIGHT, LAYOUT, type TurbineState } from './definition';
+import { coverSeeThrough, EXPLODE, HUB_HEIGHT, LAYOUT, type TurbineState } from './definition';
 
 // The wind turbine: a tapered tower, a nacelle holding the drivetrain (main shaft and bearing,
 // gearbox, brake and generator on a cast bedplate), and a hub with three twisted, tapered blades.
 // Each part moves out along its own direction as the exploded view opens, hides once removed,
-// and turns yellow when picked. The rotor's angle comes from the simulation every frame.
-
-/** How far (m) and which way each part moves at the fully exploded view. */
-const EXPLODE: Readonly<Record<string, readonly [number, number, number]>> = {
-  blades: [0, 0, 18],
-  hub: [0, 0, 11],
-  nacelleCover: [0, 10, 0],
-  mainShaft: [0, 0, 5],
-  gearbox: [0, 4, 0],
-  generator: [0, 0, -8],
-  tower: [0, 0, 0],
-};
+// and turns yellow when picked. The nacelle cover goes see-through while a part inside it is
+// picked. The rotor's angle comes from the simulation every frame.
 
 const GROUND_RADIUS = 160;
 const { nacelle, hub, blades, mainShaft, gearbox, generator, tower } = LAYOUT;
@@ -33,18 +23,21 @@ const ALONG_Z: [number, number, number] = [Math.PI / 2, 0, 0];
 export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart }: SceneProps) {
   const rotor = useRef<Group>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [seeThrough, setSeeThrough] = useState(false);
 
   useFrame(() => {
     const state = getSnapshot().state as TurbineState;
     // Seen from the front (from +z), the rotor turns clockwise.
     if (rotor.current) rotor.current.rotation.z = -state.angle;
-    const now = getView().selectedPart;
-    if (now !== selected) setSelected(now);
+    const view = getView();
+    if (view.selectedPart !== selected) setSelected(view.selectedPart);
+    if (coverSeeThrough(view) !== seeThrough) setSeeThrough(coverSeeThrough(view));
   });
 
   /** A part's surface: yellow while it is picked. */
   const paint = (id: string, kind: SurfaceKind): SurfaceKind =>
     selected === id ? 'selected' : kind;
+  const coverPaint = paint('nacelleCover', seeThrough ? 'seeThroughPaint' : 'whitePaint');
   const part = (id: string, children: ReactNode) => (
     <Part id={id} getView={getView} interactive={interactive} selectPart={selectPart}>
       {children}
@@ -100,10 +93,10 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
       {part(
         'nacelleCover',
         <>
-          <NacelleShell kind={paint('nacelleCover', 'whitePaint')} />
+          <NacelleShell kind={coverPaint} />
           {/* The cooler on the roof, and the wind vane and anemometer mast behind it. */}
           <Block
-            kind={paint('nacelleCover', 'whitePaint')}
+            kind={coverPaint}
             size={[2.2, 0.8, 1.6]}
             position={[0, nacelle.bottom + nacelle.height + 0.4, nacelle.back + 1.4]}
           />
@@ -315,6 +308,13 @@ function Part({
   children: ReactNode;
 }) {
   const group = useRef<Group>(null);
+  // A part that is off still sits in the scene, hidden, and three.js still finds it under the
+  // pointer. Clicks go through it, and through the see-through cover, to what is drawn behind.
+  const clickable = () => {
+    const view = getView();
+    if (view.removedParts.includes(id)) return false;
+    return !(id === 'nacelleCover' && coverSeeThrough(view));
+  };
 
   useFrame(() => {
     if (!group.current) return;
@@ -328,12 +328,12 @@ function Part({
     <group
       ref={group}
       onClick={(event: ThreeEvent<MouseEvent>) => {
-        if (!interactive) return;
+        if (!interactive || !clickable()) return;
         event.stopPropagation();
         selectPart(id);
       }}
       onPointerOver={() => {
-        if (interactive) document.body.style.cursor = 'pointer';
+        if (interactive && clickable()) document.body.style.cursor = 'pointer';
       }}
       onPointerOut={() => {
         document.body.style.cursor = '';

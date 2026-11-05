@@ -2,12 +2,14 @@ import type { ComponentType } from 'react';
 import { CircuitBoardScene } from './circuit-board/Scene';
 import { CoilMagnetScene } from './coil-magnet/Scene';
 import { CoilTrayScene } from './coil-tray/Scene';
+import { compassBenchFrame } from './compass-bench/camera';
 import { CompassBenchScene } from './compass-bench/Scene';
 import { CrankGeneratorScene } from './crank-generator/Scene';
 import { FilingsBenchScene } from './filings-bench/Scene';
 import { MagnetRailScene } from './magnet-rail/Scene';
 import type { CameraFrame, Vector3Tuple } from './shared/cameraFrame';
-import type { SceneProps } from './types';
+import type { SceneProps, SimSnapshot } from './types';
+import { EXPLODE } from './wind-turbine/definition';
 import { WindTurbineScene } from './wind-turbine/Scene';
 import { WireBoardScene } from './wire-board/Scene';
 
@@ -21,6 +23,12 @@ export interface SceneView {
    * view's size, so the frame fills the model view on any window.
    */
   readonly frame: CameraFrame;
+  /**
+   * A camera that follows the model: the frame to fit now, from the model's state. The camera
+   * eases toward it every frame until the learner turns, pans or zooms the view, and again after
+   * Reset view. The fixed frame then only sets how far the learner may zoom and pan.
+   */
+  readonly follow?: (snapshot: SimSnapshot<unknown>) => CameraFrame;
   /** How close and far the learner may zoom, as multiples of the framed distance. */
   readonly zoom: { readonly min: number; readonly max: number };
   /** How far (metres) the learner may pan the target from its default, along each axis. */
@@ -29,8 +37,13 @@ export interface SceneView {
   readonly clip: { readonly near: number; readonly far: number };
   /** Where the main light shines from. */
   readonly light: Vector3Tuple;
-  /** In an explorer: what the camera flies to when a part is picked, removed or put back. */
+  /**
+   * In an explorer: what the camera flies to when a part is picked, removed or put back, with the
+   * part in place. It moves out with the part (explode) as the exploded view opens.
+   */
   readonly partFrames?: Readonly<Record<string, CameraFrame>>;
+  /** In an explorer: how far (m) and which way each part moves at the fully exploded view. */
+  readonly explode?: Readonly<Record<string, readonly [number, number, number]>>;
   /** What the camera flies to when an overlay turns on, where it reads best. */
   readonly overlayFrames?: Readonly<Record<string, CameraFrame>>;
 }
@@ -90,6 +103,7 @@ export const scenes: Readonly<Record<string, SceneView>> = {
       },
       tower: { center: [0, 40, 0], halfSize: [4, 41, 4], azimuth: 36, elevation: 10, margin: 0.05 },
     },
+    explode: EXPLODE,
     overlayFrames: {
       // From in front, along the shaft, where the magnets and coils lie side by side; far enough
       // out to stand clear of the spinner.
@@ -134,7 +148,9 @@ export const scenes: Readonly<Record<string, SceneView>> = {
   },
   'compass-bench': {
     Scene: CompassBenchScene,
-    // Everywhere the compass can go, the magnet and the north arrow.
+    // Everywhere the compass can go, the magnet and the north arrow: the widest view, which sets
+    // the zoom limits. The camera itself follows the compass, close in beside the magnet and
+    // wider as the compass goes far away.
     frame: {
       center: [0.03, 0.015, -0.015],
       halfSize: [0.28, 0.015, 0.165],
@@ -142,6 +158,7 @@ export const scenes: Readonly<Record<string, SceneView>> = {
       elevation: 40,
       margin: 0.03,
     },
+    follow: compassBenchFrame,
     zoom: { min: 0.2, max: 2.2 },
     pan: 0.25,
     clip: { near: 0.005, far: 10 },

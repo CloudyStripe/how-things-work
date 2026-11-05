@@ -29,6 +29,7 @@ export type SurfaceKind =
   | 'wireRed'
   | 'wireBlack'
   | 'whitePaint'
+  | 'seeThroughPaint'
   | 'castIron'
   | 'gearCase'
   | 'generatorCase'
@@ -58,6 +59,8 @@ const COLORS: Readonly<Record<SurfaceKind, string>> = {
   wireRed: '#c9483f',
   wireBlack: '#35373b',
   whitePaint: '#eef1f3',
+  /** A painted cover drawn so the parts inside it show. */
+  seeThroughPaint: '#eef1f3',
   castIron: '#6b737b',
   gearCase: '#8197ad',
   generatorCase: '#6f8f78',
@@ -67,7 +70,7 @@ const COLORS: Readonly<Record<SurfaceKind, string>> = {
 };
 
 /** See-through surfaces, and how much of what lies behind them they hide. */
-const OPACITY: Partial<Record<SurfaceKind, number>> = { glass: 0.35 };
+const OPACITY: Partial<Record<SurfaceKind, number>> = { glass: 0.35, seeThroughPaint: 0.2 };
 
 /** The warm light of a glowing bulb filament. */
 export const GLOW = '#ffd34d';
@@ -78,8 +81,11 @@ export const ILLUSTRATION_LINE = '#2a2c2f';
 /** The flat-shaded material for one kind of surface. */
 export function SurfaceMaterial({ kind }: { kind: SurfaceKind }) {
   const opacity = OPACITY[kind];
+  // A part's kind can change on screen, and a material compiled as solid stays solid: three.js
+  // doesn't recompile it when `transparent` changes. So solid and see-through never share one.
   return (
     <meshToonMaterial
+      key={opacity === undefined ? 'solid' : 'see-through'}
       color={COLORS[kind]}
       gradientMap={toonSteps()}
       transparent={opacity !== undefined}

@@ -1,7 +1,7 @@
 import type { ThreeEvent } from '@react-three/fiber';
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useRef } from 'react';
-import { Plane, Vector3 } from 'three';
+import { Plane, Raycaster, Vector2, Vector3 } from 'three';
 
 interface BenchDragOptions {
   /** False while the lesson is not interactive: the object cannot be picked up. */
@@ -25,6 +25,8 @@ function setOrbit(controls: unknown, enabled: boolean): void {
 /**
  * Lets the learner drag an object across the bench, in a level plane at its height. Orbit
  * pauses while dragging, and the object keeps its grip point, so it does not jump to the pointer.
+ * If the camera moves during the drag (one that follows the model), the object stays under the
+ * pointer: each frame it is put where the pointer now points.
  */
 export function useBenchDrag({ enabled, height, current, onDrag }: BenchDragOptions) {
   // Read at event time: the orbit controls register themselves after the scene mounts.
@@ -32,27 +34,47 @@ export function useBenchDrag({ enabled, height, current, onDrag }: BenchDragOpti
   const grip = useRef<{ x: number; z: number } | null>(null);
   const plane = useRef(new Plane(new Vector3(0, 1, 0), -height));
   const hit = useRef(new Vector3());
+  /** Where the pointer is on screen during a drag (-1 to 1 across and up). */
+  const pointerAt = useRef(new Vector2());
+  const raycaster = useRef(new Raycaster());
+  /** Where the object was last dragged to, so an unmoved pointer and camera change nothing. */
+  const placed = useRef({ x: Number.NaN, z: Number.NaN });
 
-  function pointer(event: ThreeEvent<PointerEvent>): Vector3 | null {
-    return event.ray.intersectPlane(plane.current, hit.current);
+  function dragTo(point: Vector3) {
+    if (grip.current === null) return;
+    const x = point.x - grip.current.x;
+    const z = point.z - grip.current.z;
+    if (Math.abs(x - placed.current.x) < 1e-7 && Math.abs(z - placed.current.z) < 1e-7) return;
+    placed.current = { x, z };
+    onDrag(x, z);
   }
+
+  useFrame(({ camera }) => {
+    if (grip.current === null) return;
+    raycaster.current.setFromCamera(pointerAt.current, camera);
+    const point = raycaster.current.ray.intersectPlane(plane.current, hit.current);
+    if (point !== null) dragTo(point);
+  });
 
   return {
     onPointerDown(event: ThreeEvent<PointerEvent>) {
       if (!enabled) return;
-      const point = pointer(event);
+      const point = event.ray.intersectPlane(plane.current, hit.current);
       if (point === null) return;
       event.stopPropagation();
       (event.target as Element).setPointerCapture(event.pointerId);
       const at = current();
       grip.current = { x: point.x - at.x, z: point.z - at.z };
+      placed.current = { x: at.x, z: at.z };
+      pointerAt.current.copy(event.pointer);
       setOrbit(getThree().controls, false);
       document.body.style.cursor = 'grabbing';
     },
     onPointerMove(event: ThreeEvent<PointerEvent>) {
       if (grip.current === null) return;
-      const point = pointer(event);
-      if (point !== null) onDrag(point.x - grip.current.x, point.z - grip.current.z);
+      pointerAt.current.copy(event.pointer);
+      const point = event.ray.intersectPlane(plane.current, hit.current);
+      if (point !== null) dragTo(point);
     },
     onPointerUp(event: ThreeEvent<PointerEvent>) {
       if (grip.current === null) return;
