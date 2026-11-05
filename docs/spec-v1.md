@@ -25,10 +25,10 @@ v1 builds only the engine and the EM Fundamentals module; everything else appear
 | EM Fundamentals: intro and ten lessons, opening and closing on a wind turbine | Applications: generator, transformer, motor    |
 | Virtual instruments: compass, centre-zero meter, LEDs, bulb, paper clip tray  | Wind to Wall Socket journey                    |
 | Field and current overlays                                                    | AI tutor                                       |
-| Glossary with hover definitions                                               | Accounts, sync, hosting                        |
+| Glossary with hover definitions                                               | Accounts, sync, a server                       |
 | Local progress and spaced review                                              | Phone or tablet layouts                        |
 
-Platform: desktop browser on a laptop, minimum 1280 × 720. Runs locally; no server or login.
+Platform: desktop browser on a laptop, minimum 1280 × 720. A static site on GitHub Pages (https://cloudystripe.github.io/how-things-work/), which also runs locally. No server or login.
 
 ## Teaching principles
 
@@ -392,4 +392,4 @@ v1 is done when the owner can complete EM Fundamentals end to end and every item
 - [x] Visual style: photorealistic, or clean "technical illustration" realism? Resolved at the start of Phase 4: technical illustration (Teaching principle 3).
 - [ ] Should the Lenz's law drag feel be in the Magnetism module, or deferred further?
 - [ ] Grid frequency example in the Electricity module: show 60 Hz, 50 Hz, or both based on a setting?
-- [x] Where does the repository live (local folder or GitHub)? Resolved: a private GitHub repository, `CloudyStripe/how-things-work`, cloned locally at `C:\Users\savar\Git\how-things-work`.
+- [x] Where does the repository live (local folder or GitHub)? Resolved: a public GitHub repository, `CloudyStripe/how-things-work`, published to GitHub Pages. It was private until the owner chose to publish the app (GitHub's Free plan serves Pages only from public repositories).

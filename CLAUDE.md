@@ -209,6 +209,9 @@ Import aliases: `@/` is `src/`, `@content/` is `content/`.
 | `npm run format` | Prettier                                                       |
 
 - Routing is hash-based (`/#/module/...`), so a built copy needs no server rewrites.
+- Every push to `main` deploys the build to GitHub Pages (`.github/workflows/deploy.yml`) at
+  https://cloudystripe.github.io/how-things-work/. That address isn't the domain's root, so asset
+  paths stay relative (`base: './'` in `vite.config.ts`). Never reference an asset from `/`.
 - Port 5180 is fixed because other local projects hold 3001, 3002 and 5173.
 - Text files are LF everywhere (`.gitattributes`).
 

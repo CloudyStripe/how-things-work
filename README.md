@@ -5,6 +5,10 @@ real systems: look at a model, try it, see why it behaved that way. Version 1 is
 engine plus one module, **EM Fundamentals**: ten short lessons, opening and closing on a wind
 turbine, on how current makes a magnetic field and a changing magnetic field makes current.
 
+The app is live at https://cloudystripe.github.io/how-things-work/, and every merge to `main`
+redeploys it. Progress stays in the browser you use, so the live site and a local copy each keep
+their own. To move it between them, save a backup on one's Progress page and load it on the other.
+
 The canonical spec is [`docs/spec-v1.md`](docs/spec-v1.md). How Claude works on this repo is in
 [`CLAUDE.md`](CLAUDE.md).
 

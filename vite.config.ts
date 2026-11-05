@@ -8,6 +8,9 @@ const DEV_PORT = 5180;
 const PREVIEW_PORT = 5181;
 
 export default defineConfig({
+  // Relative asset paths: GitHub Pages serves the site from /how-things-work/, not the domain's
+  // root. Hash routing keeps the page at one address, so relative paths hold on every route.
+  base: './',
   plugins: [react()],
   resolve: {
     alias: {
@@ -20,7 +23,7 @@ export default defineConfig({
   build: {
     // three.js is about 700 kB on its own, so it gets a chunk of its own; the lesson viewport
     // (React Three Fiber, drei, the scenes and overlays) grows with every lesson beside it.
-    // Both load only when a lesson opens, from the local machine, so warn only above 1 MB.
+    // Both load only when a lesson opens, so warn only above 1 MB.
     chunkSizeWarningLimit: 1000,
     rolldownOptions: {
       output: {
