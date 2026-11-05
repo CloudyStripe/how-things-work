@@ -9,7 +9,7 @@ import {
   type Coil,
   type RotorState,
 } from '@/physics';
-import type { GeneratorView, ModelDefinition, SimSnapshot } from '../types';
+import type { ExplorerView, GeneratorView, ModelDefinition, SimSnapshot } from '../types';
 
 // The wind turbine for lessons 1 and 10: a three-blade turbine at real size, its rotor facing
 // south (+z) into the wind. The rotor turns by the physics core's rotor model; the gearbox turns
@@ -47,6 +47,20 @@ export const EXPLODE: Readonly<Record<string, readonly [number, number, number]>
   generator: [0, 0, -8],
   tower: [0, 0, 0],
 };
+
+/** The parts that sit inside the nacelle cover. */
+const INSIDE_COVER = ['mainShaft', 'gearbox', 'generator'];
+/** How far open (0 to 1) the exploded view has lifted the cover clear of the parts inside. */
+const COVER_CLEAR = 0.6;
+
+/** The cover is see-through while a part inside it is picked and it would still hide that part. */
+export function coverSeeThrough(view: ExplorerView): boolean {
+  return (
+    view.selectedPart !== null &&
+    INSIDE_COVER.includes(view.selectedPart) &&
+    view.explode < COVER_CLEAR
+  );
+}
 
 /** The generator overlay's model: four magnet poles on the generator's rotor, six coils round it. */
 export const GENERATOR = {

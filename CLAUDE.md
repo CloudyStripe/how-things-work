@@ -155,7 +155,8 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
     frame. While the learner drags, it only widens, so the dragged object stays under the
     pointer; it closes in once they let go. Turning or zooming the view stops it until Reset view.
   - An explorer's part frames are for the part in place; the camera moves them out with the part
-    (`explode`) as the exploded view opens.
+    (`explode`) as the exploded view opens. A cover goes see-through while a part inside it is
+    picked (`coverSeeThrough` on the turbine), and clicks pass through it to that part.
 - Around the models, keep the page styling minimal and built on the `:root` tokens in
   `src/index.css`.
 - Reuse existing spacing, type and structural patterns. Avoid new visual styles and premature
