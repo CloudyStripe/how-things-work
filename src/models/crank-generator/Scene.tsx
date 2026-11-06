@@ -20,12 +20,10 @@ import {
   type CrankGeneratorSnapshot,
 } from './definition';
 
-// The crank generator: an upright shaft held in a wooden frame, with a bar magnet across it and
-// a crank on top, beside an iron-cored coil wired to the meter and LEDs. The shaft's angle, the
-// needle and the LEDs come from the simulation each frame.
+// The crank generator: an upright shaft held in a frame, with a bar magnet across it and a crank on
+// top, the shaft and crank in the colour of moving parts, beside an iron-cored coil wired to the
+// meter and LEDs. The shaft's angle, the needle and the LEDs come from the simulation each frame.
 
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
 const SHAFT = { radius: 0.003, top: MAGNET_Y + 0.05 };
 const FRAME = { z: -0.03, size: 0.014, top: MAGNET_Y + 0.035 };
 const CRANK = { arm: 0.035, handle: 0.025 };
@@ -60,32 +58,32 @@ export function CrankGeneratorScene({ getSnapshot, interactive, setControl }: Sc
   return (
     <group>
       <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
-      <Block
-        kind="board"
+        kind="woodBoard"
         size={[BOARD.width, BOARD.top, BOARD.depth]}
         position={[0, BOARD.top / 2, 0]}
       />
 
       {/* The frame: a post behind the shaft, with an arm over it carrying the top bearing. */}
       <Block
-        kind="holder"
+        kind="structure"
         size={[FRAME.size, FRAME.top - BOARD.top, FRAME.size]}
         position={[0, (FRAME.top + BOARD.top) / 2, FRAME.z]}
       />
       <Block
-        kind="holder"
+        kind="structure"
         size={[FRAME.size, 0.008, -FRAME.z + FRAME.size / 2]}
         position={[0, FRAME.top, FRAME.z / 2]}
       />
-      <Cylinder kind="brass" radius={0.008} length={0.008} position={[0, BOARD.top + 0.004, 0]} />
+      <Cylinder
+        kind="motionDark"
+        radius={0.008}
+        length={0.008}
+        position={[0, BOARD.top + 0.004, 0]}
+      />
 
       <group ref={rotor}>
         <Cylinder
-          kind="metal"
+          kind="motion"
           radius={SHAFT.radius}
           length={SHAFT.top - BOARD.top}
           position={[0, (SHAFT.top + BOARD.top) / 2, 0]}
@@ -94,9 +92,9 @@ export function CrankGeneratorScene({ getSnapshot, interactive, setControl }: Sc
           <BarMagnet length={MAGNET.length} side={MAGNET.side} reversed={false} />
         </group>
         <group position={[0, SHAFT.top, 0]} {...crankHandlers}>
-          <Block kind="metal" size={[CRANK.arm, 0.004, 0.008]} position={[CRANK.arm / 2, 0, 0]} />
+          <Block kind="motion" size={[CRANK.arm, 0.004, 0.008]} position={[CRANK.arm / 2, 0, 0]} />
           <Cylinder
-            kind="ink"
+            kind="motionDark"
             radius={0.004}
             length={CRANK.handle}
             position={[CRANK.arm, CRANK.handle / 2, 0]}
@@ -106,12 +104,12 @@ export function CrankGeneratorScene({ getSnapshot, interactive, setControl }: Sc
 
       {/* The coil on a saddle, its soft-iron core showing at both ends. */}
       <Block
-        kind="holder"
+        kind="structure"
         size={[COIL.length * 0.7, MAGNET_Y - COIL.radius - BOARD.top, 0.04]}
         position={[COIL.center.x, (MAGNET_Y - COIL.radius + BOARD.top) / 2, 0]}
       />
       <Cylinder
-        kind="holder"
+        kind="structure"
         radius={COIL.radius - 0.001}
         length={COIL.length + 0.003}
         position={[COIL.center.x, MAGNET_Y, 0]}
@@ -132,10 +130,10 @@ export function CrankGeneratorScene({ getSnapshot, interactive, setControl }: Sc
       <group position={[LEDS.x, BOARD.top, LEDS.z]}>
         <LedPair getBrightness={() => ledBrightness(snapshot().state)} />
       </group>
-      <Wire points={WIRES.toMeter} kind="wireRed" />
-      <Wire points={WIRES.fromMeter} kind="wireBlack" />
-      <Wire points={WIRES.toLeds} kind="wireRed" />
-      <Wire points={WIRES.fromLeds} kind="wireBlack" />
+      <Wire points={WIRES.toMeter} kind="wire" />
+      <Wire points={WIRES.fromMeter} kind="wireReturn" />
+      <Wire points={WIRES.toLeds} kind="wire" />
+      <Wire points={WIRES.fromLeds} kind="wireReturn" />
     </group>
   );
 }

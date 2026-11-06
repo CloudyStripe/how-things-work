@@ -1,6 +1,7 @@
 import { Line } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useState } from 'react';
+import { OVERLAY_COLORS } from '@/models/colors';
 import type { AnyModel, OverlayLayerProps } from '@/models/types';
 import { dot, length, scale, sub, type Coil, type Vec3 } from '@/physics';
 import { fieldLinePaths, type FieldLinePath } from './fieldLinePaths';
@@ -10,10 +11,8 @@ import { fieldLinePaths, type FieldLinePath } from './fieldLinePaths';
 // when a source moves, so a fixed magnet costs one tracing. How many lines leave a pole is a choice, so the overlay is tagged "not to scale";
 // the lines still crowd where the field is strongest.
 
-/** A violet that is none of the palette's colours: not a magnet's red or blue, not wood. */
-const FIELD_LINE_COLOR = '#7a3db8';
-/** The same violet, washed out: lines that miss the coil, in the flux overlay. */
-const FAINT_COLOR = '#c9b3e3';
+const FIELD_LINE_COLOR = OVERLAY_COLORS.fieldLine;
+const FAINT_COLOR = OVERLAY_COLORS.fieldLineFaint;
 const ARROW = { radius: 0.0022, length: 0.006 };
 /** Up to this half-width of overlay area (m), arrows keep their own size. */
 const ARROW_AREA = 0.12;

@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Matrix4, type InstancedMesh } from 'three';
+import { OVERLAY_COLORS } from '@/models/colors';
 import type { CurrentPath, OverlayLayerProps } from '@/models/types';
 import type { Vec3 } from '@/physics';
 
@@ -8,8 +9,6 @@ import type { Vec3 } from '@/physics';
 // proportion to it. With no current they stand still: the loop is still there, nothing flows.
 // The speed is chosen for the eye, so the overlay is tagged "not to scale".
 
-/** A teal that is none of the palette's colours, nor the field lines' violet. */
-const COLOR = '#139fb3';
 const SPACING = 0.012;
 const RADIUS = 0.0017;
 const CAPACITY = 600;
@@ -51,7 +50,7 @@ export function CurrentFlow({ model, getSnapshot }: OverlayLayerProps) {
     >
       <sphereGeometry args={[RADIUS, 10, 8]} />
       {/* Drawn over the plastic coating: the current runs in the copper inside it. */}
-      <meshBasicMaterial color={COLOR} depthTest={false} />
+      <meshBasicMaterial color={OVERLAY_COLORS.current} depthTest={false} />
     </instancedMesh>
   );
 }

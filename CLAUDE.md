@@ -142,14 +142,25 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
     surface kind there, so every model draws from one palette.
   - Light and backdrop come from `src/models/shared/Stage.tsx`. The canvas is `flat`, with no
     shadows or tone mapping.
-  - Overlays and labels must stay clearly readable against the model: pick overlay colours
-    that differ from the palette (not the magnets' red and blue, not the wood tones).
+  - Overlays and labels must stay clearly readable against the model.
+- **The colour system** (spec, Visual design): a colour means the same thing in the models, the
+  overlays and the interface. Magnetism is violet, with red and blue for poles (magnets, compasses,
+  field lines). Electricity is teal (current, wires, batteries, the meter, the generator). Motion
+  and mechanics is orange (whatever moves or turns). Everything that holds things up is a cool grey
+  neutral.
+  - The colours are in `src/models/colors.ts` and `src/models/shared/surfaces.tsx`. Paint a new
+    part by what it does, and give an explorer's parts a `family` on the model's part list, which
+    sets their swatch.
+  - Anything the lesson copy names by material or colour looks like it: copper, wood, steel, iron,
+    glass, the red and green lights. Check the copy before repainting.
+  - Red and blue mean poles, and nothing else: a meter's needle is not a magnet, so it is not red.
 - **Every scene frames its camera with a `CameraFrame`** (`src/models/shared/cameraFrame.ts`):
   the box that must fill the view (for a bench, the apparatus from end to end, up to the labels
   over it) and the angle to see it from. The viewport fits the distance to the model view's real
   size, so the apparatus fills it at 1280 × 720 and on any larger window. Benches look from in
-  front and to the right (about 30° round, 25° up), with a bench top large enough that its edges
-  stay out of view. Check the framing with a screenshot at 1280 × 720.
+  front and to the right (about 30° round, 25° up). A bench has no bench-top object: the backdrop
+  in `Stage.tsx` is its colour, so it has no edge to see. Check the framing with a screenshot at
+  1280 × 720.
   - A bench whose objects move far apart can have the camera follow them instead (`follow` on
     its scene view, as lesson 4 does): a frame worked out from the model's state, eased to every
     frame. While the learner drags, it only widens, so the dragged object stays under the
@@ -157,8 +168,14 @@ These hold unless the owner explicitly changes them. If a change risks one, flag
   - An explorer's part frames are for the part in place; the camera moves them out with the part
     (`explode`) as the exploded view opens. A cover goes see-through while a part inside it is
     picked (`coverSeeThrough` on the turbine), and clicks pass through it to that part.
-- Around the models, keep the page styling minimal and built on the `:root` tokens in
-  `src/index.css`.
+- Around the models, build the page on the `:root` tokens in `src/index.css`: cool neutrals in key
+  with the navy header, and white cards with subtle elevation for what the learner works with. No
+  warm beige or brown tones in the interface.
+- Each panel has one clearly primary action (`.button`); the rest are quiet (`.button-quiet`).
+- A control with named states shows them all side by side, the current one filled (`switch` and
+  `choice` controls both do), so `onLabel` and `offLabel` are states, not actions: Calm and Windy,
+  never a button that names one state. A switch with a knob is for showing or hiding something over
+  the model.
 - Reuse existing spacing, type and structural patterns. Avoid new visual styles and premature
   component abstraction.
 

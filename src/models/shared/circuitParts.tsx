@@ -4,13 +4,12 @@ import { Color, CurvePath, LineCurve3, Vector3, type Group, type MeshBasicMateri
 import type { Vec3 } from '@/physics';
 import { Letter } from './BarMagnet';
 import { useLetterTexture } from './labelTexture';
-import { Block, Cylinder, GLOW, SurfaceMaterial, type SurfaceKind } from './surfaces';
+import { Block, Cylinder, GLOW, INK, SurfaceMaterial, type SurfaceKind } from './surfaces';
 
 // The parts every circuit bench shares: wires along a route, a battery, a knife switch and a
 // bulb. Each draws centred on its group unless it says otherwise; anything that changes (the
 // switch's blade, the bulb's glow) is read from the simulation every frame.
 
-const INK = '#3a3c40';
 /** Copper wire 1.5 mm across inside its plastic coating, 3.2 mm across. */
 export const WIRE_RADIUS = 0.0016;
 
@@ -51,7 +50,7 @@ export function Battery({ length, radius, cells }: BatteryProps) {
   return (
     <group>
       <Block
-        kind="holder"
+        kind="structure"
         size={[total + 0.01, radius * 0.9, radius * 2.4]}
         position={[0, radius * 0.45, 0]}
       />
@@ -60,7 +59,7 @@ export function Battery({ length, radius, cells }: BatteryProps) {
         return (
           <group key={cell} position={[x, radius, 0]}>
             <Cylinder
-              kind="battery"
+              kind="electric"
               radius={radius}
               length={length * 0.94}
               rotation={[0, 0, Math.PI / 2]}
@@ -125,7 +124,7 @@ export function KnifeSwitch({ span, isClosed, interactive, onToggle }: KnifeSwit
 
   return (
     <group {...handlers}>
-      <Block kind="holder" size={[span + 0.03, 0.006, 0.026]} position={[0, 0.003, 0]} />
+      <Block kind="structure" size={[span + 0.03, 0.006, 0.026]} position={[0, 0.003, 0]} />
       {[-1, 1].map((side) => (
         <Block
           key={side}
@@ -138,7 +137,7 @@ export function KnifeSwitch({ span, isClosed, interactive, onToggle }: KnifeSwit
       <group ref={blade} position={[-span / 2, 0.006 + postHeight - 0.002, 0]}>
         <Block kind="metal" size={[span + 0.004, 0.0025, 0.006]} position={[span / 2, 0, 0]} />
         <Cylinder
-          kind="ink"
+          kind="electric"
           radius={0.004}
           length={0.014}
           position={[span + 0.006, 0.006, 0]}
@@ -168,7 +167,7 @@ export function Bulb({ getGlow }: { getGlow: () => number }) {
 
   return (
     <group>
-      <Block kind="holder" size={[0.03, 0.008, 0.03]} position={[0, 0.004, 0]} />
+      <Block kind="structure" size={[0.03, 0.008, 0.03]} position={[0, 0.004, 0]} />
       <Cylinder kind="brass" radius={0.007} length={0.012} position={[0, 0.014, 0]} />
       {/* The filament between its two supports. */}
       <Block kind="ink" size={[0.006, 0.0008, 0.0008]} position={[0, glassY, 0]} />

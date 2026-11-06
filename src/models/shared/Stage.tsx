@@ -1,9 +1,10 @@
 import type { SceneView } from '../scenes';
 
-// The light and backdrop around every model: even light on a paper-coloured backdrop, so the
-// flat colours read as drawn.
+// The light and backdrop around every model: even light on a pale cool backdrop, so the flat
+// colours read as drawn. The backdrop is also the bench top: with one colour for both, a bench has
+// no edge to see at any zoom. The turbine's sky hides it.
 
-const BACKGROUND = '#f5f3ee';
+const BACKGROUND = '#dfe4ea';
 
 /**
  * The light sits nearly overhead: tops take the lit tone and every side the middle one, and the

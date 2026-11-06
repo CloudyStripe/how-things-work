@@ -1,6 +1,9 @@
+import { Billboard } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Matrix4, Quaternion, Vector3, type Group, type InstancedMesh } from 'three';
+import { OVERLAY_COLORS, POLE_COLORS } from '@/models/colors';
+import { ILLUSTRATION_LINE } from '@/models/shared/surfaces';
 import type { OverlayLayerProps } from '@/models/types';
 
 // The generator overlay: inside the generator, its magnets spinning on the shaft and the coils
@@ -10,11 +13,6 @@ import type { OverlayLayerProps } from '@/models/types';
 // it were cut away. Its materials count as transparent only so they draw after a see-through
 // cover, and so stay on top of it.
 
-const NORTH = '#d9473a';
-const SOUTH = '#3a6ec0';
-const COPPER = '#cf8150';
-/** The current-flow overlay's teal. */
-const CURRENT = '#139fb3';
 const DOTS_PER_COIL = 8;
 /** How far round a coil (rad/s) the dots go at the most current the lesson makes. */
 const DOT_SPEED = 6;
@@ -83,6 +81,22 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
     .divideScalar(Math.max(1, first.coils.length));
   return (
     <group position={middle} scale={ENLARGE} renderOrder={20}>
+      {/* A plate behind it, so it reads against the parts' colours. */}
+      <Billboard>
+        <mesh renderOrder={19}>
+          <circleGeometry args={[1.5, 48]} />
+          <meshBasicMaterial
+            color={OVERLAY_COLORS.plate}
+            opacity={OVERLAY_COLORS.plateOpacity}
+            depthTest={false}
+            transparent
+          />
+        </mesh>
+        <mesh renderOrder={19}>
+          <ringGeometry args={[1.5, 1.53, 64]} />
+          <meshBasicMaterial color={ILLUSTRATION_LINE} depthTest={false} transparent />
+        </mesh>
+      </Billboard>
       <group position={middle.clone().negate()}>
         {first.magnets.map((magnet, index) => (
           <group
@@ -95,7 +109,7 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
             <mesh position={[0.12, 0, 0]} renderOrder={20}>
               <boxGeometry args={[0.24, 0.3, 0.9]} />
               <meshBasicMaterial
-                color={magnet.north ? NORTH : SOUTH}
+                color={magnet.north ? POLE_COLORS.north : POLE_COLORS.south}
                 depthTest={false}
                 transparent
               />
@@ -103,7 +117,7 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
             <mesh position={[-0.12, 0, 0]} renderOrder={20}>
               <boxGeometry args={[0.24, 0.3, 0.9]} />
               <meshBasicMaterial
-                color={magnet.north ? SOUTH : NORTH}
+                color={magnet.north ? POLE_COLORS.south : POLE_COLORS.north}
                 depthTest={false}
                 transparent
               />
@@ -120,14 +134,14 @@ export function GeneratorOverlay({ model, getSnapshot }: OverlayLayerProps) {
           renderOrder={21}
         >
           <sphereGeometry args={[0.05, 10, 8]} />
-          <meshBasicMaterial color={CURRENT} depthTest={false} transparent />
+          <meshBasicMaterial color={OVERLAY_COLORS.current} depthTest={false} transparent />
         </instancedMesh>
       </group>
     </group>
   );
 }
 
-/** A coil, as a copper ring facing the shaft. */
+/** A coil, as a ring facing the shaft. */
 function Coil({
   center,
   axis,
@@ -144,7 +158,7 @@ function Coil({
   return (
     <mesh position={[center.x, center.y, center.z]} quaternion={turn} renderOrder={20}>
       <torusGeometry args={[radius * 1.25, 0.05, 10, 32]} />
-      <meshBasicMaterial color={COPPER} depthTest={false} transparent />
+      <meshBasicMaterial color={OVERLAY_COLORS.coil} depthTest={false} transparent />
     </mesh>
   );
 }

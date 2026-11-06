@@ -2,17 +2,19 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { ExtrudeGeometry, Shape, type Group } from 'three';
 import { Block, Cylinder, Outline, SurfaceMaterial, type SurfaceKind } from '../shared/surfaces';
+import { PickedPart } from '../shared/pickedPart';
 import type { ExplorerView, SceneProps } from '../types';
+import { Backdrop } from './Backdrop';
 import { bladeGeometry } from './blade';
 import { coverSeeThrough, EXPLODE, HUB_HEIGHT, LAYOUT, type TurbineState } from './definition';
 
 // The wind turbine: a tapered tower, a nacelle holding the drivetrain (main shaft and bearing,
 // gearbox, brake and generator on a cast bedplate), and a hub with three twisted, tapered blades.
-// Each part moves out along its own direction as the exploded view opens, hides once removed,
-// and turns yellow when picked. The nacelle cover goes see-through while a part inside it is
-// picked. The rotor's angle comes from the simulation every frame.
+// Each part is coloured by what it does: what turns in one colour, the generator in another, what
+// holds them up in a neutral. It moves out along its own direction as the exploded view opens, hides
+// once removed, and takes a heavy outline when picked. The nacelle cover goes see-through while a
+// part inside it is picked. The rotor's angle comes from the simulation every frame.
 
-const GROUND_RADIUS = 160;
 const { nacelle, hub, blades, mainShaft, gearbox, generator, tower } = LAYOUT;
 const NACELLE_LENGTH = nacelle.front - nacelle.back;
 const NACELLE_MIDDLE = (nacelle.front + nacelle.back) / 2;
@@ -34,28 +36,24 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
     if (coverSeeThrough(view) !== seeThrough) setSeeThrough(coverSeeThrough(view));
   });
 
-  /** A part's surface: yellow while it is picked. */
-  const paint = (id: string, kind: SurfaceKind): SurfaceKind =>
-    selected === id ? 'selected' : kind;
-  const coverPaint = paint('nacelleCover', seeThrough ? 'seeThroughPaint' : 'whitePaint');
+  const coverPaint: SurfaceKind = seeThrough ? 'seeThroughPaint' : 'coverPaint';
   const part = (id: string, children: ReactNode) => (
-    <Part id={id} getView={getView} interactive={interactive} selectPart={selectPart}>
-      {children}
-    </Part>
+    <PickedPart.Provider value={selected === id}>
+      <Part id={id} getView={getView} interactive={interactive} selectPart={selectPart}>
+        {children}
+      </Part>
+    </PickedPart.Provider>
   );
 
   return (
     <group>
-      <mesh position={[0, -0.5, 0]}>
-        <cylinderGeometry args={[GROUND_RADIUS, GROUND_RADIUS, 1, 64]} />
-        <SurfaceMaterial kind="grass" />
-      </mesh>
+      <Backdrop getSnapshot={getSnapshot} />
 
       {part(
         'tower',
         <>
           <TaperedTube
-            kind={paint('tower', 'whitePaint')}
+            kind="towerPaint"
             bottom={tower.baseRadius}
             top={tower.topRadius}
             height={TOWER_HEIGHT}
@@ -64,7 +62,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
           {[0.33, 0.66].map((share) => (
             <Cylinder
               key={share}
-              kind={paint('tower', 'whitePaint')}
+              kind="towerPaint"
               radius={tower.baseRadius + (tower.topRadius - tower.baseRadius) * share + 0.06}
               length={0.3}
               position={[0, TOWER_HEIGHT * share, 0]}
@@ -113,7 +111,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
         'mainShaft',
         <group position={[0, HUB_HEIGHT, 0]}>
           <Cylinder
-            kind={paint('mainShaft', 'metal')}
+            kind="motion"
             radius={mainShaft.radius}
             length={mainShaft.front - mainShaft.back}
             position={[0, 0, (mainShaft.front + mainShaft.back) / 2]}
@@ -121,7 +119,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
           />
           {/* The main bearing that carries the rotor's weight. */}
           <Block
-            kind={paint('mainShaft', 'castIron')}
+            kind="motionDark"
             size={[1.6, 1.5, 0.9]}
             position={[0, -0.25, mainShaft.front - 1]}
           />
@@ -132,27 +130,23 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
         'gearbox',
         <group position={[0, HUB_HEIGHT, 0]}>
           <Cylinder
-            kind={paint('gearbox', 'gearCase')}
+            kind="motion"
             radius={gearbox.radius}
             length={gearbox.front - gearbox.back}
             position={[0, 0, (gearbox.front + gearbox.back) / 2]}
             rotation={ALONG_Z}
           />
           {/* Torque arms out to the sides, and the fast shaft and brake disc behind. */}
-          <Block
-            kind={paint('gearbox', 'gearCase')}
-            size={[3.4, 0.5, 0.8]}
-            position={[0, -0.3, gearbox.front - 0.8]}
-          />
+          <Block kind="motion" size={[3.4, 0.5, 0.8]} position={[0, -0.3, gearbox.front - 0.8]} />
           <Cylinder
-            kind={paint('gearbox', 'metal')}
+            kind="motionLight"
             radius={0.14}
             length={gearbox.back - generator.front}
             position={[0, 0.5, (gearbox.back + generator.front) / 2]}
             rotation={ALONG_Z}
           />
           <Cylinder
-            kind={paint('gearbox', 'castIron')}
+            kind="motionDark"
             radius={0.5}
             length={0.08}
             position={[0, 0.5, gearbox.back - 0.35]}
@@ -165,7 +159,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
         'generator',
         <group position={[0, HUB_HEIGHT + 0.5, 0]}>
           <Cylinder
-            kind={paint('generator', 'generatorCase')}
+            kind="electric"
             radius={generator.radius}
             length={generator.front - generator.back}
             position={[0, 0, (generator.front + generator.back) / 2]}
@@ -175,7 +169,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
           {[generator.front, generator.back].map((z) => (
             <Cylinder
               key={z}
-              kind={paint('generator', 'castIron')}
+              kind="electricDark"
               radius={generator.radius * 0.85}
               length={0.15}
               position={[0, 0, z]}
@@ -183,7 +177,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
             />
           ))}
           <Block
-            kind={paint('generator', 'generatorCase')}
+            kind="electric"
             size={[0.7, 0.5, 0.9]}
             position={[0, generator.radius + 0.2, (generator.front + generator.back) / 2]}
           />
@@ -196,7 +190,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
           'hub',
           <>
             <Cylinder
-              kind={paint('hub', 'whitePaint')}
+              kind="motion"
               radius={hub.radius}
               length={hub.length * 0.55}
               position={[0, 0, -hub.length * 0.15]}
@@ -204,7 +198,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
             />
             <mesh position={[0, 0, hub.length * 0.35]} rotation={ALONG_Z}>
               <coneGeometry args={[hub.radius, hub.length * 0.6, 32]} />
-              <SurfaceMaterial kind={paint('hub', 'whitePaint')} />
+              <SurfaceMaterial kind="motion" />
               <Outline />
             </mesh>
           </>,
@@ -213,7 +207,7 @@ export function WindTurbineScene({ getSnapshot, getView, interactive, selectPart
           'blades',
           [0, 1, 2].map((index) => (
             <group key={index} rotation={[0, 0, (index * 2 * Math.PI) / 3]}>
-              <Blade kind={paint('blades', 'whitePaint')} />
+              <Blade kind="motionLight" />
             </group>
           )),
         )}

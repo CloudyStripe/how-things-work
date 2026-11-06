@@ -19,8 +19,6 @@ import {
 // sixteen plotting compasses round it, and the cell and switch at the back. The leads run over
 // the board's right edge and under it, and from the top of the wire down beyond its left edge.
 
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
 const LEG = 0.02;
 
 export function WireBoardScene({ getSnapshot, interactive, setControl }: SceneProps) {
@@ -36,23 +34,18 @@ export function WireBoardScene({ getSnapshot, interactive, setControl }: ScenePr
   const legHeight = BOARD.top - BOARD.thickness;
   return (
     <group>
-      <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
       {[-1, 1].flatMap((sx) =>
         [-1, 1].map((sz) => (
           <Block
             key={`${sx}${sz}`}
-            kind="endStop"
+            kind="structure"
             size={[LEG, legHeight, LEG]}
             position={[sx * (BOARD.width / 2 - LEG), legHeight / 2, sz * (BOARD.depth / 2 - LEG)]}
           />
         )),
       )}
       <Block
-        kind="board"
+        kind="woodBoard"
         size={[BOARD.width, BOARD.thickness, BOARD.depth]}
         position={[0, BOARD.top - BOARD.thickness / 2, 0]}
       />
@@ -68,10 +61,10 @@ export function WireBoardScene({ getSnapshot, interactive, setControl }: ScenePr
           onToggle={() => setControl('switch', !snapshot().controls.switch)}
         />
       </group>
-      <Wire points={WIRES.toSwitch} kind="wireRed" />
-      <Wire points={WIRES.under} kind="wireRed" />
+      <Wire points={WIRES.toSwitch} kind="wire" />
+      <Wire points={WIRES.under} kind="wire" />
       <Wire points={WIRES.tall} kind="copper" />
-      <Wire points={WIRES.back} kind="wireBlack" />
+      <Wire points={WIRES.back} kind="wireReturn" />
 
       {COMPASSES.map((at, index) => (
         <group key={index} position={[at.x, BOARD.top, at.z]}>

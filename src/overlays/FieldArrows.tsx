@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Matrix4, type InstancedMesh } from 'three';
+import { OVERLAY_COLORS } from '@/models/colors';
 import type { OverlayLayerProps } from '@/models/types';
 import { compassBearing, length, netField, sub, vec3, type Vec3 } from '@/physics';
 
@@ -65,7 +66,7 @@ export function FieldArrows({ model, getSnapshot }: OverlayLayerProps) {
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, points.length]}>
       <coneGeometry args={[ARROW_RADIUS, ARROW_LENGTH, 8]} />
-      <meshBasicMaterial color="#2f5d8a" />
+      <meshBasicMaterial color={OVERLAY_COLORS.fieldLine} />
     </instancedMesh>
   );
 }

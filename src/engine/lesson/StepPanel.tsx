@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { findTerm, moduleMap } from '@/engine/content';
-import type { Lesson, Module, WhyStep } from '@/engine/content/schema';
+import type { Lesson, Module, StepKind, WhyStep } from '@/engine/content/schema';
 import { Term } from '@/glossary/Term';
 import { TermText } from '@/glossary/TermText';
 import { STEP_TITLES } from './flow';
@@ -22,9 +22,10 @@ export function StepPanel({ module, lesson, runner }: StepProps & { module: Modu
         <Link to={`/module/${module.id}`}>{module.title}</Link>
       </p>
       <h1 className="lesson-title">{lesson.title}</h1>
-      <h2 className="step-heading">
+      <h2 className="visually-hidden">
         Step {stepIndex + 1} of {sequence.length}: {STEP_TITLES[step]}
       </h2>
+      <StepProgress sequence={sequence} stepIndex={stepIndex} />
       <div className="step-body">
         <StepView lesson={lesson} runner={runner} />
       </div>
@@ -47,6 +48,29 @@ export function StepPanel({ module, lesson, runner }: StepProps & { module: Modu
         </button>
       </div>
     </aside>
+  );
+}
+
+/** Where the learner is in the lesson. The heading above says it for screen readers. */
+function StepProgress({
+  sequence,
+  stepIndex,
+}: {
+  sequence: readonly StepKind[];
+  stepIndex: number;
+}) {
+  return (
+    <ol className="step-progress" aria-hidden>
+      {sequence.map((kind, index) => (
+        <li
+          key={kind}
+          className={index < stepIndex ? 'is-done' : index === stepIndex ? 'is-current' : undefined}
+        >
+          <span className="step-dot">{index < stepIndex ? '✓' : ''}</span>
+          {STEP_TITLES[kind]}
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -92,7 +116,7 @@ function TryStep({ lesson, runner }: StepProps) {
       {!pending && (
         <>
           <p>Try these in any order. You can also explore freely.</p>
-          <ul className="prompts">
+          <ul className="prompts panel-card">
             {prompts.map((prompt, index) => {
               const done = runner.promptsDone[index] === true;
               return (
@@ -118,11 +142,21 @@ type Predict = NonNullable<Lesson['steps']['try']['predict']>;
 
 function Prediction({ predict, runner }: { predict: Predict; runner: LessonRunner }) {
   const committed = runner.progress?.prediction;
-  const [choice, setChoice] = useState<string | null>(committed?.choice ?? null);
+  const [choice, setChoice] = useState<string | null>(null);
+
+  // Once answered it takes one line, so the prompts stay in view.
+  if (committed !== undefined) {
+    const chosen = predict.choices.find((option) => option.id === committed.choice);
+    return (
+      <p className="prediction-saved" role="status">
+        Your prediction: <strong>{chosen?.label}</strong>
+      </p>
+    );
+  }
 
   return (
-    <>
-      <fieldset className="prediction" disabled={committed !== undefined}>
+    <div className="panel-card">
+      <fieldset className="prediction">
         <legend>
           <TermText text={predict.question} />
         </legend>
@@ -132,33 +166,25 @@ function Prediction({ predict, runner }: { predict: Predict; runner: LessonRunne
               type="radio"
               name="prediction"
               value={option.id}
-              checked={(committed?.choice ?? choice) === option.id}
+              checked={choice === option.id}
               onChange={() => setChoice(option.id)}
             />{' '}
             {option.label}
           </label>
         ))}
       </fieldset>
-      {committed === undefined ? (
-        <>
-          <p className="step-note">Answer first, then the controls unlock.</p>
-          <button
-            type="button"
-            className="button"
-            disabled={choice === null}
-            onClick={() => {
-              if (choice !== null) runner.commitPrediction(choice);
-            }}
-          >
-            Commit prediction
-          </button>
-        </>
-      ) : (
-        <p className="step-note" role="status">
-          Prediction saved. Now try it.
-        </p>
-      )}
-    </>
+      <p className="step-note">Answer first, then the controls unlock.</p>
+      <button
+        type="button"
+        className="button"
+        disabled={choice === null}
+        onClick={() => {
+          if (choice !== null) runner.commitPrediction(choice);
+        }}
+      >
+        Commit prediction
+      </button>
+    </div>
   );
 }
 
@@ -254,7 +280,7 @@ function ChallengeStep({ lesson, runner }: ModelLessonProps & { runner: LessonRu
   const solved = runner.progress?.challengeCompletedAt !== undefined;
 
   return (
-    <>
+    <div className="panel-card">
       <p className="challenge-goal">
         <TermText text={challenge.goal} />
       </p>
@@ -262,6 +288,6 @@ function ChallengeStep({ lesson, runner }: ModelLessonProps & { runner: LessonRu
       <p className={solved ? 'challenge-status is-solved' : 'challenge-status'} role="status">
         {solved ? 'Challenge complete.' : 'Not solved yet. Keep adjusting the model.'}
       </p>
-    </>
+    </div>
   );
 }

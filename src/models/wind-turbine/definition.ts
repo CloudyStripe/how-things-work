@@ -160,7 +160,7 @@ export const windTurbine: ModelDefinition<TurbineState, TurbineControls> = {
   title: 'A three-blade wind turbine on its tower',
   wholeViewLabel: 'Whole turbine',
   controls: {
-    wind: { kind: 'switch', label: 'Wind', onLabel: 'Blowing', offLabel: 'Calm', default: false },
+    wind: { kind: 'switch', label: 'Wind', onLabel: 'Windy', offLabel: 'Calm', default: false },
   },
 
   createState() {
@@ -226,13 +226,13 @@ export const windTurbine: ModelDefinition<TurbineState, TurbineControls> = {
 
   // Removable parts in the order they come off, outside in. The tower stays.
   parts: [
-    { id: 'blades', removable: true },
-    { id: 'hub', removable: true },
-    { id: 'nacelleCover', removable: true },
-    { id: 'mainShaft', removable: true },
-    { id: 'gearbox', removable: true },
-    { id: 'generator', removable: true },
-    { id: 'tower', removable: false },
+    { id: 'blades', removable: true, family: 'motion' },
+    { id: 'hub', removable: true, family: 'motion' },
+    { id: 'nacelleCover', removable: true, family: 'structure' },
+    { id: 'mainShaft', removable: true, family: 'motion' },
+    { id: 'gearbox', removable: true, family: 'motion' },
+    { id: 'generator', removable: true, family: 'electricity' },
+    { id: 'tower', removable: false, family: 'structure' },
   ],
 };
 

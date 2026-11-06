@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { Color, MeshBasicMaterial, type Group } from 'three';
-import { Block, Cylinder } from './surfaces';
+import { Block, CARD, Cylinder } from './surfaces';
 
 // The induction lessons' indicators: a centre-zero meter with no scale, and two LEDs wired
 // opposite ways. Each is drawn centred on its group, standing on the bench and facing the
@@ -24,13 +24,13 @@ export function CentreZeroMeter({ getAngle }: { getAngle: () => number }) {
   return (
     <group>
       <Block
-        kind="ink"
+        kind="electricDark"
         size={[METER.width, METER.height, METER.depth]}
         position={[0, METER.height / 2, 0]}
       />
       <mesh position={[0, METER.height * 0.58, faceZ]}>
         <planeGeometry args={[METER.width * 0.84, METER.height * 0.68]} />
-        <meshBasicMaterial color="#f8f6ef" />
+        <meshBasicMaterial color={CARD} />
       </mesh>
       {/* Only a mark at the centre: no scale and no numbers. */}
       <Block
@@ -40,7 +40,7 @@ export function CentreZeroMeter({ getAngle }: { getAngle: () => number }) {
       />
       <group ref={needle} position={[0, pivotY, faceZ + 0.0008]}>
         <Block
-          kind="magnetNorth"
+          kind="ink"
           size={[0.0014, METER.needle, 0.0006]}
           position={[0, METER.needle / 2, 0]}
         />
@@ -63,7 +63,7 @@ export function LedPair({
 }) {
   return (
     <group>
-      <Block kind="holder" size={[0.05, 0.006, 0.024]} position={[0, 0.003, 0]} />
+      <Block kind="structure" size={[0.05, 0.006, 0.024]} position={[0, 0.003, 0]} />
       <Led color="red" x={-0.012} getBrightness={() => getBrightness().red} />
       <Led color="green" x={0.012} getBrightness={() => getBrightness().green} />
     </group>

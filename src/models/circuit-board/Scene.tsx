@@ -4,11 +4,8 @@ import type { SceneProps } from '../types';
 import { BATTERY, BOARD, BULB, SWITCH, WIRES, type CircuitBoardSnapshot } from './definition';
 
 // The circuit board: a wooden board with the battery on the left, the knife switch at the
-// front and the bulb on the right, joined by red and black coated wires. The switch's blade and
-// the bulb's glow follow the simulation every frame.
-
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
+// front and the bulb on the right, joined by coated wires. The switch's blade and the bulb's glow
+// follow the simulation every frame.
 
 export function CircuitBoardScene({ getSnapshot, interactive, setControl }: SceneProps) {
   // The engine pairs this scene only with its own model, so the snapshot is this model's.
@@ -17,12 +14,7 @@ export function CircuitBoardScene({ getSnapshot, interactive, setControl }: Scen
   return (
     <group>
       <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
-      <Block
-        kind="board"
+        kind="woodBoard"
         size={[BOARD.width, BOARD.top, BOARD.depth]}
         position={[0, BOARD.top / 2, 0]}
       />
@@ -40,9 +32,9 @@ export function CircuitBoardScene({ getSnapshot, interactive, setControl }: Scen
       <group position={[BULB.x, BOARD.top, 0]}>
         <Bulb getGlow={() => snapshot().state.glow} />
       </group>
-      <Wire points={WIRES.toSwitch} kind="wireRed" />
-      <Wire points={WIRES.toBulb} kind="wireRed" />
-      <Wire points={WIRES.back} kind="wireBlack" />
+      <Wire points={WIRES.toSwitch} kind="wire" />
+      <Wire points={WIRES.toBulb} kind="wire" />
+      <Wire points={WIRES.back} kind="wireReturn" />
     </group>
   );
 }

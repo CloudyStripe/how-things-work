@@ -77,7 +77,7 @@ test('a learner completes lesson 2, What magnets do', async ({ page }) => {
 
 /** An overlay's toggle in the stage toolbar (a glossary term in the text may share its name). */
 function overlay(page: Page, name: string): Locator {
-  return page.getByRole('group', { name: 'Overlays' }).getByRole('button', { name });
+  return page.getByRole('group', { name: 'Overlays' }).getByRole('switch', { name });
 }
 
 /** Moves a slider from one value to another in small steps, waiting between them, as a hand would. */
@@ -109,7 +109,7 @@ test('a learner completes lesson 3, The invisible field', async ({ page }) => {
   await page.getByRole('button', { name: 'Commit prediction' }).click();
   await slideTo(page, slider, 0.075, 1);
   await expect(page.locator('.prompt.is-done')).toHaveCount(1);
-  await page.getByRole('switch', { name: 'Iron filings' }).click();
+  await page.getByRole('radio', { name: 'Sprinkled' }).check();
   await expect(page.locator('.prompt.is-done')).toHaveCount(2, { timeout: 15_000 });
   await next.click();
 
@@ -119,7 +119,7 @@ test('a learner completes lesson 3, The invisible field', async ({ page }) => {
   await expect(page.getByText(/Named here:/)).toContainText(
     'ferromagnetic, magnetic field, field lines',
   );
-  await expect(overlay(page, 'Field lines')).toHaveAttribute('aria-pressed', 'true');
+  await expect(overlay(page, 'Field lines')).toHaveAttribute('aria-checked', 'true');
   await expect(page.getByText('Not to scale')).toBeVisible();
   await next.click();
 
@@ -165,7 +165,7 @@ test('a learner completes lesson 4, What a compass is', async ({ page }) => {
 
   await expect(step('Step 3 of 4: Why')).toBeVisible();
   await expect(page.getByText(/Named here:/)).toContainText("compass, Earth's magnetic field");
-  await expect(overlay(page, "Earth's field")).toHaveAttribute('aria-pressed', 'true');
+  await expect(overlay(page, "Earth's field")).toHaveAttribute('aria-checked', 'true');
   await next.click();
   await page.getByRole('button', { name: 'Finish' }).click();
   await expect(page.locator('.lesson-list-item', { hasText: 'What a compass is' })).toContainText(
@@ -180,7 +180,8 @@ test('a learner completes lesson 5, What current is', async ({ page }) => {
   const next = page.getByRole('button', { name: 'Next' });
   const step = (name: string) => page.getByRole('heading', { level: 2, name });
   const done = page.locator('.prompt.is-done');
-  const toggle = page.getByRole('switch', { name: 'Switch' });
+  const closed = page.getByRole('radio', { name: 'Closed' });
+  const open = page.getByRole('radio', { name: 'Open' });
 
   await page.goto('/#/module/em-fundamentals/lesson/what-current-is');
   await expect(step('Step 1 of 4: Look')).toBeVisible();
@@ -189,9 +190,9 @@ test('a learner completes lesson 5, What current is', async ({ page }) => {
 
   await page.getByRole('radio', { name: /^Out of one end of the battery/ }).check();
   await page.getByRole('button', { name: 'Commit prediction' }).click();
-  await toggle.click();
+  await closed.check();
   await expect(done).toHaveCount(1);
-  await toggle.click();
+  await open.check();
   await expect(done).toHaveCount(2);
   await next.click();
 
@@ -200,7 +201,7 @@ test('a learner completes lesson 5, What current is', async ({ page }) => {
   await expect(page.getByText(/Named here:/)).toContainText(
     'electric current, electric circuit, conductor, insulator',
   );
-  await expect(overlay(page, 'Current flow')).toHaveAttribute('aria-pressed', 'true');
+  await expect(overlay(page, 'Current flow')).toHaveAttribute('aria-checked', 'true');
   await next.click();
   await page.getByRole('button', { name: 'Finish' }).click();
   await expect(page.locator('.lesson-list-item', { hasText: 'What current is' })).toContainText(
@@ -215,7 +216,8 @@ test('a learner completes lesson 6, Current makes a field', async ({ page }) => 
   const next = page.getByRole('button', { name: 'Next' });
   const step = (name: string) => page.getByRole('heading', { level: 2, name });
   const done = page.locator('.prompt.is-done');
-  const toggle = page.getByRole('switch', { name: 'Switch' });
+  const closed = page.getByRole('radio', { name: 'Closed' });
+  const open = page.getByRole('radio', { name: 'Open' });
 
   await page.goto('/#/module/em-fundamentals/lesson/current-makes-a-field');
   await expect(step('Step 1 of 4: Look')).toBeVisible();
@@ -224,18 +226,18 @@ test('a learner completes lesson 6, Current makes a field', async ({ page }) => 
 
   await page.getByRole('radio', { name: 'Turn to point round the wire, in a circle' }).check();
   await page.getByRole('button', { name: 'Commit prediction' }).click();
-  await toggle.click();
+  await closed.check();
   await expect(done).toHaveCount(1);
-  await page.getByRole('switch', { name: 'Battery' }).click();
+  await page.getByRole('radio', { name: 'Reversed' }).check();
   await expect(done).toHaveCount(2);
-  await toggle.click();
+  await open.check();
   // The needles take a moment to swing back to north.
   await expect(done).toHaveCount(3, { timeout: 15_000 });
   await next.click();
 
   await expect(step('Step 3 of 4: Why')).toBeVisible();
   await expect(page.getByText(/Named here:/)).toContainText('compass deflection, right-hand rule');
-  await expect(overlay(page, 'Field lines')).toHaveAttribute('aria-pressed', 'true');
+  await expect(overlay(page, 'Field lines')).toHaveAttribute('aria-checked', 'true');
   await next.click();
   await page.getByRole('button', { name: 'Finish' }).click();
   await expect(
@@ -250,7 +252,8 @@ test('a learner completes lesson 7, Coil it', async ({ page }) => {
   const next = page.getByRole('button', { name: 'Next' });
   const step = (name: string) => page.getByRole('heading', { level: 2, name });
   const done = page.locator('.prompt.is-done');
-  const toggle = page.getByRole('switch', { name: 'Switch' });
+  const closed = page.getByRole('radio', { name: 'Closed' });
+  const open = page.getByRole('radio', { name: 'Open' });
 
   await page.goto('/#/module/em-fundamentals/lesson/coil-it');
   await expect(step('Step 1 of 4: Look')).toBeVisible();
@@ -259,11 +262,11 @@ test('a learner completes lesson 7, Coil it', async ({ page }) => {
 
   await page.getByRole('radio', { name: 'Lift more clips' }).check();
   await page.getByRole('button', { name: 'Commit prediction' }).click();
-  await toggle.click();
+  await closed.check();
   await expect(done).toHaveCount(1);
-  await page.getByRole('switch', { name: 'Iron core' }).click();
+  await page.getByRole('radio', { name: 'In', exact: true }).check();
   await expect(done).toHaveCount(2);
-  await toggle.click();
+  await open.check();
   await expect(done).toHaveCount(3);
   await next.click();
 
@@ -306,7 +309,7 @@ test('a learner completes lesson 8, Move a magnet', async ({ page }) => {
   await expect(page.getByText(/Named here:/)).toContainText(
     'galvanometer, magnetic flux, induced current, electromagnetic induction',
   );
-  await expect(overlay(page, 'Magnetic flux')).toHaveAttribute('aria-pressed', 'true');
+  await expect(overlay(page, 'Magnetic flux')).toHaveAttribute('aria-checked', 'true');
   await next.click();
   await page.getByRole('button', { name: 'Finish' }).click();
   await expect(page.locator('.lesson-list-item', { hasText: 'Move a magnet' })).toContainText(
@@ -354,7 +357,7 @@ test('a learner takes the turbine apart in lesson 1, The windmill', async ({ pag
   await expect(page.getByRole('slider', { name: 'Exploded view' })).toBeDisabled();
   await next.click();
 
-  await page.getByRole('switch', { name: 'Wind' }).click();
+  await page.getByRole('radio', { name: 'Windy' }).check();
   await page.getByRole('slider', { name: 'Exploded view' }).fill('1');
   await page.getByRole('button', { name: 'Generator', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Generator' })).toContainText(
@@ -388,7 +391,7 @@ test('a learner completes lesson 10, Back to the windmill', async ({ page }) => 
   await expect(page.getByRole('heading', { level: 2, name: 'Step 1 of 3: Look' })).toBeVisible();
   await next.click();
 
-  await page.getByRole('switch', { name: 'Wind' }).click();
+  await page.getByRole('radio', { name: 'Windy' }).check();
   for (const part of ['Blades', 'Hub', 'Nacelle cover', 'Main shaft', 'Gearbox']) {
     await page.getByRole('button', { name: `Remove next part: ${part}` }).click();
   }
@@ -423,8 +426,8 @@ test('a lesson resumes where the learner left off', async ({ page }) => {
   await page.reload();
   await expect(step('Step 2 of 5: Try')).toBeVisible();
   await expect(page.getByRole('slider', { name: 'Your magnet' })).toBeEnabled();
-  await expect(page.getByRole('radio', { name: 'Stay where it is' })).toBeChecked();
-  await expect(page.getByRole('radio', { name: 'Stay where it is' })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText('Your prediction: Stay where it is');
+  await expect(page.getByRole('radio', { name: 'Stay where it is' })).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Back' }).click();
   await expect(step('Step 1 of 5: Look')).toBeVisible();

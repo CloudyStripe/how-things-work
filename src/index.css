@@ -1,14 +1,21 @@
-/* Minimal tokens only: plain, token-based styling around the models, which are drawn in the
-   technical illustration style (spec, Teaching principle 3). */
+/* The page around the models: cool neutrals in key with the navy header, white cards with a soft
+   shadow, and one clearly primary action per panel. Colour that means something (magnetism,
+   electricity, motion) comes from src/models/colors.ts (spec, Visual design). */
 :root {
-  --color-bg: #f6f6f4;
-  --color-surface: #ffffff;
-  --color-text: #1d1f21;
-  --color-text-muted: #5b6066;
-  --color-border: #d9dbde;
-  --color-accent: #2f5d8a;
-  --color-accent-soft: #e3ecf5;
-  --color-success: #2e6b3f;
+  --color-bg: #f0f3f7;
+  --color-card: #ffffff;
+  --color-header: #16263a;
+  --color-text: #15202c;
+  --color-text-muted: #55616e;
+  --color-border: #d9dfe6;
+  --color-border-strong: #94a0ad;
+  --color-accent: #16324f;
+  --color-accent-soft: #e4eaf1;
+  --color-success: #1f8a4c;
+
+  --shadow-card: 0 1px 2px rgb(22 38 58 / 12%), 0 6px 16px rgb(22 38 58 / 10%);
+  --shadow-panel: 0 0 16px rgb(22 38 58 / 18%);
+  --card-radius: 12px;
 
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
@@ -48,6 +55,10 @@ a {
   color: var(--color-accent);
 }
 
+input {
+  accent-color: var(--color-accent);
+}
+
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -60,13 +71,12 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-6);
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-header);
 }
 
 .app-title {
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 700;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -82,17 +92,17 @@ a {
   display: block;
   padding: var(--space-2) var(--space-3);
   border-radius: 6px;
-  color: var(--color-text-muted);
+  color: #c3ccd6;
   text-decoration: none;
 }
 
 .app-nav-link:hover {
-  color: var(--color-text);
+  color: #fff;
 }
 
 .app-nav-link.active {
-  color: var(--color-text);
-  background: var(--color-bg);
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
 }
 
 .app-main {
@@ -103,6 +113,7 @@ a {
 .page h1 {
   margin: 0 0 var(--space-3);
   font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .page-note {
@@ -123,15 +134,44 @@ a {
   white-space: nowrap;
 }
 
-/* Buttons */
+/* Cards: anything the learner works with or reads as a unit */
+
+.panel-card,
+.part-card,
+.instrument,
+.review-card,
+.glossary-entry,
+.glossary-pair-term,
+.confirm-box,
+.module-nudges,
+.lesson-list,
+.term-list,
+.module-node {
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-radius);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+
+.panel-card,
+.part-card,
+.instrument {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-3);
+}
+
+.panel-card > :last-child {
+  margin-bottom: 0;
+}
+
+/* Buttons: one primary to a panel; everything else is quiet */
 
 .button,
 .button-quiet,
-.toggle,
-.switch {
+.toggle {
   font: inherit;
   padding: var(--space-2) var(--space-4);
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -141,16 +181,23 @@ a {
   color: #fff;
 }
 
+.button:hover:not(:disabled) {
+  background: #0f2438;
+}
+
 .button-quiet,
-.toggle,
-.switch {
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
+.toggle {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-card);
   color: var(--color-text);
 }
 
-.toggle[aria-pressed='true'],
-.switch.is-on {
+.button-quiet:hover:not(:disabled),
+.toggle:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+}
+
+.toggle[aria-pressed='true'] {
   border-color: var(--color-accent);
   background: var(--color-accent-soft);
   color: var(--color-accent);
@@ -158,8 +205,7 @@ a {
 
 .button:disabled,
 .button-quiet:disabled,
-.toggle:disabled,
-.switch:disabled {
+.toggle:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -195,9 +241,9 @@ a {
   z-index: 100;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
-  box-shadow: 0 6px 24px rgb(0 0 0 / 12%);
+  border-radius: var(--card-radius);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
   font-size: 0.9rem;
 }
 
@@ -222,7 +268,7 @@ a {
 }
 
 .module-map-arrow {
-  stroke: var(--color-text-muted);
+  stroke: var(--color-border-strong);
   stroke-width: 1.5;
 }
 
@@ -231,7 +277,7 @@ a {
 }
 
 .module-map-arrowhead {
-  fill: var(--color-text-muted);
+  fill: var(--color-border-strong);
 }
 
 .module-map-nodes {
@@ -242,9 +288,6 @@ a {
 
 .module-node {
   position: absolute;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  background: var(--color-surface);
 }
 
 .module-node.is-locked {
@@ -253,7 +296,9 @@ a {
   justify-content: center;
   padding: var(--space-3) var(--space-4);
   border-style: dashed;
+  border-color: var(--color-border-strong);
   background: transparent;
+  box-shadow: none;
   color: var(--color-text-muted);
 }
 
@@ -263,7 +308,7 @@ a {
   justify-content: center;
   height: 100%;
   padding: var(--space-3) var(--space-4);
-  border-radius: 10px;
+  border-radius: var(--card-radius);
   color: inherit;
   text-decoration: none;
 }
@@ -294,20 +339,19 @@ a {
 
 .module-nudges {
   padding: var(--space-3) var(--space-4);
-  border-left: 3px solid var(--color-accent);
-  background: var(--color-surface);
+  border-left: 4px solid var(--color-accent);
   list-style: none;
 }
 
-.lesson-list,
-.term-list {
-  padding-left: var(--space-6);
+.lesson-list {
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-8);
 }
 
 /* Twenty-odd short terms read better across than down one long column. */
 .term-list {
   columns: 3;
   column-gap: var(--space-8);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-8);
 }
 
 .term-list li {
@@ -315,11 +359,11 @@ a {
 }
 
 .lesson-list-item {
-  margin-bottom: var(--space-2);
+  padding: var(--space-1) 0;
 }
 
 .lesson-list-status {
-  margin-left: var(--space-3);
+  float: right;
   font-size: 0.85rem;
   color: var(--color-text-muted);
 }
@@ -340,10 +384,19 @@ a {
 
 .lesson {
   display: grid;
-  grid-template-columns: 30% minmax(0, 1fr) 280px;
+  grid-template-columns: 27% minmax(0, 1fr) 300px;
   grid-template-rows: minmax(0, 1fr) auto;
   height: calc(100vh - var(--header-height));
   min-height: 600px;
+}
+
+.lesson-panel,
+.lesson-side {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-panel);
+  overflow-y: auto;
 }
 
 .lesson-panel {
@@ -353,8 +406,6 @@ a {
   flex-direction: column;
   padding: var(--space-6);
   border-right: 1px solid var(--color-border);
-  background: var(--color-surface);
-  overflow-y: auto;
 }
 
 .lesson-module {
@@ -363,15 +414,74 @@ a {
 }
 
 .lesson-title {
-  margin: var(--space-1) 0 var(--space-4);
+  margin: var(--space-1) 0 var(--space-3);
   font-size: 1.35rem;
+  font-weight: 700;
 }
 
-.step-heading {
-  margin: 0 0 var(--space-3);
-  font-size: 0.9rem;
-  font-weight: 600;
+/* The steps as dots on a line */
+
+.step-progress {
+  display: flex;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.step-progress li {
+  position: relative;
+  flex: 1;
+  font-size: 0.8rem;
+  line-height: 1.25;
   color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* The line to the next step, behind the dots. */
+.step-progress li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--color-border-strong);
+}
+
+.step-progress li.is-done:not(:last-child)::after {
+  background: var(--color-accent);
+}
+
+.step-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  margin: 0 auto 2px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-card);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1;
+  place-items: center;
+}
+
+.step-progress li.is-done .step-dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.step-progress li.is-current {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.step-progress li.is-current .step-dot {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 4px var(--color-card);
+  background: var(--color-accent);
 }
 
 .step-body {
@@ -391,18 +501,29 @@ a {
   margin-bottom: calc(-1 * var(--space-6));
   padding: var(--space-4) 0 var(--space-6);
   border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--color-bg);
 }
 
 .prediction {
-  margin: 0 0 var(--space-4);
+  margin: 0;
   padding: 0;
   border: 0;
 }
 
 .prediction legend {
   margin-bottom: var(--space-2);
+  padding: 0;
   font-weight: 600;
+}
+
+.prediction-saved {
+  margin: 0 0 var(--space-3);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.prediction-saved strong {
+  color: var(--color-text);
 }
 
 .choice {
@@ -410,31 +531,54 @@ a {
   padding: var(--space-1) 0;
 }
 
+/* Prompts: a circle each, filled when done */
+
 .prompts {
-  margin: 0;
-  padding: 0;
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
   list-style: none;
 }
 
 .prompt {
   display: flex;
-  gap: var(--space-2);
-  padding: var(--space-1) 0;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.prompt:last-child {
+  border-bottom: 0;
 }
 
 .prompt-mark {
-  flex: 0 0 1.25em;
+  display: grid;
+  flex: 0 0 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-success);
+  line-height: 1;
+  place-items: center;
 }
 
 .prompt.is-done {
   color: var(--color-text-muted);
 }
 
-.why-prediction,
+.prompt.is-done .prompt-mark {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
 .challenge-goal {
   font-weight: 600;
+}
+
+.challenge-goal {
+  margin-top: 0;
 }
 
 .challenge-status.is-solved {
@@ -454,19 +598,80 @@ a {
   min-height: 0;
 }
 
+/* Toolbar buttons are compact and never wrap their words; a crowded toolbar wraps whole
+   buttons onto a second row instead. */
 .stage-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-4);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--color-card);
+}
+
+.stage-toolbar button {
+  padding: var(--space-1) var(--space-3);
+  white-space: nowrap;
 }
 
 .overlay-bar {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-1);
+}
+
+/* A switch that shows or hides something over the model */
+
+.stage-toolbar .show-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-1);
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.show-switch:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+}
+
+.show-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.show-switch-track {
+  position: relative;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-border-strong);
+}
+
+.show-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.12s;
+}
+
+.show-switch[aria-checked='true'] .show-switch-track {
+  background: var(--color-accent);
+}
+
+.show-switch[aria-checked='true'] .show-switch-track::after {
+  transform: translateX(10px);
 }
 
 .stage-view {
@@ -485,17 +690,6 @@ a {
   gap: var(--space-2);
 }
 
-/* Toolbar buttons are compact and never wrap their words; a crowded toolbar wraps whole
-   buttons onto a second row instead. */
-.stage-toolbar {
-  flex-wrap: wrap;
-}
-
-.stage-toolbar button {
-  padding: var(--space-1) var(--space-3);
-  white-space: nowrap;
-}
-
 /* The frame-rate readout, shown with ?debug in the address */
 .fps-meter {
   position: absolute;
@@ -503,7 +697,7 @@ a {
   left: var(--space-2);
   padding: 2px var(--space-2);
   border-radius: 4px;
-  background: rgb(29 31 33 / 75%);
+  background: rgb(22 38 58 / 80%);
   color: #fff;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -546,35 +740,40 @@ a {
 .lesson-side {
   grid-column: 3;
   grid-row: 1;
-  padding: var(--space-4);
+  padding: var(--space-3);
   border-left: 1px solid var(--color-border);
-  background: var(--color-surface);
-  overflow-y: auto;
+}
+
+.lesson-side > :last-child {
+  margin-bottom: 0;
 }
 
 .panel-heading {
-  margin: 0 0 var(--space-3);
-  font-size: 0.8rem;
-  font-weight: 600;
+  margin: 0 0 var(--space-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-.controls {
-  margin-bottom: var(--space-6);
-}
-
 .control {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
-  margin: 0 0 var(--space-3);
+  gap: var(--space-1) var(--space-2);
+  margin: 0 0 var(--space-2);
   padding: 0;
   border: 0;
 }
 
-fieldset.control {
+.controls .control:last-child {
+  margin-bottom: 0;
+}
+
+fieldset.control,
+.slider-control {
   display: block;
 }
 
@@ -586,20 +785,74 @@ fieldset.control .control-label {
   margin-bottom: var(--space-1);
 }
 
-.switch {
-  min-width: 96px;
+/* A control with named states: all of them on show, the current one filled */
+
+.options {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-card);
+  overflow: hidden;
 }
 
-.choice-row {
-  display: flex;
-  gap: var(--space-3);
+.option {
+  position: relative;
+  padding: 3px var(--space-3);
+  border-left: 1px solid var(--color-border-strong);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.option:first-child {
+  border-left: 0;
+}
+
+.option:hover:not(.is-on) {
+  background: var(--color-accent-soft);
+}
+
+.option.is-on {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* The radio itself fills the option, unseen, so a click or a key press lands on it. */
+.option input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.option:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -4px;
+}
+
+.option.is-on:has(input:focus-visible) {
+  outline-color: #fff;
+}
+
+.options:has(input:disabled) {
+  opacity: 0.45;
+}
+
+.option:has(input:disabled) {
+  background: none;
+  cursor: not-allowed;
+}
+
+.option.is-on:has(input:disabled) {
+  background: var(--color-accent);
 }
 
 /* A slider shows words at its ends, never numbers. */
-.control:has(.slider-row) {
-  display: block;
-}
-
 .slider-row {
   display: flex;
   align-items: center;
@@ -628,25 +881,41 @@ fieldset.control .control-label {
 
 /* Explorer: taking the model apart */
 .part-steps {
+  display: flex;
   flex-direction: column;
-  align-items: stretch;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
+.part-steps button {
+  padding: 5px var(--space-2);
+  font-size: 0.9rem;
+}
+
+/* Parts: two columns, with a swatch of each part's family */
 .part-list {
-  margin: 0 0 var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px var(--space-1);
+  margin: 0 0 var(--space-2);
   padding: 0;
   list-style: none;
 }
 
 .part-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
-  padding: var(--space-1) var(--space-2);
+  padding: 3px var(--space-1);
   border: 1px solid transparent;
   border-radius: 6px;
   background: none;
   color: inherit;
   font: inherit;
+  font-size: 0.875rem;
   text-align: left;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -663,25 +932,55 @@ fieldset.control .control-label {
   color: var(--color-text-muted);
 }
 
+.swatch {
+  flex: 0 0 auto;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgb(0 0 0 / 35%);
+  border-radius: 3px;
+}
+
+.family-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-3);
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  list-style: none;
+}
+
+.family-legend li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* The picked part's card carries its family on its edge. */
 .part-card {
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-left-width: 5px;
 }
 
 .part-card h3 {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 2px;
   font-size: 1rem;
 }
 
 .part-card p {
   margin: 0 0 var(--space-2);
+  font-size: 0.9rem;
 }
 
-.instrument {
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+.part-card > :last-child {
+  margin-bottom: 0;
+}
+
+.part-card .part-family {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .instrument-name {
@@ -706,7 +1005,7 @@ fieldset.control .control-label {
   max-height: 220px;
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--color-border);
-  background: var(--color-surface);
+  background: var(--color-card);
   overflow-y: auto;
 }
 
@@ -732,16 +1031,17 @@ fieldset.control .control-label {
   font-family: var(--font-mono);
 }
 
-/* The due-card count on the Review link */
+/* The due-card count on the Review link, on the navy header */
 .nav-badge {
   display: inline-block;
   min-width: 1.4em;
   margin-left: var(--space-1);
   padding: 0 var(--space-1);
   border-radius: 999px;
-  background: var(--color-accent);
-  color: #fff;
+  background: #fff;
+  color: var(--color-accent);
   font-size: 0.75rem;
+  font-weight: 700;
   line-height: 1.4em;
   text-align: center;
 }
@@ -756,16 +1056,13 @@ fieldset.control .control-label {
 .review-card {
   margin-top: var(--space-4);
   padding: var(--space-4) var(--space-6);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
 }
 
 .review-card-kind {
   margin: 0 0 var(--space-2);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
@@ -785,6 +1082,7 @@ fieldset.control .control-label {
   margin: var(--space-4) 0;
   padding: var(--space-3) var(--space-4);
   border-left: 3px solid var(--color-accent);
+  border-radius: 0 8px 8px 0;
   background: var(--color-accent-soft);
 }
 
@@ -810,10 +1108,6 @@ fieldset.control .control-label {
   overflow: hidden;
 }
 
-.live-model-controls {
-  margin: 0;
-}
-
 /* Glossary */
 .glossary-entries {
   display: grid;
@@ -822,9 +1116,6 @@ fieldset.control .control-label {
 
 .glossary-entry {
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
 }
 
 .glossary-entry h3,
@@ -853,9 +1144,6 @@ fieldset.control .control-label {
 
 .glossary-pair-term {
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
 }
 
 /* Your progress */
@@ -886,9 +1174,6 @@ fieldset.control .control-label {
    loading a backup. */
 .confirm-box {
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
 }
 
 .confirm-box p {

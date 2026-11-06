@@ -320,6 +320,11 @@ function ViewControls({
     seen.current = { selected: selectedPart, removed: removedParts, explode };
 
     if (orbit === null) return;
+    // After the orbit controls have moved the camera; they carry on from here next frame.
+    if (view.cameraFloor !== undefined && camera.position.y < view.cameraFloor) {
+      camera.position.setY(view.cameraFloor);
+      camera.lookAt(orbit.target);
+    }
     const current = flight.current;
     if (current !== null) {
       const t = Math.min(1, (clock.elapsedTime - current.start) / FLIGHT_TIME);
@@ -391,7 +396,7 @@ function ViewControls({
       makeDefault
       minDistance={framed.distance * view.zoom.min}
       maxDistance={framed.distance * view.zoom.max}
-      maxPolarAngle={Math.PI * 0.45}
+      maxPolarAngle={view.maxPolar ?? Math.PI * 0.45}
       enableDamping
       onStart={() => {
         // The learner takes over: any flight stops where it is, and nothing follows.

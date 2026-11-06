@@ -4,7 +4,7 @@ import type { Group } from 'three';
 import { BarMagnet, Letter } from '../shared/BarMagnet';
 import { Compass } from '../shared/Compass';
 import { useLetterTexture } from '../shared/labelTexture';
-import { Block, SurfaceMaterial } from '../shared/surfaces';
+import { INK, SurfaceMaterial } from '../shared/surfaces';
 import { useBenchDrag } from '../shared/useBenchDrag';
 import type { SceneProps } from '../types';
 import {
@@ -17,13 +17,8 @@ import {
   type CompassBenchState,
 } from './definition';
 
-// The compass bench: a painted bar magnet, a brass compass, and an arrow printed on the bench
-// pointing north. The compass's place and the needle's angle come from the simulation each
-// frame.
-
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
-const INK = '#3a3c40';
+// The compass bench: a painted bar magnet, a compass, and an arrow printed on the bench pointing
+// north. The compass's place and the needle's angle come from the simulation each frame.
 
 export function CompassBenchScene({ getSnapshot, interactive, setControl }: SceneProps) {
   const compass = useRef<Group>(null);
@@ -50,11 +45,6 @@ export function CompassBenchScene({ getSnapshot, interactive, setControl }: Scen
 
   return (
     <group>
-      <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
       <group position={[MAGNET_X, MAGNET_HEIGHT, 0]}>
         <BarMagnet length={MAGNET.length} side={MAGNET.side} reversed={false} />
       </group>

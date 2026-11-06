@@ -1,7 +1,7 @@
 import type { Lesson } from '@/engine/content/schema';
 import { useSimStore } from '@/engine/sim/store';
 import { instruments } from '@/instruments/registry';
-import { isSpot, type AnyModel, type ControlSpec } from '@/models/types';
+import { isSpot, type AnyModel, type ControlSpec, type ControlValue } from '@/models/types';
 import { ExplorerTools } from './ExplorerTools';
 
 interface SidePanelProps {
@@ -18,7 +18,7 @@ export function SidePanel({ lesson, model, interactive }: SidePanelProps) {
   return (
     <aside className="lesson-side" aria-label="Controls and instruments">
       {lesson.controls.length > 0 && (
-        <>
+        <section className="panel-card">
           <h2 className="panel-heading">Controls</h2>
           <div className="controls">
             {lesson.controls.map((id) => {
@@ -28,7 +28,7 @@ export function SidePanel({ lesson, model, interactive }: SidePanelProps) {
               );
             })}
           </div>
-        </>
+        </section>
       )}
       {lesson.kind === 'model' && lesson.instruments.length > 0 && (
         <>
@@ -62,29 +62,25 @@ export function ControlInput({
   const value = useSimStore((state) => state.snapshot?.controls[id]);
   const setControl = useSimStore((state) => state.setControl);
 
+  // Both states show, with the current one filled, so it is clear what the control changes.
   if (spec.kind === 'switch') {
-    const on = value === true;
     return (
-      <div className="control">
-        <span className="control-label">{spec.label}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={on}
-          aria-label={spec.label}
-          className={on ? 'switch is-on' : 'switch'}
-          disabled={disabled}
-          onClick={() => setControl(id, !on)}
-        >
-          {on ? spec.onLabel : spec.offLabel}
-        </button>
-      </div>
+      <OptionsControl
+        id={id}
+        label={spec.label}
+        options={[
+          { value: false, label: spec.offLabel },
+          { value: true, label: spec.onLabel },
+        ]}
+        current={value === true}
+        disabled={disabled}
+      />
     );
   }
 
   if (spec.kind === 'slider') {
     return (
-      <div className="control">
+      <div className="control slider-control">
         <label className="control-label" htmlFor={`control-${id}`}>
           {spec.label}
         </label>
@@ -135,23 +131,55 @@ export function ControlInput({
   }
 
   return (
-    <fieldset className="control" disabled={disabled}>
-      <legend className="control-label">{spec.label}</legend>
-      <div className="choice-row">
-        {spec.options.map((option) => (
-          <label key={option.value} className="choice-option">
+    <OptionsControl
+      id={id}
+      label={spec.label}
+      options={spec.options}
+      current={value}
+      disabled={disabled}
+    />
+  );
+}
+
+/** A control with a few named states: all of them on show, side by side, the current one filled. */
+function OptionsControl({
+  id,
+  label,
+  options,
+  current,
+  disabled,
+}: {
+  id: string;
+  label: string;
+  options: readonly { readonly value: boolean | string; readonly label: string }[];
+  current: ControlValue | undefined;
+  disabled: boolean;
+}) {
+  const setControl = useSimStore((state) => state.setControl);
+  const labelId = `control-${id}`;
+  return (
+    <div className="control" role="radiogroup" aria-labelledby={labelId}>
+      <span className="control-label" id={labelId}>
+        {label}
+      </span>
+      <div className="options">
+        {options.map((option) => (
+          <label
+            key={option.label}
+            className={current === option.value ? 'option is-on' : 'option'}
+          >
             <input
               type="radio"
               name={id}
-              value={option.value}
-              checked={value === option.value}
+              checked={current === option.value}
+              disabled={disabled}
               onChange={() => setControl(id, option.value)}
-            />{' '}
+            />
             {option.label}
           </label>
         ))}
       </div>
-    </fieldset>
+    </div>
   );
 }
 

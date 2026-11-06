@@ -46,19 +46,26 @@ export interface SceneView {
   readonly explode?: Readonly<Record<string, readonly [number, number, number]>>;
   /** What the camera flies to when an overlay turns on, where it reads best. */
   readonly overlayFrames?: Readonly<Record<string, CameraFrame>>;
+  /** How low the learner may turn the view (radians from straight down), if lower than usual. */
+  readonly maxPolar?: number;
+  /** The lowest the camera may go (m), where a scene has ground it must not sink through. */
+  readonly cameraFloor?: number;
 }
 
 export const scenes: Readonly<Record<string, SceneView>> = {
   'wind-turbine': {
     Scene: WindTurbineScene,
-    // The tower and the rotor, with room for the parts to pull out.
+    // The tower and the rotor, with room for the parts to pull out, looking up from low down, so
+    // the turbine stands against the sky and the land recedes behind it.
     frame: {
       center: [0, 58, 4],
       halfSize: [40, 58, 14],
       azimuth: 36,
-      elevation: 6,
+      elevation: -6,
       margin: 0.06,
     },
+    maxPolar: 1.7,
+    cameraFloor: 2,
     // Close enough to look into the nacelle.
     zoom: { min: 0.02, max: 1.6 },
     pan: 40,

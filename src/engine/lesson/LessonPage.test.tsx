@@ -1,10 +1,11 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { StepKind } from '@/engine/content/schema';
 import { clearProgressForTests, reviewCardKey, useProgressStore } from '@/engine/progress/store';
 import { useSimStore } from '@/engine/sim/store';
+import { FAMILY_COLORS } from '@/models/colors';
 import type { MagnetRailState } from '@/models/magnet-rail/definition';
 import { routes } from '@/routes';
 
@@ -86,6 +87,11 @@ describe('a model lesson (lesson 2)', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
     expect(screen.getByRole('slider', { name: 'Your magnet' })).toBeEnabled();
     expect(screen.getByText(/Slide your magnet slowly/)).toBeInTheDocument();
+    // Answered, it takes one line, so the prompts stay in view.
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Your prediction: Roll away from your magnet',
+    );
+    expect(screen.queryByRole('radio', { name: 'Stay where it is' })).not.toBeInTheDocument();
     expect(useProgressStore.getState().lessons[MAGNETS]?.prediction).toMatchObject({
       choice: 'away',
       correct: true,
@@ -188,13 +194,43 @@ describe('an explorer lesson (lesson 1)', () => {
     expect(screen.getByRole('button', { name: 'Remove next part: Blades' })).toBeDisabled();
   });
 
+  it('keeps its two-state controls off during Look', () => {
+    renderLesson(WINDMILL);
+    expect(screen.getByRole('radio', { name: 'Windy' })).toBeDisabled();
+  });
+
+  it('shows each part with a swatch of its colour family, and what the colours mean', async () => {
+    const user = userEvent.setup();
+    resumeAt(WINDMILL, 'try');
+    renderLesson(WINDMILL);
+    const legend = screen.getByRole('list', { name: 'What the colours mean' });
+    expect(within(legend).getByText('Moving parts')).toBeInTheDocument();
+    expect(within(legend).getByText('Electricity')).toBeInTheDocument();
+    expect(within(legend).getByText('Structure')).toBeInTheDocument();
+
+    const swatchOf = (element: HTMLElement) => element.querySelector('.swatch');
+    const generator = screen.getByRole('button', { name: 'Generator' });
+    const blades = screen.getByRole('button', { name: 'Blades' });
+    expect(swatchOf(generator)).toHaveStyle({ backgroundColor: FAMILY_COLORS.electricity });
+    expect(swatchOf(blades)).toHaveStyle({ backgroundColor: FAMILY_COLORS.motion });
+
+    await user.click(generator);
+    expect(
+      within(screen.getByRole('region', { name: 'Generator' })).getByText('Electricity'),
+    ).toBeInTheDocument();
+  });
+
   it('takes the model apart, names parts, and ticks prompts from what the learner did', async () => {
     const user = userEvent.setup();
     resumeAt(WINDMILL, 'try');
     renderLesson(WINDMILL);
     expect(screen.getByRole('heading', { name: 'Step 2 of 3: Try' })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('switch', { name: 'Wind' }));
+    // Both states of the wind are on show, and picking one says which is on.
+    const wind = screen.getByRole('radiogroup', { name: 'Wind' });
+    expect(within(wind).getByRole('radio', { name: 'Calm' })).toBeChecked();
+    await user.click(within(wind).getByRole('radio', { name: 'Windy' }));
+    expect(within(wind).getByRole('radio', { name: 'Windy' })).toBeChecked();
     act(() => {
       for (let frame = 0; frame < 600; frame++) useSimStore.getState().advance(1 / 60);
     });
