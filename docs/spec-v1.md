@@ -1,6 +1,6 @@
 # Interactive Learning Platform — Spec v1: EM Fundamentals
 
-Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine; models drawn as technical illustrations
+Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine; models drawn as technical illustrations. Revised Nov 6, 2026: visual design (the colour system, cards and controls)
 
 ## Overview
 
@@ -200,17 +200,41 @@ Every model is a realistic 3D scene driven by a shared physics core, with overla
 
 ### Lesson screen layout (laptop)
 
-- **Left panel** (about 30% width): the current step's text, the prediction choices, the guided prompts, and Back and Next.
-- **Center:** the 3D model, with an overlay toggle bar along its top edge, a Labels toggle, Reset model and Reset view.
-- **Right panel:** controls (switches, sliders, selectors) and instrument readouts; for an explorer, the take-apart tools, the part list and the selected part's card.
+- **Left panel** (about 27% width): a step indicator, the current step's text, the prediction choices, the guided prompts, and Back and Next.
+- **Center:** the 3D model, with a bar of overlay switches along its top edge, a Labels switch, Reset model and Reset view.
+- **Right panel:** controls (options, sliders) and instrument readouts; for an explorer, the take-apart tools, the part list and the selected part's card.
 - **Bottom drawer:** the data table and plot, opened during a Pattern step (later modules only).
 
 ### Models
 
-- Real equipment in real proportions, in the technical illustration style (Teaching principle 3): each material (copper wire, steel and iron, wood bench, glass) has its own flat color, and parts are outlined. Clean, evenly lit, no clutter.
+- Real equipment in real proportions, in the technical illustration style (Teaching principle 3): each part takes the flat color of what it does (see Visual design), and parts are outlined. Clean, evenly lit, no clutter.
 - Orbit, zoom and pan within limits; one default camera angle per lesson. The default view is fitted to the model view at the screen's size, so the apparatus fills it.
 - Draggable objects (magnet, compass) move with the mouse, constrained to sensible paths, and every drag has a keyboard equivalent in the right panel.
 - Scenes by lesson: the wind turbine (1, 10), the magnet rail (2), the magnet and filings bench (3), the compass bench (4), the circuit board (5), the wire board (6), the coil and clip tray (7), the coil and magnet (8), the crank generator (9).
+
+### Visual design
+
+**The color system.** A color means the same thing in the models, the overlays and the interface. There are three families and a neutral:
+
+| Family               | Color                               | Used for                                                                                  |
+| -------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------- |
+| Magnetism            | Violet, with red and blue for poles | Magnets (red north, blue south), compass needles and housings, field lines, Earth's field |
+| Electricity          | Teal                                | Current, coated wires, batteries, the switch's handle, the meter, the generator           |
+| Motion and mechanics | Orange                              | What moves or turns: blades, hub, shafts, gearbox, crank, carts and the magnet's holder   |
+| Neutral              | Cool grey                           | What holds things up: tower, nacelle cover, frames, stands, trays, the bench              |
+
+- **Named materials keep their look.** Anything the lesson copy names by material or color looks like it: the copper coin and coils of copper wire, wooden rails, boards, pegs and handles, the steel paper clips, the iron rod, the glass sheet, the red and green lights.
+- **An explorer's part list carries the system:** each part has a swatch of its family, with a key to what the colors mean, and the selected part's card shows its family on its edge. A picked part keeps its color and takes a heavier outline.
+- **Overlays stay clearly readable.** Field lines are a brighter violet than any part painted in the family. The current's dots are a bright teal on darker teal wires. The generator overlay sits on a light disc, so it reads against whatever is behind it.
+
+**The turbine's setting.** A sky gradient, ground, hills and distant turbines fading with distance, a contact shadow at the tower's base, and a house at its base for scale. Everything far away is drawn unlit and without outlines, so the machine stays the thing to look at. A bench has no setting: its backdrop is the bench top, in one color, with no edge to see.
+
+**The interface.** Cool neutrals in key with a navy header: a very light cool grey page, white cards with subtle elevation for prompts, controls and part information, and cool greys for borders and secondary text. No warm beige or brown tones.
+
+- A step indicator shows where the learner is in the lesson, and each prompt has a check circle that fills when it is done.
+- Each panel has one clearly primary action.
+- A control with named states shows them all side by side with the current one filled, such as Calm and Windy, or Open and Closed, so it is clear what it changes. A switch with a knob shows or hides something drawn over the model: an overlay, or the labels.
+- Once answered, a prediction takes one line, so the prompts stay in view.
 
 ### Overlays (toggleable, all computed from the physics core)
 

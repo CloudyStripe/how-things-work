@@ -1,4 +1,5 @@
 import { Line } from '@react-three/drei';
+import { OVERLAY_COLORS } from '@/models/colors';
 import type { OverlayLayerProps } from '@/models/types';
 import { compassBearing, earthField, vec3 } from '@/physics';
 import { Arrowhead } from './FieldLines';
@@ -7,7 +8,7 @@ import { Arrowhead } from './FieldLines';
 // part points (north), because over a bench it is the same everywhere. Their spacing is a choice,
 // so the overlay is tagged "not to scale".
 
-const COLOR = '#8796ab';
+const COLOR = OVERLAY_COLORS.earthField;
 const LINES = 6;
 const ARROWS_PER_LINE = 3;
 const LIFT = 0.0004;

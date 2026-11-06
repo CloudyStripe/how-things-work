@@ -33,27 +33,22 @@ export function ModelStage({ lesson, model, step, interactive }: ModelStageProps
           {lesson.overlays.map((id) => {
             const on = active.includes(id);
             return (
-              <button
+              <ShowSwitch
                 key={id}
-                type="button"
-                className="toggle"
-                aria-pressed={on}
+                label={overlays[id]?.label ?? id}
+                on={on}
                 disabled={!interactive}
-                onClick={() => setOverlay(id, !on)}
-              >
-                {overlays[id]?.label ?? id}
-              </button>
+                onChange={() => setOverlay(id, !on)}
+              />
             );
           })}
           {labels.length > 0 && step !== 'look' && (
-            <button
-              type="button"
-              className="toggle"
-              aria-pressed={labelsOn}
-              onClick={() => setLabelsOn((on) => !on)}
-            >
-              Labels
-            </button>
+            <ShowSwitch
+              label="Labels"
+              on={labelsOn}
+              disabled={false}
+              onChange={() => setLabelsOn((on) => !on)}
+            />
           )}
         </div>
         <div className="stage-actions">
@@ -89,6 +84,33 @@ export function ModelStage({ lesson, model, step, interactive }: ModelStageProps
         {notToScale && <span className="not-to-scale">Not to scale</span>}
       </div>
     </section>
+  );
+}
+
+/** A switch that shows or hides something drawn over the model. */
+function ShowSwitch({
+  label,
+  on,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  on: boolean;
+  disabled: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      className="show-switch"
+      disabled={disabled}
+      onClick={onChange}
+    >
+      <span className="show-switch-track" aria-hidden />
+      {label}
+    </button>
   );
 }
 

@@ -71,7 +71,12 @@ What exists now:
 - **Content** (`content/`): typed data files checked by Zod schemas and cross-reference tests,
   including EM Fundamentals' no-numbers rule.
 - **Models** are technical illustrations: realistic parts in flat colours with dark outlines,
-  each bench framed to fill the model view at any window size.
+  each bench framed to fill the model view at any window size. A colour means the same thing
+  everywhere: violet for magnetism, teal for electricity, orange for what moves, cool grey for what
+  holds it up (spec, Visual design).
+- **Interface:** cool neutrals under a navy header, white cards for prompts, controls and part
+  information, a step indicator, check circles that fill as prompts are done, and controls that
+  show all their states side by side.
 - **EM Fundamentals:** all ten lessons:
   - **The windmill:** a realistic three-blade turbine to run in the wind and take apart: blades,
     hub, nacelle cover, main shaft, gearbox and generator, each with what it does.

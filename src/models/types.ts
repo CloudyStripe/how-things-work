@@ -1,4 +1,5 @@
 import type { Coil, FieldSources, Vec3 } from '@/physics';
+import type { ColorFamily } from './colors';
 
 // What every model provides to the engine. A model definition is pure TypeScript (no React or
 // three.js): content files and the engine import it freely. Its 3D view is registered
@@ -130,6 +131,8 @@ export interface GeneratorView {
 export interface ModelPart {
   readonly id: string;
   readonly removable: boolean;
+  /** What the part is for, which sets its colour and its swatch in the part list. */
+  readonly family: ColorFamily;
 }
 
 export interface ModelDefinition<S, C extends ControlValues> {

@@ -19,7 +19,7 @@ export const whatCurrentIs = {
   overlays: ['current-flow'],
   steps: {
     look: {
-      text: "This is a circuit on a wooden board: a battery on the left, a switch at the front and a bulb on the right, joined by copper wires in plastic coating. The battery's ends are marked + and −. The switch is open: its metal blade is lifted off its contact. You can click the switch, or use the button on the right.",
+      text: "This is a circuit on a wooden board: a battery on the left, a switch at the front and a bulb on the right, joined by copper wires in plastic coating. The battery's ends are marked + and −. The switch is open: its metal blade is lifted off its contact. You can click the switch, or use the buttons on the right.",
       labels: [
         { anchor: 'battery', text: 'Battery' },
         { anchor: 'switch', text: 'Switch' },

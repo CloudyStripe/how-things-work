@@ -25,8 +25,6 @@ import {
 // slides along a rail into it, and the meter and LEDs wired to the coil. The magnet's place, the
 // needle and the LEDs come from the simulation each frame.
 
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
 const RAIL = { width: 0.016, end: COIL.center.x - COIL.length / 2 - 0.004 };
 const PUSHER = { length: 0.12, radius: 0.004 };
 
@@ -54,18 +52,13 @@ export function CoilMagnetScene({ getSnapshot, interactive, setControl }: SceneP
   return (
     <group>
       <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
-      <Block
-        kind="board"
+        kind="woodBoard"
         size={[BOARD.width, BOARD.top, BOARD.depth]}
         position={[0, BOARD.top / 2, 0]}
       />
       {/* The rail the magnet slides on, up to the coil's mouth. */}
       <Block
-        kind="rail"
+        kind="wood"
         size={[RAIL.end - railStart, railTop - BOARD.top, RAIL.width]}
         position={[(RAIL.end + railStart) / 2, (railTop + BOARD.top) / 2, 0]}
       />
@@ -74,7 +67,7 @@ export function CoilMagnetScene({ getSnapshot, interactive, setControl }: SceneP
       {[-1, 1].map((side) => (
         <Block
           key={side}
-          kind="holder"
+          kind="wood"
           size={[0.012, AXIS_Y - COIL.radius - BOARD.top, 0.05]}
           position={[
             COIL.center.x + (side * COIL.length) / 3,
@@ -84,7 +77,7 @@ export function CoilMagnetScene({ getSnapshot, interactive, setControl }: SceneP
         />
       ))}
       <Cylinder
-        kind="holder"
+        kind="structure"
         radius={COIL.radius - 0.001}
         length={COIL.length + 0.004}
         position={[COIL.center.x, AXIS_Y, 0]}
@@ -96,7 +89,7 @@ export function CoilMagnetScene({ getSnapshot, interactive, setControl }: SceneP
         <BarMagnet length={MAGNET.length} side={MAGNET.side} reversed={false} />
         {/* The wooden pusher the learner holds, on the magnet's S end. */}
         <Cylinder
-          kind="peg"
+          kind="wood"
           radius={PUSHER.radius}
           length={PUSHER.length}
           position={[-(MAGNET.length + PUSHER.length) / 2, 0, 0]}
@@ -110,10 +103,10 @@ export function CoilMagnetScene({ getSnapshot, interactive, setControl }: SceneP
       <group position={[LEDS.x, BOARD.top, LEDS.z]}>
         <LedPair getBrightness={() => ledBrightness(snapshot().state)} />
       </group>
-      <Wire points={WIRES.toMeter} kind="wireRed" />
-      <Wire points={WIRES.fromMeter} kind="wireBlack" />
-      <Wire points={WIRES.toLeds} kind="wireRed" />
-      <Wire points={WIRES.fromLeds} kind="wireBlack" />
+      <Wire points={WIRES.toMeter} kind="wire" />
+      <Wire points={WIRES.fromMeter} kind="wireReturn" />
+      <Wire points={WIRES.toLeds} kind="wire" />
+      <Wire points={WIRES.fromLeds} kind="wireReturn" />
     </group>
   );
 }

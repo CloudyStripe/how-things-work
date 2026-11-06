@@ -20,11 +20,9 @@ import {
 } from './definition';
 
 // The filings bench: a wooden guide with the learner's magnet against it, a beech peg, a copper
-// coin and a steel paper clip in front, and at the back a magnet under a glass sheet on four
-// wooden feet. Every position, and every filing, comes from the simulation each frame.
+// coin and a steel paper clip in front, and at the back a magnet under a glass sheet on four feet.
+// Every position, and every filing, comes from the simulation each frame.
 
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
 const GUIDE = { length: 0.5, height: 0.012, width: 0.015 };
 const GLASS_THICKNESS = 0.003;
 const FOOT = 0.014;
@@ -69,12 +67,7 @@ export function FilingsBenchScene({ getSnapshot, interactive, setControl }: Scen
   return (
     <group>
       <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
-      <Block
-        kind="rail"
+        kind="wood"
         size={[GUIDE.length, GUIDE.height, GUIDE.width]}
         position={[0, GUIDE.height / 2, PATH_Z - MAGNET.side / 2 - GUIDE.width / 2]}
       />
@@ -84,7 +77,7 @@ export function FilingsBenchScene({ getSnapshot, interactive, setControl }: Scen
 
       <group ref={peg}>
         <Cylinder
-          kind="peg"
+          kind="wood"
           radius={OBJECTS.peg.width / 2}
           length={OBJECTS.peg.length}
           position={[0, OBJECTS.peg.height, 0]}
@@ -117,7 +110,7 @@ export function FilingsBenchScene({ getSnapshot, interactive, setControl }: Scen
           [-1, 1].map((sz) => (
             <Block
               key={`${sx}${sz}`}
-              kind="endStop"
+              kind="structure"
               size={[FOOT, glassBottom, FOOT]}
               position={[sx * glassFeetX, glassBottom / 2, sz * glassFeetZ]}
             />

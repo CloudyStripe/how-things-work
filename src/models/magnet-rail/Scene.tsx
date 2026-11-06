@@ -7,15 +7,14 @@ import { useBenchDrag } from '../shared/useBenchDrag';
 import type { SceneProps } from '../types';
 import { HOLDER_TRAVEL, MAGNET_HEIGHT, RAIL_END, type MagnetRailState } from './definition';
 
-// A wooden rail on a bench top, painted bar magnets (red N, blue S), wooden carts on rubber
-// wheels. Every position comes from the simulation each frame; nothing here moves on its own.
+// A wooden rail on a bench top, painted bar magnets (red N, blue S), and a holder and carts in the
+// colour of moving parts, the carts on rubber wheels. Every position comes from the simulation each
+// frame; nothing here moves on its own.
 
 const MAGNET = { length: 0.06, side: 0.015 };
 const RAIL = { height: 0.012, width: 0.04, halfLength: RAIL_END + 0.05 };
 const CART = { length: 0.07, width: 0.032, height: 0.0065 };
 const WHEEL_RADIUS = 0.005;
-/** The bench top: wide enough that its edges stay out of the default view. */
-const TABLETOP = { width: 2.4, depth: 1.6 };
 
 export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneProps) {
   const holder = useRef<Group>(null);
@@ -46,19 +45,14 @@ export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneP
   return (
     <group>
       <Block
-        kind="tabletop"
-        size={[TABLETOP.width, 0.02, TABLETOP.depth]}
-        position={[0, -0.01, 0]}
-      />
-      <Block
-        kind="rail"
+        kind="wood"
         size={[2 * RAIL.halfLength, RAIL.height, RAIL.width]}
         position={[0, RAIL.height / 2, 0]}
       />
       {[-1, 1].map((side) => (
         <Block
           key={side}
-          kind="endStop"
+          kind="structure"
           size={[0.015, 0.02, RAIL.width]}
           position={[side * (RAIL_END + CART.length / 2 + 0.0075), RAIL.height + 0.01, 0]}
         />
@@ -66,7 +60,7 @@ export function MagnetRailScene({ getSnapshot, interactive, setControl }: SceneP
 
       <group ref={holder} {...drag}>
         <Block
-          kind="holder"
+          kind="motion"
           size={[CART.length, holderHeight, CART.width]}
           position={[0, RAIL.height + holderHeight / 2, 0]}
         />
@@ -94,13 +88,13 @@ function RailMagnet({ reversed }: { reversed: boolean }) {
   );
 }
 
-/** A wooden cart on four wheels, with a rubber bumper on the end facing the middle. */
+/** A cart on four wheels, with a rubber bumper on the end facing the middle. */
 function Cart({ bumperSide }: { bumperSide: 1 | -1 }) {
   const wheelY = RAIL.height + WHEEL_RADIUS;
   const bodyY = wheelY + CART.height / 2;
   return (
     <group>
-      <Block kind="cart" size={[CART.length, CART.height, CART.width]} position={[0, bodyY, 0]} />
+      <Block kind="motion" size={[CART.length, CART.height, CART.width]} position={[0, bodyY, 0]} />
       {[-1, 1].flatMap((along) =>
         [-1, 1].map((across) => (
           <Cylinder

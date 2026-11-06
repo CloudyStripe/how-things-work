@@ -3,13 +3,11 @@ import { useRef } from 'react';
 import type { Group } from 'three';
 import { Letter } from './BarMagnet';
 import { useLetterTexture } from './labelTexture';
-import { Block, Cylinder } from './surfaces';
+import { Block, Cylinder, INK } from './surfaces';
 
-// A compass: a brass housing, a card face and a needle that is a small magnet (red north, blue
-// south), drawn centred on its group with the needle at `needleHeight`. The needle's angle is a
-// compass bearing read from the simulation every frame.
-
-const INK = '#3a3c40';
+// A compass: a housing in the magnetism colour, a card face and a needle that is a small magnet
+// (red north, blue south), drawn centred on its group with the needle at `needleHeight`. The
+// needle's angle is a compass bearing read from the simulation every frame.
 
 interface CompassProps {
   readonly radius: number;
@@ -32,7 +30,12 @@ export function Compass({ radius, needleHeight, getAngle, letters = false }: Com
 
   return (
     <group>
-      <Cylinder kind="brass" radius={radius} length={housing} position={[0, housing / 2, 0]} />
+      <Cylinder
+        kind="compassCase"
+        radius={radius}
+        length={housing}
+        position={[0, housing / 2, 0]}
+      />
       <Cylinder kind="card" radius={radius * 0.88} length={0.0008} position={[0, housing, 0]} />
       {letters && <FaceLetters radius={radius} height={housing + 0.0006} />}
       <group ref={needle} position={[0, needleHeight, 0]}>

@@ -360,7 +360,7 @@ export const filingsBench: ModelDefinition<FilingsBenchState, FilingsBenchContro
       kind: 'switch',
       label: 'Iron filings',
       onLabel: 'Sprinkled',
-      offLabel: 'Sprinkle',
+      offLabel: 'None',
       default: false,
     },
   },

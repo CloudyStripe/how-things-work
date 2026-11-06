@@ -1,76 +1,76 @@
 import { Edges } from '@react-three/drei';
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 import { DataTexture, NearestFilter, RedFormat } from 'three';
+import { FAMILY_COLORS, POLE_COLORS } from '../colors';
+import { PickedPart } from './pickedPart';
 
 // The technical illustration style (spec, Teaching principle 3): flat colours in three tones of
-// shading, with dark outlines on hard edges. Scenes name a kind of surface ("rail",
-// "magnetNorth") and never a colour, so every model draws from one palette.
+// shading, with dark outlines on hard edges. Scenes name a kind of surface ("wood", "magnetNorth")
+// and never a colour, so every model draws from one palette, and a part's colour says what it is
+// for (spec, Visual design).
 
-export type SurfaceKind =
-  | 'tabletop'
-  | 'rail'
-  | 'holder'
-  | 'cart'
-  | 'endStop'
-  | 'rubber'
-  | 'metal'
-  | 'magnetNorth'
-  | 'magnetSouth'
-  | 'peg'
-  | 'copper'
-  | 'steel'
-  | 'iron'
-  | 'glass'
-  | 'brass'
-  | 'card'
-  | 'ink'
-  | 'board'
-  | 'battery'
-  | 'wireRed'
-  | 'wireBlack'
-  | 'whitePaint'
-  | 'seeThroughPaint'
-  | 'castIron'
-  | 'gearCase'
-  | 'generatorCase'
-  | 'grass'
-  | 'selected';
+/** Letters and marks printed on parts. */
+export const INK = '#2f3640';
 
-const COLORS: Readonly<Record<SurfaceKind, string>> = {
-  tabletop: '#e6dfd0',
-  rail: '#d6bc93',
-  holder: '#c49b6c',
-  cart: '#eadac0',
-  endStop: '#a8835b',
-  rubber: '#3b3d40',
-  metal: '#c9cdd2',
-  magnetNorth: '#d9473a',
-  magnetSouth: '#3a6ec0',
-  peg: '#dcc095',
-  copper: '#cf8150',
-  steel: '#959ca5',
-  iron: '#4a4d52',
-  glass: '#cfe6ee',
-  brass: '#cfae5a',
-  card: '#f8f6ef',
-  ink: '#3a3c40',
-  board: '#dcc6a0',
-  battery: '#4f7a62',
-  wireRed: '#c9483f',
-  wireBlack: '#35373b',
-  whitePaint: '#eef1f3',
+/** A plain white card face, such as a meter's. */
+export const CARD = '#ffffff';
+
+const COLORS = {
+  // Magnetism
+  magnetNorth: POLE_COLORS.north,
+  magnetSouth: POLE_COLORS.south,
+  /** Darker than the family's colour, so field lines don't run into it. */
+  compassCase: '#4f2fa0',
+
+  // Electricity
+  electric: FAMILY_COLORS.electricity,
+  electricDark: '#06728a',
+  /** A coated wire, dark enough that the current-flow dots show on it. */
+  wire: '#06728a',
+  /** The wire back to the battery. */
+  wireReturn: '#0b4c5c',
+
+  // Motion and mechanics
+  motion: FAMILY_COLORS.motion,
+  motionLight: '#f3983a',
+  motionDark: '#b95f0c',
+
+  // The neutral: what holds everything else up
+  structure: FAMILY_COLORS.structure,
+  towerPaint: '#dfe4e8',
+  coverPaint: FAMILY_COLORS.structure,
   /** A painted cover drawn so the parts inside it show. */
-  seeThroughPaint: '#eef1f3',
-  castIron: '#6b737b',
-  gearCase: '#8197ad',
-  generatorCase: '#6f8f78',
-  grass: '#cbd8bf',
-  /** A part the learner has picked out, in an explorer. */
-  selected: '#f2c14e',
-};
+  seeThroughPaint: '#e6ecf0',
+  castIron: '#4d5862',
+  rubber: '#363c44',
+  ink: INK,
+  card: CARD,
+
+  // Materials the lessons name, which look like what they are
+  wood: '#d9a86c',
+  woodBoard: '#dfb37b',
+  copper: '#cf8150',
+  steel: '#5f6a75',
+  iron: '#4a4d52',
+  metal: '#c9cdd2',
+  brass: '#cfae5a',
+  glass: '#cfe6ee',
+
+  // The land around the turbine
+  houseWall: '#f6f7f5',
+  houseRoof: '#4f5a64',
+  houseDark: '#39424b',
+  tree: '#4e8a4e',
+  trunk: '#6b5238',
+} as const;
+
+export type SurfaceKind = keyof typeof COLORS;
 
 /** See-through surfaces, and how much of what lies behind them they hide. */
-const OPACITY: Partial<Record<SurfaceKind, number>> = { glass: 0.35, seeThroughPaint: 0.2 };
+const OPACITY: Partial<Record<SurfaceKind, number>> = {
+  glass: 0.35,
+  seeThroughPaint: 0.1,
+};
 
 /** The warm light of a glowing bulb filament. */
 export const GLOW = '#ffd34d';
@@ -139,10 +139,12 @@ export function Cylinder({ kind, radius, length, position, rotation, children }:
 
 /**
  * Dark lines on a part's hard edges. The threshold skips the shallow angles between a
- * cylinder's side faces, so a wheel shows its rims, not its facets.
+ * cylinder's side faces, so a wheel shows its rims, not its facets. A picked part's lines are
+ * heavier, and it keeps its colour.
  */
 export function Outline() {
-  return <Edges threshold={40} color={ILLUSTRATION_LINE} lineWidth={1.4} />;
+  const picked = useContext(PickedPart);
+  return <Edges threshold={40} color={ILLUSTRATION_LINE} lineWidth={picked ? 3.4 : 1.6} />;
 }
 
 let steps: DataTexture | undefined;
@@ -150,7 +152,7 @@ let steps: DataTexture | undefined;
 /** Three tones of flat shading: shadow, side and lit. */
 function toonSteps(): DataTexture {
   if (steps === undefined) {
-    steps = new DataTexture(new Uint8Array([153, 191, 255]), 3, 1, RedFormat);
+    steps = new DataTexture(new Uint8Array([128, 186, 255]), 3, 1, RedFormat);
     steps.minFilter = NearestFilter;
     steps.magFilter = NearestFilter;
     steps.needsUpdate = true;
