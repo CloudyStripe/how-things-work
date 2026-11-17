@@ -1,6 +1,6 @@
 # Interactive Learning Platform — Spec v1: EM Fundamentals
 
-Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine; models drawn as technical illustrations. Revised Nov 6, 2026: visual design (the colour system, cards and controls)
+Nov 1, 2026 · @Skyler · Revised Nov 3, 2026: lesson redesign (Look, Try, Why; ten short lessons; the explorer lesson type); owner review only at the Phase 4 style decision and the Phase 7 turbine; models drawn as technical illustrations. Revised Nov 6, 2026: visual design (the colour system, cards and controls). Revised Nov 17, 2026: an explorer labels every part in view; the view turns about the middle of what it shows
 
 ## Overview
 
@@ -72,7 +72,7 @@ When the learner finishes a lesson, two to four review cards (concept, term, pre
 ### Lesson types
 
 - **Model lesson.** The pattern above, around one interactive model.
-- **Explorer lesson.** A realistic machine the learner takes apart. It runs Look, then Try, then an optional Why. The take-apart tools are an exploded-view slider and a step-by-step removal (Remove next part, Put back). Clicking any part shows its name and a one-line description of what it does; a lesson may add a fuller explanation for each part. Explorer lessons may use overlays.
+- **Explorer lesson.** A realistic machine the learner takes apart. It runs Look, then Try, then an optional Why. The take-apart tools are an exploded-view slider and a step-by-step removal (Remove next part, Put back). Clicking any part, on the model or in the parts list, shows its name and a one-line description of what it does, and takes the camera to it; a lesson may add a fuller explanation for each part. Labels name each part in view, as the parts list does, and move with it as the model comes apart; a part that is off, or hidden inside a closed cover, has no label. Explorer lessons may use overlays.
 
 ## EM Fundamentals module
 
@@ -208,7 +208,8 @@ Every model is a realistic 3D scene driven by a shared physics core, with overla
 ### Models
 
 - Real equipment in real proportions, in the technical illustration style (Teaching principle 3): each part takes the flat color of what it does (see Visual design), and parts are outlined. Clean, evenly lit, no clutter.
-- Orbit, zoom and pan within limits; one default camera angle per lesson. The default view is fitted to the model view at the screen's size, so the apparatus fills it.
+- Orbit, zoom and pan within limits; one default camera angle per lesson. The default view is fitted to the model view at the screen's size, so the apparatus fills it. The view turns about the middle of the apparatus, so turning it keeps the apparatus centred.
+- Labels stay readable: where two would overlap, one waits until the learner zooms in and there is room for it. A picked part's label always shows.
 - Draggable objects (magnet, compass) move with the mouse, constrained to sensible paths, and every drag has a keyboard equivalent in the right panel.
 - Scenes by lesson: the wind turbine (1, 10), the magnet rail (2), the magnet and filings bench (3), the compass bench (4), the circuit board (5), the wire board (6), the coil and clip tray (7), the coil and magnet (8), the crank generator (9).
 

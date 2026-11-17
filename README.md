@@ -66,7 +66,7 @@ What exists now:
 - **Engine:** the module map, module pages, and a lesson runner that renders any lesson from a
   content file: Look, Try and Why, then any optional In the world, Challenge or Pattern step.
   Explorer lessons take a machine apart (exploded view, one part at a time, click a part for
-  what it does). Glossary terms are one hover away, and progress is kept in this browser's
+  what it does), with every part in view labelled. Glossary terms are one hover away, and progress is kept in this browser's
   localStorage.
 - **Content** (`content/`): typed data files checked by Zod schemas and cross-reference tests,
   including EM Fundamentals' no-numbers rule.

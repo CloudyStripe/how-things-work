@@ -94,10 +94,14 @@ export interface Reading<S, C extends ControlValues> {
 }
 
 /**
- * A point a Look label pins to (metres, world space), which may move with the state. Method
- * syntax keeps the parameter bivariant, so a model can type it with its own snapshot.
+ * A point a label pins to (metres, world space), which may move with the state and, in an
+ * explorer, with how the model has been taken apart. Null hides the label: its part is off or
+ * out of sight. Method syntax keeps the parameters bivariant, so a model can type it with its own
+ * snapshot.
  */
-type Anchor<S, C extends ControlValues> = { at(snapshot: SimSnapshot<S, C>): Vec3 }['at'];
+type Anchor<S, C extends ControlValues> = {
+  at(snapshot: SimSnapshot<S, C>, view: ExplorerView): Vec3 | null;
+}['at'];
 
 /**
  * A path current flows along, for the current-flow overlay: its points in the order positive
@@ -155,7 +159,7 @@ export interface ModelDefinition<S, C extends ControlValues> {
     readonly halfWidth: number;
     readonly halfDepth?: number;
   };
-  /** Points a Look label can pin to. */
+  /** Points a label can pin to: those a bench's Look labels name, or each part of an explorer. */
   readonly anchors?: Readonly<Record<string, Anchor<S, C>>>;
   /** The pieces of an explorer model. */
   readonly parts?: readonly ModelPart[];

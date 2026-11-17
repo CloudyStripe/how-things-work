@@ -212,6 +212,17 @@ function checkLesson(
     if (removableParts(model).length === 0 && modelParts.length > 0) {
       problems.push(`${where}: model "${model.id}" has no part that comes off`);
     }
+    // An explorer's labels are its parts, by name, each pinned to the model's point for it.
+    if (lesson.steps.look.labels !== undefined) {
+      problems.push(`${where}: an explorer labels its parts by name, so its Look takes no labels`);
+    }
+    for (const part of modelParts) {
+      if (model.anchors?.[part] === undefined) {
+        problems.push(
+          `${where}: model "${model.id}" has no point to pin part "${part}"'s label to`,
+        );
+      }
+    }
   }
 
   if (!module.numbers) {

@@ -25,6 +25,11 @@ interface SimStore {
   model: AnyModel | null;
   snapshot: SimSnapshot<unknown> | null;
   view: ExplorerView;
+  /**
+   * How many times a part has been picked. Picking the part that is already picked counts too,
+   * so the camera can go back to it.
+   */
+  picks: number;
   overlays: readonly string[];
   /** Starts a model from its default controls, assembled, with every overlay off. */
   load(model: AnyModel): void;
@@ -51,6 +56,7 @@ export const useSimStore = create<SimStore>()((set, get) => ({
   model: null,
   snapshot: null,
   view: ASSEMBLED,
+  picks: 0,
   overlays: [],
 
   load(model) {
@@ -106,6 +112,6 @@ export const useSimStore = create<SimStore>()((set, get) => ({
   },
 
   selectPart(partId) {
-    set({ view: { ...get().view, selectedPart: partId } });
+    set({ view: { ...get().view, selectedPart: partId }, picks: get().picks + 1 });
   },
 }));

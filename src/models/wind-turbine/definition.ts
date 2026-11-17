@@ -8,6 +8,7 @@ import {
   vec3,
   type Coil,
   type RotorState,
+  type Vec3,
 } from '@/physics';
 import type { ExplorerView, GeneratorView, ModelDefinition, SimSnapshot } from '../types';
 
@@ -60,6 +61,28 @@ export function coverSeeThrough(view: ExplorerView): boolean {
     INSIDE_COVER.includes(view.selectedPart) &&
     view.explode < COVER_CLEAR
   );
+}
+
+/** The parts inside the cover can be seen: the cover is off, see-through, or lifted clear of them. */
+export function insideCoverShows(view: ExplorerView): boolean {
+  return (
+    view.removedParts.includes('nacelleCover') ||
+    coverSeeThrough(view) ||
+    view.explode >= COVER_CLEAR
+  );
+}
+
+/**
+ * Where a part's label pins: a point on the part, moved out with it as the view explodes. None
+ * while the part is off, or hidden inside the cover.
+ */
+function partAnchor(part: string, point: Vec3) {
+  return (_: TurbineSnapshot, view: ExplorerView): Vec3 | null => {
+    if (view.removedParts.includes(part)) return null;
+    if (INSIDE_COVER.includes(part) && !insideCoverShows(view)) return null;
+    const [x, y, z] = EXPLODE[part] ?? [0, 0, 0];
+    return vec3(point.x + x * view.explode, point.y + y * view.explode, point.z + z * view.explode);
+  };
 }
 
 /** The generator overlay's model: four magnet poles on the generator's rotor, six coils round it. */
@@ -218,10 +241,31 @@ export const windTurbine: ModelDefinition<TurbineState, TurbineControls> = {
     };
   },
 
+  // Each part's label stands on top of it.
   anchors: {
-    blades: () => vec3(0, HUB_HEIGHT + LARGE_TURBINE_ROTOR.radius * 0.75, LAYOUT.hub.center),
-    nacelle: () => vec3(0, HUB_HEIGHT + 2.6, -5),
-    tower: () => vec3(0, HUB_HEIGHT * 0.45, 2.5),
+    blades: partAnchor(
+      'blades',
+      vec3(0, HUB_HEIGHT + LARGE_TURBINE_ROTOR.radius * 0.75, LAYOUT.hub.center),
+    ),
+    hub: partAnchor('hub', vec3(0, HUB_HEIGHT + LAYOUT.hub.radius, LAYOUT.hub.center)),
+    nacelleCover: partAnchor('nacelleCover', vec3(0, HUB_HEIGHT + 2.6, -5)),
+    mainShaft: partAnchor(
+      'mainShaft',
+      vec3(
+        0,
+        HUB_HEIGHT + LAYOUT.mainShaft.radius,
+        (LAYOUT.mainShaft.front + LAYOUT.mainShaft.back) / 2,
+      ),
+    ),
+    gearbox: partAnchor(
+      'gearbox',
+      vec3(0, HUB_HEIGHT + LAYOUT.gearbox.radius, (LAYOUT.gearbox.front + LAYOUT.gearbox.back) / 2),
+    ),
+    generator: partAnchor(
+      'generator',
+      vec3(0, GENERATOR.center.y + LAYOUT.generator.radius + 0.2, GENERATOR.center.z),
+    ),
+    tower: partAnchor('tower', vec3(0, HUB_HEIGHT * 0.45, 2.5)),
   },
 
   // Removable parts in the order they come off, outside in. The tower stays.

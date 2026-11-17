@@ -70,11 +70,6 @@ export const backToTheWindmill = {
   steps: {
     look: {
       text: 'This is the wind turbine from the first lesson. Now you know enough to understand every part of it. Take it apart again, click each part to read how it works, and turn on the view inside the generator to watch it make electricity.',
-      labels: [
-        { anchor: 'blades', text: 'Blades' },
-        { anchor: 'nacelle', text: 'Nacelle' },
-        { anchor: 'tower', text: 'Tower' },
-      ],
     },
     try: {
       prompts: [
