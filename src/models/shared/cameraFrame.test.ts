@@ -53,13 +53,19 @@ describe('framedCamera', () => {
     expect(reach).toBeCloseTo(1 - BENCH.margin, 6);
   });
 
-  it('centres the box on screen', () => {
-    const points = projectedCorners(BENCH, 1);
-    const xs = points.map(([x]) => x);
-    const ys = points.map(([, y]) => y);
-    expect(Math.min(...xs) + Math.max(...xs)).toBeCloseTo(0, 4);
+  it('centres the box top to bottom', () => {
+    const ys = projectedCorners(BENCH, 1).map(([, y]) => y);
     expect(Math.min(...ys) + Math.max(...ys)).toBeCloseTo(0, 4);
   });
+
+  it.each([0.75, 1, 1.6])(
+    'aims straight above or below the box centre at aspect %f, so the view turns about it',
+    (aspect) => {
+      const camera = framedCamera(BENCH, FOV, aspect);
+      expect(camera.target[0]).toBeCloseTo(BENCH.center[0], 9);
+      expect(camera.target[2]).toBeCloseTo(BENCH.center[2], 9);
+    },
+  );
 
   it('comes closer to a wide bench in a wider view', () => {
     expect(framedCamera(BENCH, FOV, 1.6).distance).toBeLessThan(

@@ -55,11 +55,6 @@ export const theWindmill = {
   steps: {
     look: {
       text: "This is a wind turbine, the kind that stands on hills and out at sea. Wind turns its blades, and somewhere inside, that turning becomes electricity for homes and factories. By the end of this module you'll understand how.",
-      labels: [
-        { anchor: 'blades', text: 'Blades' },
-        { anchor: 'nacelle', text: 'Nacelle' },
-        { anchor: 'tower', text: 'Tower' },
-      ],
     },
     try: {
       prompts: [

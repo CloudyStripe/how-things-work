@@ -22,7 +22,12 @@ export function ModelStage({ lesson, model, step, interactive }: ModelStageProps
   const [resetSignal, setResetSignal] = useState(0);
   const [labelsOn, setLabelsOn] = useState(false);
   const notToScale = active.some((id) => overlays[id]?.notToScale === true);
-  const labels = lesson.steps.look.labels ?? [];
+  // An explorer labels its parts, each with its name from the parts list; the model hides the
+  // label of a part that is off or out of sight.
+  const labels =
+    lesson.kind === 'explorer'
+      ? lesson.parts.map((part) => ({ anchor: part.part, text: part.name }))
+      : (lesson.steps.look.labels ?? []);
   // Look always shows its labels; after Look the learner can bring them back.
   const showLabels = step === 'look' || labelsOn;
 

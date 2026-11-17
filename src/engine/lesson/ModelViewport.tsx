@@ -109,6 +109,7 @@ export default function ModelViewport({
           labels={labels}
           elements={labelElements}
           getSnapshot={getSnapshot}
+          getView={getView}
         />
         {DEBUG && <FpsMeter report={showFps} />}
         <ViewControls
@@ -169,35 +170,74 @@ function FpsMeter({ report }: { report: (text: string) => void }) {
   return null;
 }
 
+interface LabelBox {
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly bottom: number;
+}
+
+/** Room left clear between two labels (px). */
+const LABEL_GAP = 2;
+
+function overlaps(a: LabelBox, b: LabelBox): boolean {
+  return (
+    a.left < b.right + LABEL_GAP &&
+    b.left < a.right + LABEL_GAP &&
+    a.top < b.bottom + LABEL_GAP &&
+    b.top < a.bottom + LABEL_GAP
+  );
+}
+
 /**
  * Keeps each label over its anchor on the model: every frame it projects the anchor through the
- * camera and moves the label there, hiding it when the anchor is behind the camera.
+ * camera and stands the label on that point. A label hides while its anchor is behind the camera
+ * or has no point (its part is off or out of sight), and while it would cover a label already
+ * placed, so a label crowded out in a wide view comes back as the learner zooms in.
  */
 function LabelTracker({
   model,
   labels,
   elements,
   getSnapshot,
+  getView,
 }: {
   model: AnyModel;
   labels: readonly ViewportLabel[];
   elements: RefObject<Map<string, HTMLElement>>;
   getSnapshot: () => SimSnapshot<unknown>;
+  getView: () => ExplorerView;
 }) {
   const point = useMemo(() => new Vector3(), []);
 
   useFrame(({ camera, size }) => {
     const snapshot = getSnapshot();
-    for (const label of labels) {
+    const view = getView();
+    // The picked part's label first, then the rest from the last listed: an explorer lists its
+    // parts in the order they come off, so in a wide view the parts further in keep theirs.
+    const ordered = [
+      ...labels.filter((label) => label.anchor === view.selectedPart),
+      ...labels.filter((label) => label.anchor !== view.selectedPart).reverse(),
+    ];
+    const placed: LabelBox[] = [];
+    for (const label of ordered) {
       const element = elements.current.get(label.anchor);
       const anchor = model.anchors?.[label.anchor];
       if (element === undefined || anchor === undefined) continue;
-      const { x, y, z } = anchor(snapshot);
-      point.set(x, y, z).project(camera);
-      const visible = point.z < 1;
-      element.style.visibility = visible ? 'visible' : 'hidden';
+      const at = anchor(snapshot, view);
+      if (at !== null) point.set(at.x, at.y, at.z).project(camera);
       const left = ((point.x + 1) / 2) * size.width;
       const top = ((1 - point.y) / 2) * size.height;
+      const box: LabelBox = {
+        left: left - element.offsetWidth / 2,
+        right: left + element.offsetWidth / 2,
+        top: top - element.offsetHeight,
+        bottom: top,
+      };
+      const visible = at !== null && point.z < 1 && !placed.some((other) => overlaps(box, other));
+      element.style.visibility = visible ? 'visible' : 'hidden';
+      if (!visible) continue;
+      placed.push(box);
       element.style.transform = `translate(${left}px, ${top}px) translate(-50%, -100%)`;
     }
   });
@@ -258,7 +298,7 @@ function ViewControls({
   const framed = useMemo(() => framedCamera(view.frame, FOV, aspect), [view, aspect]);
   const flight = useRef<Flight | null>(null);
   const seen = useRef({
-    selected: getView().selectedPart,
+    picks: useSimStore.getState().picks,
     removed: getView().removedParts,
     explode: getView().explode,
   });
@@ -291,8 +331,11 @@ function ViewControls({
   useFrame((_, delta) => {
     const orbit = controls.current;
     const { selectedPart, removedParts, explode } = getView();
+    const { picks } = useSimStore.getState();
     const before = seen.current;
-    if (selectedPart !== before.selected && selectedPart !== null) {
+    // Every pick goes to its part, even the part already picked: after the learner has stopped
+    // the flight or turned away, picking it again takes the camera back.
+    if (picks !== before.picks && selectedPart !== null) {
       flyTo(partFrame(view, selectedPart, explode), true);
     } else if (removedParts.length > before.removed.length) {
       flyTo(partFrame(view, removedParts.at(-1), explode));
@@ -317,7 +360,7 @@ function ViewControls({
       }
       orbit?.update();
     }
-    seen.current = { selected: selectedPart, removed: removedParts, explode };
+    seen.current = { picks, removed: removedParts, explode };
 
     if (orbit === null) return;
     // After the orbit controls have moved the camera; they carry on from here next frame.

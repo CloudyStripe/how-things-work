@@ -231,6 +231,28 @@ describe('validateContent', () => {
         'needs a model with parts',
       );
     });
+
+    it('labels its parts by name, so its Look takes no labels', () => {
+      expectProblem(
+        problemsAfter(({ windmill }) => {
+          windmill.steps.look.labels = [{ anchor: 'tower', text: 'Tower' }];
+        }),
+        'its Look takes no labels',
+      );
+    });
+
+    it("needs a point on the model for each part's label", () => {
+      const turbine = models['wind-turbine'];
+      if (turbine?.anchors === undefined) throw new Error('expected the turbine to have anchors');
+      const anchors = Object.fromEntries(
+        Object.entries(turbine.anchors).filter(([part]) => part !== 'hub'),
+      );
+      const problems = validateContent(content, {
+        ...registries,
+        models: { ...models, 'wind-turbine': { ...turbine, anchors } },
+      });
+      expectProblem(problems, `no point to pin part "hub"'s label to`);
+    });
   });
 
   describe('module', () => {

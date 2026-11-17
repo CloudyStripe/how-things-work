@@ -26,8 +26,12 @@ export interface FramedCamera {
 
 /**
  * The camera that sees `frame` from its angle and fills the view with it: every corner of the
- * box inside the view, the tightest side touching the margin, and the box centred on screen.
- * `verticalFov` is in degrees; `aspect` is the view's width over its height.
+ * box inside the view, the tightest side touching the margin, and the box centred top to bottom.
+ * It aims at a point straight above or below the box's centre, which is what the view turns
+ * about, so turning it round keeps the model in the middle. (Centring across as well would mean
+ * aiming to one side, as perspective draws the near end larger, and the model would swing off to
+ * that side as the view turned.) `verticalFov` is in degrees; `aspect` is the view's width over
+ * its height.
  */
 export function framedCamera(
   frame: CameraFrame,
@@ -57,8 +61,8 @@ export function framedCamera(
 
   /**
    * For a target moved by `offset` from the box's centre: the distance at which every corner
-   * fits (|across| <= tan × (distance - toward), and likewise up), and how far off centre the
-   * box then sits on screen.
+   * fits (|across| <= tan × (distance - toward), and likewise up), and how far to raise the
+   * target to centre the box top to bottom on screen.
    */
   const fit = (offset: Vector3Tuple) => {
     const local = corners.map((corner) => {
@@ -70,18 +74,16 @@ export function framedCamera(
         Math.max(toward + Math.abs(across) / tanRight, toward + Math.abs(upward) / tanUp),
       ),
     );
-    const xs = local.map(([across, , toward]) => across / (distance - toward));
     const ys = local.map(([, upward, toward]) => upward / (distance - toward));
-    const shift = add(
-      scale(right, ((Math.min(...xs) + Math.max(...xs)) / 2) * distance),
-      scale(up, ((Math.min(...ys) + Math.max(...ys)) / 2) * distance),
-    );
-    return { distance, shift };
+    // Raising the target by h moves it up the screen by h × up's vertical part.
+    const rise = (((Math.min(...ys) + Math.max(...ys)) / 2) * distance) / up[1];
+    return { distance, rise };
   };
 
-  // Perspective draws the near side larger, so recentre a few times, then fit once more.
+  // Perspective draws the near side larger, so raise or lower the target a few times, then fit
+  // once more.
   let offset: Vector3Tuple = [0, 0, 0];
-  for (let pass = 0; pass < 4; pass++) offset = add(offset, fit(offset).shift);
+  for (let pass = 0; pass < 4; pass++) offset = add(offset, [0, fit(offset).rise, 0]);
   const { distance } = fit(offset);
   const target = add(frame.center, offset);
   return { position: add(target, scale(back, distance)), target, distance };
